@@ -8,4 +8,7 @@ package ucla.nesl.engagementservice.emascheduler.context;
  */
 public class ContextManager {
     //TODO: fill in the implementation
+
+    //TODO: we should definitely consider AWARE framework:
+    // http://www.awareframework.com/creating-a-new-aware-plugin/
 }
