@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">EngagementService</string>
+    <string name="label_caption">Hello world</string>
 </resources>
