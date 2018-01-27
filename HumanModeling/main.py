@@ -5,7 +5,8 @@ from controller import Controller
 def main():
     agent = AlwaysSendNotificationAgent()
     
-    environment = AlwaysSayOKUser()
+    #environment = AlwaysSayOKUser()
+    environment = StubbornUser()
     
     controller = Controller(agent, environment)
     results = controller.execute()

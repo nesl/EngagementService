@@ -9,12 +9,10 @@ class AlwaysSayOKUser(BaseEnvironment):
         return (
                 numpy.random.choice(
                     a=[STATE_LOCATION_HOME, STATE_LOCATION_WORK, STATE_LOCATION_OTHER],
-                    size=1, 
                     p=[0.5, 0.4, 0.1],
                 ),
                 numpy.random.choice(
                     a=[STATE_ACTIVITY_STATIONARY, STATE_ACTIVITY_WALKING, STATE_ACTIVITY_RUNNING, STATE_ACTIVITY_DRIVING],
-                    size=1,
                     p=[0.7, 0.1, 0.1, 0.1],
                 ),
                 1.0,
