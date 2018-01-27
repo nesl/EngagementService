@@ -1,5 +1,7 @@
 from constant import *
 
+import utils
+
 
 class BaseAgent:
 
@@ -28,15 +30,15 @@ class BaseAgent:
         self.stage = BaseAgent.STAGE_WAIT_REWARD
 
         # check argument value 
-        if stateTime not in [STATE_TIME_MORNING, STATE_TIME_AFTERNOON, STATE_TIME_EVENING, STATE_TIME_SLEEPING]:
+        if stateTime not in utils.allTimeStates():
             raise Exception("Invalid stateTime value (got %d)" % stateTime)
-        if stateDay not in [STATE_DAY_WEEKDAY, STATE_DAY_WEEKEND]:
+        if stateDay not in utils.allDayStates():
             raise Exception("Invalid stateDay value (got %d)" % stateDay)
-        if stateLocation not in [STATE_LOCATION_HOME, STATE_LOCATION_WORK, STATE_LOCATION_OTHER]:
+        if stateLocation not in utils.allLocationStates():
             raise Exception("Invalid stateLocation value (got %d)" % stateLocation)
-        if stateActivity not in [STATE_ACTIVITY_STATIONARY, STATE_ACTIVITY_WALKING, STATE_ACTIVITY_RUNNING, STATE_ACTIVITY_DRIVING]:
+        if stateActivity not in utils.allActivityStates():
             raise Exception("Invalid stateActivity value (got %d)" % stateActivity)
-        if stateLastNotification not in [STATE_LAST_NOTIFICATION_WITHIN_1HR, STATE_LAST_NOTIFICATION_LONG]:
+        if stateLastNotification not in utils.allLastNotificationStates():
             raise Exception("Invalid stateActivity value (got %d)" % stateLastNotification)
 
     def feedReward(self, reward):
