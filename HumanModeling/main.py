@@ -3,7 +3,8 @@ from environment import *
 from controller import Controller
 
 def main():
-    agent = AlwaysSendNotificationAgent()
+    #agent = AlwaysSendNotificationAgent()
+    agent = QLearningAgent()
     
     #environment = AlwaysSayOKUser()
     environment = StubbornUser()
