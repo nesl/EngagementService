@@ -28,6 +28,8 @@ class Controller:
     def execute(self):
         self.setNextTime()
         while self.numDaysPassed < self.simulationWeek * 7:
+            print("Day %d %d:%02d" % (self.numDaysPassed, self.currentHour, self.currentMinute))
+
             # get environment info (user context)
             lastNotificationTime = utils.getDeltaMinutes(
                     self.numDaysPassed, self.currentHour, self.currentDay,

@@ -1,2 +1,3 @@
 from .always_send_notification_agent import AlwaysSendNotificationAgent
 from .q_learning_agent import QLearningAgent
+from .contextual_bandit_svm_agent import ContextualBanditSVMAgent
