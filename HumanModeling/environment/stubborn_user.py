@@ -35,7 +35,6 @@ class StubbornUser(BaseEnvironment):
         stateDay = utils.getDayState(day)
         stateNotification = utils.getLastNotificationState(lastNotificationTime)
         state = (stateTime, stateDay, stateLocation, stateActivity, stateNotification)
-        print(state)
 
         probAnswerNotification = (1.0 if self.behavior[state] else 0.0)
         return (stateLocation, stateActivity, probAnswerNotification)

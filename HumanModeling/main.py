@@ -17,9 +17,12 @@ def main():
     numAcceptedNotifications = len([r for r in notificationEvents if r['reward'] > 0])
     answerRate = numAcceptedNotifications / numNotifications
 
+    expectedNumDeliveredNotifications = sum([r['probOfAnswering'] for r in results])
+
     print("%d decision points" % len(results))
     print("%d notifications are sent, %d are answered (%.2f%%)"
             % (numNotifications, numAcceptedNotifications, answerRate * 100.))
+    print("Expectation of total delivered notifications is %.2f" % expectedNumDeliveredNotifications)
 
 if __name__ == "__main__":
     main()

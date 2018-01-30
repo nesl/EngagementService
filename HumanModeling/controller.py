@@ -61,6 +61,7 @@ class Controller:
                         'activity': stateActivity,
                         'lastNotification': lastNotificationTime,
                     },
+                    'probOfAnswering': probAnsweringNotification,
                     'decision': sendNotification,
                     'reward': reward,
             })
