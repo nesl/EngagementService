@@ -8,7 +8,8 @@ def main():
     agent = ContextualBanditSVMAgent()
     
     #environment = AlwaysSayOKUser()
-    environment = StubbornUser()
+    #environment = StubbornUser()
+    environment = LessStubbornUser()
     
     controller = Controller(agent, environment)
     results = controller.execute()
