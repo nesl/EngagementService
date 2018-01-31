@@ -4,12 +4,13 @@ from controller import Controller
 
 def main():
     #agent = AlwaysSendNotificationAgent()
-    #agent = QLearningAgent()
-    agent = ContextualBanditSVMAgent()
+    agent = QLearningAgent()
+    #agent = ContextualBanditSVMAgent()
     
     #environment = AlwaysSayOKUser()
     #environment = StubbornUser()
-    environment = LessStubbornUser()
+    #environment = LessStubbornUser()
+    environment = SurveyUser('data/02.txt')
     
     controller = Controller(agent, environment)
     results = controller.execute()
