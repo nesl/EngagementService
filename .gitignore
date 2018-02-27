@@ -5,3 +5,9 @@
 
 #Original files
 *.org
+
+#Python
+__pycache__
+
+#IPython
+.ipynb_checkpoints
