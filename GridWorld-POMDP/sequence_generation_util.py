@@ -6,7 +6,8 @@ import numpy as np
 def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, prob_sensor_error, num_steps=10000):
     """
     This function first reads a grid file, convert each square into a state, and simulate a
-    robot walk around this area. The robot will randomly go up, right, down, and left. The
+    robot walk around this area. All the states are represented by integers ranging from 0 to N-1,
+    where N is the number of states. The robot will randomly go up, right, down, and left. The
     corresponding action codes are 0, 1, 2, 3. If the robot bump into a wall, it will stay in the
     same square. The prob_actuator_error indicates the probability that the actuator of the robot
     does not function correctly and will randomly move to any direction. When stepping into a new
@@ -65,7 +66,7 @@ def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, pr
         
         # produce state assignment section
         coors_to_ids = {}
-        cnt = 1
+        cnt = 0
         for r in range(num_rows):
             for c in range(num_cols):
                 coor = (r, c)
