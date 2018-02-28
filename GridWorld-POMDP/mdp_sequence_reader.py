@@ -11,7 +11,7 @@ class MDPSequenceReader:
         p1, p2 = partition_line_idx[:2]
         self._parse_grid(lines[:p1])
         self._parse_params(lines[p1+1:p2])
-        self._parse_sequence(lines[p2:])
+        self._parse_sequence(lines[p2+1:])
 
     def get_num_states(self):
         return self.num_states
