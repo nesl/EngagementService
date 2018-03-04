@@ -136,10 +136,9 @@ def generate_csv_row():
             "It is %s on %s." % (time_text, day_text),
             "%s" % motion_location_text,
             "You responded to (or clicked on) a notification %s ago." % last_notification_time_text,
-            "Now you receive a notification from our app to complete a short survey.",
-            "The survey asks you a question which takes 10 seconds to respond.",
+            "Now you receive a notification from our app.",
+            "The notification says \"Can you take 10 seconds to complete this questionnaire?\"",
             "What will you do?", 
-            "Choose the action from below:",
     ])
     line = ",".join(list(map(str, [
             "\"%s\"" % question_statement,
@@ -156,6 +155,7 @@ def generate_csv_row():
 def main():
     out_filename = "data/1st_draft.csv"
     with open(out_filename, "w") as fo:
+        fo.write("content,hour,minute,day,motion,location,last_notification_time\n")
         for i in range(100):
             fo.write(generate_csv_row())
 
