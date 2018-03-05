@@ -60,10 +60,10 @@ def make_tableaus(xs, ys, m):
     `make_tableaus()` generates 3 tableaus: alpha, beta, and N tableaus.
 
     Params:
-      - xs: A list. `xs` captures a sequence of actions or "input symbols." `xs[t]` indicates the
-            action symbol at time `t`.
-      - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
-            the observation sybol at time `t`.
+      - xs: A list. `xs` stores a sequence of actions and `xs[t]` is the action symbol at time `t`.
+            The original definition can be found in improve_params().
+      - ys: A list. `ys` stores a sequence of observations and `ys[t]` is the observation symbol at
+            time `t`. The original definition can be found in improve_params().
       - m: An ObservableMarkovModel.
 
     Returns: (alpha, beta, N)
@@ -78,7 +78,7 @@ def make_tableaus(xs, ys, m):
     N     = np.zeros((slen, 1))
 
     # Initialize:
-    gamma[0:1, :] = m.init.T * m.c[ys[0]:ys[0]+1, :]
+    gamma[0, :] = m.init.T * m.c[ys[0]:ys[0]+1, :]
     N[0, 0] = 1 / np.sum(gamma[0:1,:])
     alpha[0:1, :] = N[0,0] * gamma[0:1, :]
     beta[slen-1:slen, :] = np.ones((1, m.ns))
@@ -111,10 +111,10 @@ def transition_estimates(xs, ys, m, tableaus):
     """
     TODO: not sure what the intention is
     Params:
-      - xs: A list. `xs` captures a sequence of actions or "input symbols." `xs[t]` indicates the
-            action symbol at time `t`.
-      - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
-            the observation sybol at time `t`.
+      - xs: A list. `xs` stores a sequence of actions and `xs[t]` is the action symbol at time `t`.
+            The original definition can be found in improve_params().
+      - ys: A list. `ys` stores a sequence of observations and `ys[t]` is the observation symbol at
+            time `t`. The original definition can be found in improve_params().
       - m: An ObservableMarkovModel.
       - tableaus: A list of 3 tableaus, which are alpha, beta, and N. Please see `make_tableaus()`
                   for more detail.
@@ -139,8 +139,8 @@ def stateoutput_estimates(ys, num_observables, num_states, sestimate):
     TODO: not sure what the intention is
     
     Params:
-      - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
-            the observation sybol at time `t`.
+      - ys: A list. `ys` stores a sequence of observations and `ys[t]` is the observation symbol at
+            time `t`. The original definition can be found in improve_params().
       - num_observables: An int.
       - num_states: An int.
       - sestimate: A 2D numpy array. TODO not sure what is `sestimate`. The size of `sestimate` is
@@ -164,7 +164,7 @@ def improve_params(xs, ys, m):
       - xs: A list. `xs` captures a sequence of actions or "input symbols." `xs[t]` indicates the
             action symbol at time `t`.
       - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
-            the observation sybol at time `t`.
+            the observation symbol at time `t`.
       - m: An ObservableMarkovModel.
 
     Returns: (alist, c). `alist` and `c` are the state transition probability and observation
