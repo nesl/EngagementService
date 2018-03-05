@@ -14,6 +14,7 @@ Note the blog uses the following terms:
 
 
 import numpy as np
+from collections import Counter
 
 from observable_markov_model import ObservableMarkovModel
 
@@ -155,37 +156,36 @@ def stateoutput_estimates(ys, num_observables, num_states, sestimate):
         result[ys[t], :, t] = sestimate[t, :]
     return result
 
-def improve_params(xs, ys, m, tableaus=None):
+def improve_params(xs, ys, m):
     """
     TODO: not sure what the intention is
     """
-    if tableaus is None:
-        tableaus = make_tableaus(xs,ys,m)
+    tableaus = make_tableaus(xs, ys, m)
     estimates = state_estimates(tableaus)
     trans_estimates = transition_estimates(xs, ys, m, tableaus)
     sout_estimates = stateoutput_estimates(ys, m.os, m.ns, estimates)
 
     # Calculate the numbers of each input in the input sequence.
-    nlist = [0]*m.inps
-    for x in xs:
-        nlist[x] += 1
+    
+    action_freq = Counter(xs)
+    seq_len = len(ys)
 
     sstates = [np.zeros((m.ns,1)) for i in range(m.inps)]
-    for t in range(len(ys)):
-        sstates[xs[t]] += estimates[t:t+1,:].T/nlist[xs[t]]
+    for t in range(seq_len):
+        sstates[xs[t]] += estimates[t:t+1,:].T/action_freq[xs[t]]
 
     # Estimator for transition probabilities
     alist = {a: np.zeros_like(matrix) for a, matrix in m.alist.items()}
-    for t in range(len(ys)):
-        alist[xs[t]] += trans_estimates[:,:,t]/nlist[xs[t]]
+    for t in range(seq_len):
+        alist[xs[t]] += trans_estimates[:,:,t]/action_freq[xs[t]]
     for i in range(m.inps):
         alist[i] = alist[i]/(sstates[i].T)
         np.putmask(alist[i],(np.tile(sstates[i].T==0,(m.ns,1))),m.alist[i])
 
     c = np.zeros_like(m.c)
-    for t in range(len(ys)):
+    for t in range(seq_len):
         x = xs[t]
-        c += sout_estimates[:,:,t] / (nlist[x]*m.inps*sstates[x].T)
+        c += sout_estimates[:,:,t] / (action_freq[x]*m.inps*sstates[x].T)
 
     # Set the output probabilities to the original model if
     # we have no state observation at all.
