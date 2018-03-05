@@ -72,13 +72,14 @@ def make_tableaus(xs, ys, m):
     return alpha, beta, N
 
 
-def state_estimates(xs, ys, m, tableaus=None):
+def state_estimates(tableaus):
     """
     TODO: not sure what the intention is
+    Returns: A 2D numpy array whose size is (length of the sequence)-by-(number of states). This
+             array captures the state estimation. Let's denote this array ret. `ret[t, s]` is the
+             probability that the state is `s` at time `t`. Hence, the sum of each row is 1.
     """
-    if tableaus is None:
-        tableaus = make_tableaus(xs,ys,m)
-    alpha, beta, N = tableaus
+    alpha, beta, _ = tableaus
     return alpha * beta
 
 
@@ -102,6 +103,9 @@ def stateoutput_estimates(xs, ys, m, sestimate=None):
     """
     if sestimate is None:
         sestimate = state_estimates(xs,ys,m)
+    print(type(sestimate))
+    print(sestimate.shape)
+    print(sestimate[0:10, :])
     result = np.zeros((m.os,m.ns,len(ys)))
     for t in range(len(ys)):
         result[ys[t]:ys[t]+1,:,t] = sestimate[t:t+1,:]
@@ -113,7 +117,7 @@ def improve_params(xs, ys, m, tableaus=None):
     """
     if tableaus is None:
         tableaus = make_tableaus(xs,ys,m)
-    estimates = state_estimates(xs,ys,m,tableaus=tableaus)
+    estimates = state_estimates(tableaus)
     trans_estimates = transition_estimates(xs,ys,m,tableaus=tableaus)
     sout_estimates = stateoutput_estimates(xs,ys,m,sestimate=estimates)
 
