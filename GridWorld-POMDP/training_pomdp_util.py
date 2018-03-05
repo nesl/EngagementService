@@ -19,12 +19,32 @@ from observable_markov_model import ObservableMarkovModel
 
 
 def initialize_uniform_pomdp_model(num_states, action_list, num_observables):
+    """
+    `initialize_uniform_pomdp_model()` generates a ObservableMarkovModel, and all the parameters
+    have the same weights.
+
+    Params:
+      - num_states: An int.
+      - action_list: A list containing all the action symbols. There is no restriction on the
+                     type of each action symbol, for example, both int and string work.
+      - num_observables: An int.
+    """
     alist = {a: np.ones((num_states, num_states)) / num_states for a in action_list}
     c = np.ones((num_observables, num_states)) / num_observables
     init = np.ones(num_states) / num_states
     return ObservableMarkovModel(alist, c, init)
 
 def initialize_random_pomdp_model(num_states, action_list, num_observables):
+    """
+    `initialize_random_pomdp_model()` generates a ObservableMarkovModel, and all the parameters
+    are drawn from dirichlet distributions.
+
+    Params:
+      - num_states: An int.
+      - action_list: A list containing all the action symbols. There is no restriction on the
+                     type of each action symbol, for example, both int and string work.
+      - num_observables: An int.
+    """
     num_states_of_ones = np.ones(num_states)
     alist = {a: np.random.dirichlet(num_states_of_ones, size=num_states) for a in action_list}
 
@@ -36,7 +56,7 @@ def initialize_random_pomdp_model(num_states, action_list, num_observables):
 
 def make_tableaus(xs, ys, m):
     """
-    `make_tableaus()` generate 3 tableaus: alpha, beta, and N tableaus.
+    `make_tableaus()` generates 3 tableaus: alpha, beta, and N tableaus.
 
     Params:
       - xs: A list. `xs` captures a sequence of actions or "input symbols." `xs[t]` indicates the
@@ -76,7 +96,7 @@ def state_estimates(tableaus):
     """
     TODO: not sure what the intention is
     Params:
-      - tableaus: A list of 3 tableaus, which are alpha, beta, and N. Please see make_tableaus()
+      - tableaus: A list of 3 tableaus, which are alpha, beta, and N. Please see `make_tableaus()`
                   for more detail.
     Returns: A 2D numpy array whose size is (length of the sequence)-by-(number of states). This
              array captures the state estimation. Let's denote this array ret. `ret[t, s]` is the
@@ -112,8 +132,8 @@ def stateoutput_estimates(ys, num_observables, num_states, sestimate):
       - num_states: An int.
       - sestimate: A 2D numpy array. TODO not sure what is `sestimate`. The size of `sestimate` is
                    (length of the sequence)-by-(number of states), and `sestimate[t, s]` means
-                   probability that the state is `s` at time `t`. Please see state_estimates() for
-                   more detail.
+                   probability that the state is `s` at time `t`. Please see `state_estimates()`
+                   for more detail.
     Returns: A 3D numpy array whose size is (number of observables)-by-(number of states)-by-
              (length of the sequence). Haven't figured out the interpretation yet.
     """
@@ -164,9 +184,9 @@ def improve_params(xs, ys, m, tableaus=None):
     return alist, c
 
 def get_likelihood(tableaus):
-    alpha, beta, N = tableaus
-    return np.product(1/N)
+    _, _, N = tableaus
+    return np.product(1. / N)
 
 def get_log_likelihood(tableaus):
-    alpha, beta, N = tableaus
+    _, _, N = tableaus
     return -np.sum(np.log(N))
