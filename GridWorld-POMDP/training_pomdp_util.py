@@ -64,7 +64,7 @@ def make_tableaus(xs, ys, m):
             action symbol at time `t`.
       - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
             the observation sybol at time `t`.
-      - m: ObservableMarkovModel.
+      - m: An ObservableMarkovModel.
 
     Returns: (alpha, beta, N)
       - alpha: Alpha tableau
@@ -159,38 +159,49 @@ def stateoutput_estimates(ys, num_observables, num_states, sestimate):
 def improve_params(xs, ys, m):
     """
     TODO: not sure what the intention is
+    
+    Params:
+      - xs: A list. `xs` captures a sequence of actions or "input symbols." `xs[t]` indicates the
+            action symbol at time `t`.
+      - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
+            the observation sybol at time `t`.
+      - m: An ObservableMarkovModel.
+
+    Returns: (alist, c). `alist` and `c` are the state transition probability and observation
+             probability. Please see `ObservableMarkovModel` class for more detail.
     """
+    seq_len = len(ys)
+
     tableaus = make_tableaus(xs, ys, m)
     estimates = state_estimates(tableaus)
     trans_estimates = transition_estimates(xs, ys, m, tableaus)
     sout_estimates = stateoutput_estimates(ys, m.os, m.ns, estimates)
 
     # Calculate the numbers of each input in the input sequence.
-    
     action_freq = Counter(xs)
-    seq_len = len(ys)
-
-    sstates = [np.zeros((m.ns,1)) for i in range(m.inps)]
+    
+    sstates = {a: np.zeros((m.ns, 1)) for a in m.action_list}
     for t in range(seq_len):
-        sstates[xs[t]] += estimates[t:t+1,:].T/action_freq[xs[t]]
+        x = xs[t]
+        sstates[x] += estimates[t:t+1,:].T/action_freq[x]
 
     # Estimator for transition probabilities
     alist = {a: np.zeros_like(matrix) for a, matrix in m.alist.items()}
     for t in range(seq_len):
         alist[xs[t]] += trans_estimates[:,:,t]/action_freq[xs[t]]
-    for i in range(m.inps):
+    #TODO: the following should be for a in range(m.action_list):
+    for i in range(m.num_actions):
         alist[i] = alist[i]/(sstates[i].T)
         np.putmask(alist[i],(np.tile(sstates[i].T==0,(m.ns,1))),m.alist[i])
 
     c = np.zeros_like(m.c)
     for t in range(seq_len):
         x = xs[t]
-        c += sout_estimates[:,:,t] / (action_freq[x]*m.inps*sstates[x].T)
+        c += sout_estimates[:,:,t] / (action_freq[x] * m.num_actions * sstates[x].T)
 
-    # Set the output probabilities to the original model if
-    # we have no state observation at all.
+    # Set the output probabilities to the original model if we have no state observation at all.
     sstatem = np.hstack(sstates).T
-    mask = np.any(sstatem == 0,axis=0)
+    mask = np.array([any([sstates[a][i] == 0. for a in m.action_list]) for i in range(m.ns)])
     np.putmask(c,(np.tile(mask,(m.os,1))),m.c)
 
     return alist, c

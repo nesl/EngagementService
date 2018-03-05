@@ -32,5 +32,6 @@ class ObservableMarkovModel(object):
         self.c = c
         self.ns = c.shape[1]
         self.os = c.shape[0]
-        self.inps = len(alist)
         self.init = init
+        self.action_list = [a for a in alist]  #TODO: Change either `alist` or `action_list` to a different name
+        self.num_actions = len(self.action_list)
