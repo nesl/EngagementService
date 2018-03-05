@@ -60,9 +60,9 @@ def make_tableaus(xs, ys, m):
 
     Params:
       - xs: A list. `xs` captures a sequence of actions or "input symbols." `xs[t]` indicates the
-                  action symbol at time `t`.
+            action symbol at time `t`.
       - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
-                  the observation sybol at time `t`.
+            the observation sybol at time `t`.
       - m: ObservableMarkovModel.
 
     Returns: (alpha, beta, N)
@@ -99,27 +99,39 @@ def state_estimates(tableaus):
       - tableaus: A list of 3 tableaus, which are alpha, beta, and N. Please see `make_tableaus()`
                   for more detail.
     Returns: A 2D numpy array whose size is (length of the sequence)-by-(number of states). This
-             array captures the state estimation. Let's denote this array ret. `ret[t, s]` is the
+             array captures the state estimation. Let's denote this array `ret`. `ret[t, s]` is the
              probability that the state is `s` at time `t`. Hence, the sum of each row is 1.
     """
     alpha, beta, _ = tableaus
     return alpha * beta
 
 
-def transition_estimates(xs, ys, m, tableaus=None):
+def transition_estimates(xs, ys, m, tableaus):
     """
     TODO: not sure what the intention is
+    Params:
+      - xs: A list. `xs` captures a sequence of actions or "input symbols." `xs[t]` indicates the
+            action symbol at time `t`.
+      - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
+            the observation sybol at time `t`.
+      - m: An ObservableMarkovModel.
+      - tableaus: A list of 3 tableaus, which are alpha, beta, and N. Please see `make_tableaus()`
+                  for more detail.
+    Returns: A 3D numpy array whose size is (number of states)-by-(number of states)-by-
+             (length of the sequence). TODO not sure exactly how to interpret. Let's denote this
+             array `ret`. `ret[sa, sb, t]` (TODO) seems to be the probability of transiting from
+             `sa` to `sb` at time `t`. P(sa, sb, | t) or P(sb | sa, t)?
     """
-    if tableaus is None:
-        tableaus = make_tableaus(xs,ys,m)
-    alpha,beta,N = tableaus
-    result = np.zeros((m.ns,m.ns,len(ys)))
-    for t in range(len(ys)-1):
+    alpha, beta, N = tableaus
+    seq_len = len(ys)
+    result = np.zeros((m.ns, m.ns, seq_len))
+    for t in range(seq_len - 1):
         a = m.alist[xs[t]]
         result[:,:,t] = a*alpha[t:t+1,:]*m.c[ys[t+1]:ys[t+1]+1,:].T*beta[t+1:t+2,:].T*N[t+1,0]
-    a = m.alist[xs[len(ys)-1]]
-    result[:,:,len(ys)-1] = a*alpha[-1:,:]
+    a = m.alist[xs[-1]]
+    result[:, :, -1] = a*alpha[-1:, :]
     return result
+
 
 def stateoutput_estimates(ys, num_observables, num_states, sestimate):
     """
@@ -127,7 +139,7 @@ def stateoutput_estimates(ys, num_observables, num_states, sestimate):
     
     Params:
       - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
-                  the observation sybol at time `t`.
+            the observation sybol at time `t`.
       - num_observables: An int.
       - num_states: An int.
       - sestimate: A 2D numpy array. TODO not sure what is `sestimate`. The size of `sestimate` is
@@ -150,7 +162,7 @@ def improve_params(xs, ys, m, tableaus=None):
     if tableaus is None:
         tableaus = make_tableaus(xs,ys,m)
     estimates = state_estimates(tableaus)
-    trans_estimates = transition_estimates(xs,ys,m,tableaus=tableaus)
+    trans_estimates = transition_estimates(xs, ys, m, tableaus)
     sout_estimates = stateoutput_estimates(ys, m.os, m.ns, estimates)
 
     # Calculate the numbers of each input in the input sequence.
