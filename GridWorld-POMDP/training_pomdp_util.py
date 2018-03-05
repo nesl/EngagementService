@@ -72,14 +72,16 @@ def make_tableaus(xs, ys, m):
     return alpha, beta, N
 
 
-def state_estimates(tableaus):
+def state_estimates(xs, ys, m, tableaus=None):
     """
     TODO: not sure what the intention is
     Returns: A 2D numpy array whose size is (length of the sequence)-by-(number of states). This
              array captures the state estimation. Let's denote this array ret. `ret[t, s]` is the
              probability that the state is `s` at time `t`. Hence, the sum of each row is 1.
     """
-    alpha, beta, _ = tableaus
+    if tableaus is None:
+        tableaus = make_tableaus(xs,ys,m)
+    alpha, beta, N = tableaus
     return alpha * beta
 
 
@@ -87,28 +89,37 @@ def transition_estimates(xs, ys, m, tableaus=None):
     """
     TODO: not sure what the intention is
     """
-    if tableaus is None: tableaus = make_tableaus(xs,ys,m)
+    if tableaus is None:
+        tableaus = make_tableaus(xs,ys,m)
     alpha,beta,N = tableaus
     result = np.zeros((m.ns,m.ns,len(ys)))
     for t in range(len(ys)-1):
         a = m.alist[xs[t]]
         result[:,:,t] = a*alpha[t:t+1,:]*m.c[ys[t+1]:ys[t+1]+1,:].T*beta[t+1:t+2,:].T*N[t+1,0]
-    a=m.alist[xs[len(ys)-1]]
+    a = m.alist[xs[len(ys)-1]]
     result[:,:,len(ys)-1] = a*alpha[-1:,:]
     return result
 
-def stateoutput_estimates(xs, ys, m, sestimate=None):
+def stateoutput_estimates(ys, num_observables, num_states, sestimate):
     """
     TODO: not sure what the intention is
+    
+    Params:
+      - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
+                  the observation sybol at time `t`.
+      - num_observables: An int.
+      - num_states: An int.
+      - sestimate: A 2D numpy array. TODO not sure what is `sestimate`. The size of `sestimate` is
+                   (length of the sequence)-by-(number of states), and `sestimate[t, s]` means
+                   probability that the state is `s` at time `t`. Please see state_estimates() for
+                   more detail.
+    Returns: A 3D numpy array whose size is (number of observables)-by-(number of states)-by-
+             (length of the sequence). Haven't figured out the interpretation yet.
     """
-    if sestimate is None:
-        sestimate = state_estimates(xs,ys,m)
-    print(type(sestimate))
-    print(sestimate.shape)
-    print(sestimate[0:10, :])
-    result = np.zeros((m.os,m.ns,len(ys)))
-    for t in range(len(ys)):
-        result[ys[t]:ys[t]+1,:,t] = sestimate[t:t+1,:]
+    seq_len = len(ys)
+    result = np.zeros((num_observables, num_states, seq_len))
+    for t in range(seq_len):
+        result[ys[t], :, t] = sestimate[t, :]
     return result
 
 def improve_params(xs, ys, m, tableaus=None):
@@ -117,9 +128,9 @@ def improve_params(xs, ys, m, tableaus=None):
     """
     if tableaus is None:
         tableaus = make_tableaus(xs,ys,m)
-    estimates = state_estimates(tableaus)
+    estimates = state_estimates(xs,ys,m,tableaus=tableaus)
     trans_estimates = transition_estimates(xs,ys,m,tableaus=tableaus)
-    sout_estimates = stateoutput_estimates(xs,ys,m,sestimate=estimates)
+    sout_estimates = stateoutput_estimates(ys, m.os, m.ns, estimates)
 
     # Calculate the numbers of each input in the input sequence.
     nlist = [0]*m.inps
