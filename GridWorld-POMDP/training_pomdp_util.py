@@ -67,26 +67,28 @@ def make_tableaus(xs, ys, m):
       - m: An ObservableMarkovModel.
 
     Returns: (alpha, beta, N)
-      - alpha: Alpha tableau
-      - beta: Beta tableau
-      - N: N tableau
+      - alpha: A 2D numpy array. Alpha tableau. The size is (length of sequence)-by-
+               (number of states).
+      - beta: A 2D numpy array. Beta tableau. The size is (length of sequence)-by-
+               (number of states).
+      - N: A 1D numpy array. N tableau. The size is the same as the length of the sequence.
     """
     slen = len(ys)  # sequence length
     alpha = np.zeros((slen, m.ns))
     beta  = np.zeros((slen, m.ns))
     gamma = np.zeros((slen, m.ns))
-    N     = np.zeros((slen, 1))
+    N     = np.zeros(slen)
 
     # Initialize:
-    gamma[0, :] = m.init.T * m.c[ys[0]:ys[0]+1, :]
-    N[0, 0] = 1 / np.sum(gamma[0:1,:])
-    alpha[0:1, :] = N[0,0] * gamma[0:1, :]
+    gamma[0, :] = m.init * m.c[ys[0], :]
+    N[0] = 1. / np.sum(gamma[0:1,:])
+    alpha[0:1, :] = N[0] * gamma[0:1, :]
     beta[slen-1:slen, :] = np.ones((1, m.ns))
 
     for i in range(1, slen):
-        gamma[i:i+1, :] = m.c[ys[i]:ys[i]+1,:] * np.sum((m.alist[xs[i-1]].T*alpha[i-1:i,:].T), axis=0)
-        N[i,0] = 1 / np.sum(gamma[i:i+1,:])
-        alpha[i:i+1,:] = N[i,0]*gamma[i:i+1,:]
+        gamma[i:i+1, :] = m.c[ys[i]:ys[i]+1,:] * np.sum((m.alist[xs[i-1]].T * alpha[i-1:i,:].T), axis=0)
+        N[i] = 1. / np.sum(gamma[i, :])
+        alpha[i:i+1,:] = N[i] * gamma[i,:]
     for i in range(slen-1, 0, -1):
         beta[i-1:i] = N[i] * np.sum(m.alist[xs[i-1]] * (m.c[ys[i]:ys[i]+1,:] * beta[i:i+1,:]).T, axis=0)
 
@@ -128,9 +130,9 @@ def transition_estimates(xs, ys, m, tableaus):
     result = np.zeros((m.ns, m.ns, seq_len))
     for t in range(seq_len - 1):
         a = m.alist[xs[t]]
-        result[:,:,t] = a*alpha[t:t+1,:]*m.c[ys[t+1]:ys[t+1]+1,:].T*beta[t+1:t+2,:].T*N[t+1,0]
+        result[:, :, t] = a*alpha[t:t+1,:]*m.c[ys[t+1]:ys[t+1]+1,:].T*beta[t+1:t+2,:].T * N[t+1]
     a = m.alist[xs[-1]]
-    result[:, :, -1] = a*alpha[-1:, :]
+    result[:, :, -1] = a * alpha[-1:, :]
     return result
 
 
