@@ -19,6 +19,9 @@ from collections import Counter
 from observable_markov_model import ObservableMarkovModel
 
 
+def _column(np_1d_arr):
+    return np.array([np_1d_arr]).T
+
 def initialize_uniform_pomdp_model(num_states, action_list, num_observables):
     """
     `initialize_uniform_pomdp_model()` generates a ObservableMarkovModel, and all the parameters
@@ -81,16 +84,16 @@ def make_tableaus(xs, ys, m):
 
     # Initialize:
     gamma[0, :] = m.init * m.c[ys[0], :]
-    N[0] = 1. / np.sum(gamma[0:1,:])
-    alpha[0:1, :] = N[0] * gamma[0:1, :]
-    beta[slen-1:slen, :] = np.ones((1, m.ns))
+    N[0] = 1. / np.sum(gamma[0, :])
+    alpha[0, :] = N[0] * gamma[0, :]
+    beta[slen-1, :] = 1.
 
     for i in range(1, slen):
-        gamma[i:i+1, :] = m.c[ys[i]:ys[i]+1,:] * np.sum((m.alist[xs[i-1]].T * alpha[i-1:i,:].T), axis=0)
+        gamma[i, :] = m.c[ys[i], :] * np.sum((m.alist[xs[i-1]].T * alpha[i-1:i, :].T), axis=0)
         N[i] = 1. / np.sum(gamma[i, :])
-        alpha[i:i+1,:] = N[i] * gamma[i,:]
+        alpha[i, :] = N[i] * gamma[i, :]
     for i in range(slen-1, 0, -1):
-        beta[i-1:i] = N[i] * np.sum(m.alist[xs[i-1]] * (m.c[ys[i]:ys[i]+1,:] * beta[i:i+1,:]).T, axis=0)
+        beta[i-1] = N[i] * np.sum(m.alist[xs[i-1]] * (m.c[ys[i]:ys[i]+1,:] * beta[i:i+1,:]).T, axis=0)
 
     return alpha, beta, N
 
@@ -130,7 +133,8 @@ def transition_estimates(xs, ys, m, tableaus):
     result = np.zeros((m.ns, m.ns, seq_len))
     for t in range(seq_len - 1):
         a = m.alist[xs[t]]
-        result[:, :, t] = a*alpha[t:t+1,:]*m.c[ys[t+1]:ys[t+1]+1,:].T*beta[t+1:t+2,:].T * N[t+1]
+        result[:, :, t] = a * alpha[t, :] * _column(m.c[ys[t+1], :]) * _column(beta[t+1, :]) * N[t+1]
+    
     a = m.alist[xs[-1]]
     result[:, :, -1] = a * alpha[-1:, :]
     return result
@@ -157,6 +161,7 @@ def stateoutput_estimates(ys, num_observables, num_states, sestimate):
     for t in range(seq_len):
         result[ys[t], :, t] = sestimate[t, :]
     return result
+
 
 def improve_params(xs, ys, m):
     """
@@ -207,6 +212,7 @@ def improve_params(xs, ys, m):
     np.putmask(c,(np.tile(mask,(m.os,1))),m.c)
 
     return alist, c
+
 
 def get_likelihood(tableaus):
     _, _, N = tableaus
