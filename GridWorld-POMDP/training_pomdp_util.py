@@ -181,13 +181,9 @@ def improve_params(xs, ys, m):
     seq_len = len(ys)
 
     tableaus = make_tableaus(xs, ys, m)
-    print("made tableaus")
     estimates = state_estimates(tableaus)
-    print("made state estimates")
     trans_estimates = transition_estimates(xs, ys, m, tableaus)
-    print("made transition estimates")
     sout_estimates = stateoutput_estimates(ys, m.os, m.ns, estimates)
-    print("made stateoutput estimates")
 
     # Calculate the numbers of each input in the input sequence.
     action_freq = Counter(xs)
@@ -215,7 +211,6 @@ def improve_params(xs, ys, m):
     sstatem = np.hstack(sstates).T
     mask = np.array([any([sstates[a][i] == 0. for a in m.action_list]) for i in range(m.ns)])
     np.putmask(c,(np.tile(mask,(m.os,1))),m.c)
-    print("done")
 
     return alist, c
 
