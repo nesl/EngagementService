@@ -13,8 +13,8 @@ def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, pr
     same square. The prob_actuator_error indicates the probability that the actuator of the robot
     does not function correctly and will randomly move to any direction. When stepping into a new
     square, the robot makes an observation. The observation is represented by a 4-digit binary
-    number, each digit corresponds if there is a wall to the north, east, south, and west of the
-    robot.
+    number, each digit corresponds to whether there is a wall to the north, east, south, and west
+    of the robot.
 
         0            up
       3   1    left      right
@@ -22,24 +22,32 @@ def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, pr
 
     The prob_sensor_error shows how likely the sensor gets the wrong reading.
 
-    The file format is a couple lines representing the grid. '#' symbol means the square is
-    available. '.' means it is occupied. We provide an example below:
+    The file is composed of several lines, each character represents the status of a square. '#'
+    symbol means the square is available. '.' means it is occupied. 'R' means it is the destination
+    that the agent should reach. We provide an example below:
 
     .#..
-    ####
+    ##R#
     .#..
     .#..
+
+    Note there should be exactly one 'R' symbol in the grid.
 
     The output file includes the following sections:
 
-    - state assignment
-    - Simulation parameters
+    - state assignment map
+    - state details
+    - simulation parameters
     - sequence
 
-    The 3 sections are separated by == line.
+    The 4 sections are separated by == line.
 
     State assignment section includes a matrix showing the state id. If it is occupied, a period
     ('.') is filled in.
+
+    State details section shows the attributes of each state, one per line. The format is
+    "state_id coor_row coor_column up_state_id right_state_id down_state_id left_state_id".
+    If there is a wall, the next state id will be itself.
 
     Simulation parameters section lists all the parameters.
 
@@ -56,17 +64,27 @@ def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, pr
     if num_rows == 0 or num_cols == 0:
         raise Exception("Invalid grid (empty map)")
 
-    coors_nested_list = [[(ridx, cidx) for cidx, ch in enumerate(line) if ch == '#']
+    coors_nested_list = [[(ridx, cidx, ch) for cidx, ch in enumerate(line) if ch in ['#', 'R']]
             for ridx, line in enumerate(lines)]
-    square_coors = list(itertools.chain.from_iterable(coors_nested_list))
+    square_bundles = list(itertools.chain.from_iterable(coors_nested_list))
 
-    if len(square_coors) == 0:
-        raise Exception("Invalid grid (no available spot)")
+    reward_square_coor_candidates = [
+        (ridx, cidx) for ridx, cidx, ch in square_bundles if ch == 'R']
+    if len(reward_square_coor_candidates) != 1:
+        raise Exception("Invalid grid (there should be exactly one reward spot)")
+
+    reward_coor = reward_square_coor_candidates[0]
+
+    square_coors = [(ridx, cidx) for ridx, cidx, ch in square_bundles]
+
+    if len(square_coors) == 1:
+        raise Exception("Invalid grid (no other available spots)")
 
     with open(out_filename, 'w') as fo:
         
         # produce state assignment section
         coors_to_ids = {}
+        ids_to_coors = []
         cnt = 0
         for r in range(num_rows):
             for c in range(num_cols):
@@ -74,10 +92,41 @@ def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, pr
                 if coor in square_coors:
                     fo.write("%3d" % cnt)
                     coors_to_ids[coor] = cnt
+                    ids_to_coors.append(coor)
                     cnt += 1
                 else:
                     fo.write("   ")
             fo.write("\n")
+
+        fo.write("==\n")
+
+        # state detail section
+        actions_to_movements = [
+            (-1,  0),  # 0, up
+            ( 0,  1),  # 1, right
+            ( 1,  0),  # 2, down
+            ( 0, -1),  # 3, left
+        ]
+
+        num_coors = len(ids_to_coors)
+
+        next_ids = [None for _ in range(num_coors)]
+        for i in range(num_coors):
+            next_spots = [0, 0, 0, 0]
+            curr, curc = ids_to_coors[i]
+            for action_id, movement in enumerate(actions_to_movements):
+                mover, movec = actions_to_movements[action_id]
+                new_coor = (curr + mover, curc + movec)
+                next_spots[action_id] = coors_to_ids[new_coor] if new_coor in coors_to_ids else i
+            next_ids[i] = next_spots
+
+        for i in range(num_coors):
+            fo.write("%s\n" % " ".join(list(map(str, list(itertools.chain.from_iterable([
+                    [i],
+                    list(ids_to_coors[i]),
+                    [10 if ids_to_coors[i] == reward_coor else -1],
+                    next_ids[i],
+            ]))))))
 
         fo.write("==\n")
 
@@ -90,13 +139,6 @@ def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, pr
         # sequence section
         cur_coor = random.choice(list(coors_to_ids.keys()))
         
-        actions_to_movements = [
-            (-1,  0),  # 0, up
-            ( 0,  1),  # 1, right
-            ( 1,  0),  # 2, down
-            ( 0, -1),  # 3, left
-        ]
-
         for _ in range(num_steps):
             cur_state_id = coors_to_ids[cur_coor]
             curr, curc = cur_coor
