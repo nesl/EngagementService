@@ -17,7 +17,6 @@ private:
 	mutable MemoryPool<GridState> memory_pool_;
 
 	GridWorld world_;
-	
 
 public:
 	Grid(string params_file);
