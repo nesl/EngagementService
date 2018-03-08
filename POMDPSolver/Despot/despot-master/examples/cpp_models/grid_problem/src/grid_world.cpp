@@ -123,18 +123,20 @@ double GridWorld::GetProbObservationGivenState(OBS_TYPE& obs, int state_idx) con
 	return res_prob;
 }
 
-void GridWorld::Print(int state_idx, ostream& out) const {
+void GridWorld::PrintState(const GridState& state, ostream& out) const {
+	int obfuscation = state.get_obfuscation_number();
+	int state_idx = state.get_state_idx();
 	int r = square_coors_[state_idx].first;
 	int c = square_coors_[state_idx].second;
-	out << "state=" << state_idx << " (" << r << ", " << c << ")";
+	out << "state=" << obfuscation << ":" << state_idx << " (" << r << ", " << c << ")";
 }
 
 bool GridWorld::Step(GridState &state, double random_num, int action, double& reward,
 		OBS_TYPE& obs) const{
 	//cout << "in the GridWorld::Step function, action: " << action << endl;
-	int next_state_idx = GetNextStateIdx_(state.state_idx, action);
+	int next_state_idx = GetNextStateIdx_(state.get_state_idx(), action);
 	//cout << "get next state " << next_state_idx << endl;
-	state.state_idx = next_state_idx;
+	state.set_state_idx(next_state_idx, random_num);
 
 	int next_r = square_coors_[next_state_idx].first;
 	int next_c = square_coors_[next_state_idx].second;

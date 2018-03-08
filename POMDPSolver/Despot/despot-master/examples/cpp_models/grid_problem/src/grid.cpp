@@ -32,7 +32,7 @@ double Grid::ObsProb(OBS_TYPE obs, const State& s, int a) const {
 
 	return state.grid_position == obs ? (1 - NOISE) : NOISE;*/
 	//return 1;
-	return world_.GetProbObservationGivenState(obs, state.state_idx);
+	return world_.GetProbObservationGivenState(obs, state.get_state_idx());
 }
 
 State* Grid::CreateStartState(string type) const {
@@ -51,7 +51,7 @@ Belief* Grid::InitialBelief(const State* start, string type) const {
 	vector<State*> particles;
 	for (int i = 0; i < NumStates(); i++) {
 		GridState* state = static_cast<GridState*>(Allocate(-1, 1. / NumStates()));
-		state->state_idx = i;
+		state->set_state_idx(i);
 		particles.push_back(state);
 	}
 	return new ParticleBelief(particles, this);
@@ -74,7 +74,7 @@ ScenarioLowerBound* Grid::CreateScenarioLowerBound(string name,
 
 void Grid::PrintState(const State& state, ostream& out) const {
 	const GridState& gridstate = static_cast<const GridState&>(state);
-	world_.Print(gridstate.state_idx, out);
+	world_.PrintState(gridstate, out);
 }
 
 void Grid::PrintBelief(const Belief& belief, ostream& out) const {

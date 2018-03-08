@@ -44,7 +44,7 @@ public:
 	OBS_TYPE GetExpectedObservation(int state_idx) const;
 	double GetProbObservationGivenState(OBS_TYPE& obs, int state_idx) const;
 
-	void Print(int state_idx, ostream& out) const;
+	void PrintState(const GridState& state, ostream& out) const;
 	
 	bool Step(GridState &state, double random_num, int action, double& reward, OBS_TYPE& obs) const;
 };
