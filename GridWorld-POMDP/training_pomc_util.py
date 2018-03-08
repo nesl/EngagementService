@@ -10,21 +10,24 @@ Note the blog uses the following terms:
                          terminology
   - output sequence (ys): Each output symbol in output sequence refers to an observation
                           in POMDP terminology
+
+Also, to clarify, the proposed algorithm in the blog is to train a Partially Observable Markov
+Chain (POMC) instead of POMDP, because it doesn't consider the reward mechanism.
 """
 
 
 import numpy as np
 from collections import Counter
 
-from observable_markov_model import ObservableMarkovModel
+from pomc import PartiallyObservableMarkovChain
 
 
 def _column(np_1d_arr):
     return np.array([np_1d_arr]).T
 
-def initialize_uniform_pomdp_model(num_states, action_list, num_observables):
+def initialize_uniform_pomc(num_states, action_list, num_observables):
     """
-    `initialize_uniform_pomdp_model()` generates a ObservableMarkovModel, and all the parameters
+    `initialize_uniform_pomc()` generates a PartiallyObservableMarkovChain, and all the parameters
     have the same weights.
 
     Params:
@@ -36,12 +39,12 @@ def initialize_uniform_pomdp_model(num_states, action_list, num_observables):
     alist = {a: np.ones((num_states, num_states)) / num_states for a in action_list}
     c = np.ones((num_observables, num_states)) / num_observables
     init = np.ones(num_states) / num_states
-    return ObservableMarkovModel(alist, c, init)
+    return PartiallyObservableMarkovChain(alist, c, init)
 
-def initialize_random_pomdp_model(num_states, action_list, num_observables):
+def initialize_random_pomc(num_states, action_list, num_observables):
     """
-    `initialize_random_pomdp_model()` generates a ObservableMarkovModel, and all the parameters
-    are drawn from dirichlet distributions.
+    `initialize_random_pomc()` generates a PartiallyObservableMarkovChain, and all the parameters
+    are drawn from Dirichlet distributions.
 
     Params:
       - num_states: An int.
@@ -56,7 +59,7 @@ def initialize_random_pomdp_model(num_states, action_list, num_observables):
     c = np.random.dirichlet(np.ones(num_observables), size=num_states).T
 
     init = np.random.dirichlet(num_states_of_ones)
-    return ObservableMarkovModel(alist, c, init)
+    return PartiallyObservableMarkovChain(alist, c, init)
 
 def make_tableaus(xs, ys, m):
     """
@@ -67,7 +70,7 @@ def make_tableaus(xs, ys, m):
             The original definition can be found in improve_params().
       - ys: A list. `ys` stores a sequence of observations and `ys[t]` is the observation symbol at
             time `t`. The original definition can be found in improve_params().
-      - m: An ObservableMarkovModel.
+      - m: An PartiallyObservableMarkovChain.
 
     Returns: (alpha, beta, N)
       - alpha: A 2D numpy array. Alpha tableau. The size is (length of sequence)-by-
@@ -121,7 +124,7 @@ def transition_estimates(xs, ys, m, tableaus):
             The original definition can be found in improve_params().
       - ys: A list. `ys` stores a sequence of observations and `ys[t]` is the observation symbol at
             time `t`. The original definition can be found in improve_params().
-      - m: An ObservableMarkovModel.
+      - m: An PartiallyObservableMarkovChain.
       - tableaus: A list of 3 tableaus, which are alpha, beta, and N. Please see `make_tableaus()`
                   for more detail.
     Returns: A 3D numpy array whose size is (number of states)-by-(number of states)-by-
@@ -173,10 +176,10 @@ def improve_params(xs, ys, m):
             action symbol at time `t`.
       - ys: A list. `ys` captures a sequence of observations or "output symbols." `ys[t]` indicates
             the observation symbol at time `t`.
-      - m: An ObservableMarkovModel.
+      - m: An PartiallyObservableMarkovChain.
 
     Returns: (alist, c). `alist` and `c` are the state transition probability and observation
-             probability. Please see `ObservableMarkovModel` class for more detail.
+             probability. Please see `PartiallyObservableMarkovChain` class for more detail.
     """
     seq_len = len(ys)
 

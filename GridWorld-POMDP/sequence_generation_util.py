@@ -3,7 +3,8 @@ import random
 import numpy as np
 
 
-def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, prob_sensor_error, num_steps=10000):
+def generate_map_and_sequence(in_filename, out_filename, prob_actuator_error, prob_sensor_error,
+        num_steps=10000):
     """
     This function first reads a grid file, convert each square into a state, and simulate a
     robot walk around this area. All the states are represented by integers ranging from 0 to N-1,
