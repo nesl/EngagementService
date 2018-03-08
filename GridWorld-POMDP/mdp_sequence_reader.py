@@ -1,3 +1,6 @@
+import itertools
+
+
 class MDPSequenceReader:
     
     def __init__(self, in_filename):
@@ -34,6 +37,33 @@ class MDPSequenceReader:
 
     def get_prob_sensor_error(self):
         return self.prob_sensor_error
+
+    def generate_grid_world_setup_file(self, out_filename):
+        """
+        The format of the file is the following:
+
+        number_of_states
+        state0_ID coor_row coor_column reward state0_up_ID state0_right_ID state0_down_ID state0_left_ID
+        state1_ID coor_row coor_column reward state1_up_ID state1_right_ID state1_down_ID state1_left_ID
+        ...
+
+        Example:
+
+        8
+        0 0 0 -1 0 1 3 0
+        1 0 1 -1 1 2 1 0
+        2 0 2 10 2 2 4 1
+        3 1 0 -1 0 3 5 3
+        4 1 2 -1 2 4 7 4
+        5 2 0 -1 3 6 5 5
+        6 2 1 -1 6 7 6 5
+        7 2 2 -1 4 7 7 6
+        """
+        with open(out_filename, 'w') as fo:
+            fo.write("\n".join(list(map(str, list(itertools.chain.from_iterable([
+                    [str(self.num_states)],
+                    self.state_details_raw_lines,
+            ]))))))
 
     def _parse_grid(self, lines):
         for line in reversed(lines):
