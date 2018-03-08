@@ -36,17 +36,13 @@ double Grid::ObsProb(OBS_TYPE obs, const State& s, int a) const {
 }
 
 State* Grid::CreateStartState(string type) const {
-	return new GridState(Random::RANDOM.NextInt(NumStates()));
+	GridState* start_state = new GridState(Random::RANDOM.NextInt(NumStates()));
+	cout << "Start state address: " << start_state << endl;
+	return start_state;
 }
 
 Belief* Grid::InitialBelief(const State* start, string type) const {
-	/*vector<State*> particles;
-	GridState* left = static_cast<GridState*>(Allocate(-1, 0.5));
-	//left->grid_position = LEFT;
-	particles.push_back(left);
-	GridState* right = static_cast<GridState*>(Allocate(-1, 0.5));
-	//right->grid_position = RIGHT;
-	particles.push_back(right);*/
+	cout << "Confirm address of start: " << start << endl;
 	
 	vector<State*> particles;
 	for (int i = 0; i < NumStates(); i++) {
