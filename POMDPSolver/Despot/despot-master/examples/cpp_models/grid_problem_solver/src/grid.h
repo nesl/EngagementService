@@ -5,6 +5,7 @@
 
 #include "grid_state.h"
 #include "grid_world.h"
+#include "grid_agent.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ private:
 	mutable MemoryPool<GridState> memory_pool_;
 
 	GridWorld world_;
+	GridAgent agent_;
 
 public:
 	Grid(string params_file);

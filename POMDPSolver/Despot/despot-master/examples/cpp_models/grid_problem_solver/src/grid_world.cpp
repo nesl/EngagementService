@@ -5,10 +5,6 @@ using namespace std;
 
 namespace despot {
 
-const int GridWorld::MOVE_DR[4] = {-1,  0,  1,  0};
-const int GridWorld::MOVE_DC[4] = { 0,  1,  0, -1};
-
-
 int GridWorld::GetNextStateIdx_(int cur_state_idx, int intented_action) const {
 	int action = intented_action;
 	if (Random::RANDOM.NextDouble() < prob_actuator_error_)
@@ -57,6 +53,10 @@ GridWorld::GridWorld(string filename) {
 	 */
 
 	ifstream fin(filename.c_str());
+	if (fin.fail()) {
+		cerr << "Cannot open world file\"" << filename << "\". Abort" << endl;
+		exit(0);
+	}
 	
 	// get number of states
 	fin >> num_true_states_;
@@ -98,28 +98,14 @@ bool GridWorld::HitWall(int cur_state_idx, int action) const {
 OBS_TYPE GridWorld::GetExpectedObservation(int state_idx) const {
 	return GetNoisyObservation_(state_idx);
 }
-/*
-double GridWorld::GetProbObservationGivenState(OBS_TYPE& obs, int state_idx) const {
-	double res_prob = 1.;
-	for (int i = 0; i < 4; i++) {
-		bool sensedWall = !(obs & (1 << i));
-		bool isWall = HitWall(state_idx, i);
-		if (sensedWall != isWall)
-			res_prob *= prob_sensor_error_;
-		else
-			res_prob *= 1.0 - prob_sensor_error_;
-	}
-	return res_prob;
-}
-*/
+
 void GridWorld::PrintState(int state_idx, ostream& out) const {
 	int r = square_coors_[state_idx].first;
 	int c = square_coors_[state_idx].second;
 	out << "true_state=" << state_idx << " (" << r << ", " << c << ")";
 }
 
-bool GridWorld::Step(int& state_idx, double random_num, int action, double& reward,
-		OBS_TYPE& obs) const {
+bool GridWorld::Step(int& state_idx, int action, double& reward, OBS_TYPE& obs) const {
 	//cout << "in the GridWorld::Step function, action: " << action << endl;
 	int next_state_idx = GetNextStateIdx_(state_idx, action);
 	//cout << "get next state " << next_state_idx << endl;

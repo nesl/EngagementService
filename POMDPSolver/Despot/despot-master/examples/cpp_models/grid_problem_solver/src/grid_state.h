@@ -20,7 +20,7 @@ public:
 	GridState() {
 		// don't want to use it
 		env_state_idx = -1;
-		agent_state_idx = -1;
+		agent_state_idx = -2;
 	}
 
 	GridState(int env_idx, int agent_idx) : env_state_idx(env_idx), agent_state_idx(agent_idx) {}

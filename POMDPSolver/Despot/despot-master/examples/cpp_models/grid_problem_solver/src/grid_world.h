@@ -8,8 +8,6 @@
 
 #include <despot/core/pomdp.h>
 
-#include "grid_state.h"
-
 
 using namespace std;
 
@@ -35,18 +33,17 @@ public:
 	static const int ACT_RIGHT = 1;
 	static const int ACT_DOWN  = 2;
 	static const int ACT_LEFT  = 3;
-	static const int MOVE_DR[4];
-	static const int MOVE_DC[4];
 
+	GridWorld() {}
 	GridWorld(string filename);
 
+	inline int get_num_true_states() const { return num_true_states_; }
 	bool HitWall(int cur_state_idx, int action) const;
 	OBS_TYPE GetExpectedObservation(int state_idx) const;
-	//double GetProbObservationGivenState(OBS_TYPE& obs, int state_idx) const;
 
 	void PrintState(int state_idx, ostream& out) const;
 	
-	bool Step(int& state_idx, double random_num, int action, double& reward, OBS_TYPE& obs) const;
+	bool Step(int& state_idx, int action, double& reward, OBS_TYPE& obs) const;
 };
 
 } // namespace despot

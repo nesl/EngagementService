@@ -5,33 +5,48 @@ using namespace std;
 namespace despot {
 
 
-Grid::Grid(string params_file) : world_(params_file) {
+Grid::Grid(string params_files) {
+	string delimiter = ";";
+	int idx = params_files.find(delimiter);
+	if (idx == string::npos) {
+		cerr << "Incorrect params_files (expect a `;` to separate world file and agent file" << endl;
+		exit(0);
+	}
+
+	string world_file = params_files.substr(0, idx);
+	string agent_file = params_files.substr(idx+1);
+	world_ = GridWorld(world_file);
+	agent_ = GridAgent(agent_file);
 }
 
 int Grid::NumStates() const {
-	//return num_true_states_;
-	return 8;
+	return agent_.GetNumStates();
 }
 
 bool Grid::Step(State& s, double random_num, int action, double& reward,
 		OBS_TYPE& obs) const {
 	GridState& state = static_cast<GridState&>(s);
-	//cout << "Grid::Step, address of state: " << &state << ", content: " << state.state_idx << endl;
+	//cout << "Grid::Step, current state: world=" << state.env_state_idx << ", agent=" << state.agent_state_idx << endl;
 	//cout << "Grid::Step, state: " << state.state_idx << " -> ";
-	bool hold_it = world_.Step(state.env_state_idx, random_num, action, reward, obs);
-	//cout << state.state_idx << ", action=" << action << ", reward=" << reward << ", obs=" << obs << endl;
+	agent_.Step(state.agent_state_idx, action);
+	//cout << "please 1" << endl;
+	bool hold_it = world_.Step(state.env_state_idx, action, reward, obs);
+	//cout << "please 2: world=" << state.env_state_idx << ", agent=" << state.agent_state_idx << ". action=" << action << ", reward=" << reward << ", obs=" << obs << endl;
 	return hold_it;
 }
 
 double Grid::ObsProb(OBS_TYPE obs, const State& s, int a) const {
 	const GridState& state = static_cast<const GridState&>(s);
 	//cout << "ObsProb(obs=" << obs << ", state=" << state.state_idx << ", a=" << a << ") is called" << endl;
-	//return world_.GetProbObservationGivenState(obs, state.get_state_idx());
-	return 0.;
+	//cout << "Grid::ObsProb, observation=" << obs << ". state: world=" << state.env_state_idx << ", agent=" << state.agent_state_idx << endl;
+	//cout << "P(o=" << obs << " | s=" << state.agent_state_idx << ") = " << agent_.GetProbObservationGivenState(obs, state.agent_state_idx) << endl;
+	return agent_.GetProbObservationGivenState(obs, state.agent_state_idx);
+	//return 0;
 }
 
 State* Grid::CreateStartState(string type) const {
-	GridState* start_state = new GridState(Random::RANDOM.NextInt(NumStates()), -1);
+	int start_env_state_idx = Random::RANDOM.NextInt(world_.get_num_true_states());
+	GridState* start_state = new GridState(start_env_state_idx, -1);
 	return start_state;
 }
 
@@ -65,6 +80,8 @@ ScenarioLowerBound* Grid::CreateScenarioLowerBound(string name,
 void Grid::PrintState(const State& state, ostream& out) const {
 	const GridState& gridstate = static_cast<const GridState&>(state);
 	world_.PrintState(gridstate.env_state_idx, out);
+	out << " ; ";
+	agent_.PrintState(gridstate.agent_state_idx, out);
 }
 
 void Grid::PrintBelief(const Belief& belief, ostream& out) const {
