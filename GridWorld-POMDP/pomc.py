@@ -49,3 +49,40 @@ class PartiallyObservableMarkovChain(object):
         self.init = init
         self.action_list = [a for a in alist]  #TODO: Change either `alist` or `action_list` to a different name
         self.num_actions = len(self.action_list)
+
+    def dump(self, filename):
+        """
+        The file format:
+
+            num_states num_actions num_obserables
+            <state transition probability section>
+            <observation-state probability section>
+
+        The format of `state transition probability section` represent (number of actions)
+        matrices. For example, for the first action_token, the format is presented below:
+
+            action_token_0
+            alist[action_token_0][0, 0]  alist[action_token_0][0, 1]  ...
+            alist[action_token_0][1, 0]  alist[action_token_0][1, 1]  ...
+            ...
+        
+        The `observation-state probability section` is just a matrix:
+
+            c[0, 0] c[0, 1] ...
+            c[1, 0] c[1, 1] ...
+            ...
+        """
+
+        with open(filename, 'w') as fo:
+            fo.write("%d %d %d\n" % (self.ns, self.num_actions, self.os))
+            for a in self.alist:
+                fo.write("%s\n" % str(a))
+                self._print_matrix(self.alist[a], fo)
+            self._print_matrix(self.c, fo)
+
+    def _print_matrix(self, mat, fo):
+        num_rows, num_cols = mat.shape
+        for i in range(num_rows):
+            for j in range(num_cols):
+                fo.write("%f " % mat[i][j])
+            fo.write("\n")
