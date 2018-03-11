@@ -45,3 +45,7 @@ def allActivityStates():
 
 def allLastNotificationStates():
     return [STATE_LAST_NOTIFICATION_WITHIN_1HR, STATE_LAST_NOTIFICATION_LONG]
+
+def normalize(*args):
+    valSum = sum(args)
+    return [v / valSum for v in args]

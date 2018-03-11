@@ -45,7 +45,7 @@ class Controller:
             stateLastNotification = utils.getLastNotificationState(lastNotificationTime)
             stateLocation, stateActivity, probAnsweringNotification, probIgnoringNotification, probDismissingNotification = (
                     self.environment.getUserContext(self.currentHour, self.currentMinute, self.currentDay, lastNotificationTime))
-            probAnsweringNotification, probIgnoringNotification, probDismissingNotification = self.normalize(
+            probAnsweringNotification, probIgnoringNotification, probDismissingNotification = utils.normalize(
                     probAnsweringNotification, probIgnoringNotification, probDismissingNotification)
 
             # prepare observables and get action
@@ -105,6 +105,3 @@ class Controller:
                         self.currentDay %= 7
             needSetTime = (self.currentHour < 8 or self.currentHour >= 22)
 
-    def normalize(self, *args):
-        valSum = sum(args)
-        return [v / valSum for v in args]

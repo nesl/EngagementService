@@ -4,6 +4,7 @@ from constant import *
 import utils
 from .base_environment import BaseEnvironment
 
+
 class SurveyUser(BaseEnvironment):
     """
     SurveyUser behaves based on the survey results (derived from notification_survey.html). The
