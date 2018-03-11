@@ -40,4 +40,6 @@ class LessStubbornUser(BaseEnvironment):
         state = (stateTime, stateDay, stateLocation, stateActivity, stateNotification)
 
         probAnswerNotification = (self.probTake if self.behavior[state] else self.probNotTake)
-        return (stateLocation, stateActivity, probAnswerNotification)
+        probDismissNotification = 1.0 - probAnswerNotification
+        probIgnoreNotification = 0.0
+        return (stateLocation, stateActivity, probAnswerNotification, probIgnoreNotification, probDismissNotification)

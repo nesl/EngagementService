@@ -8,9 +8,14 @@ class BaseEnvironment:
         answer the notification.)
 
         Returns:
-          (stateLocation, stateActivity, probAnsweringNotification)
-            stateLocation: An enum of location
-            stateActivity: An enum of activity
-            probAnsweringNotification: A float number between 0. to 1.
+          (stateLocation, stateActivity, probAnsweringNotification, probIgnoringNotification, probDismissingNotification)
+            - stateLocation: An enum of location
+            - stateActivity: An enum of activity
+            - probAnsweringNotification: A float number between 0. to 1.
+            - probIgnoringNotification: A float number between 0. to 1.
+            - probDismissingNotification: A float number between 0. to 1.
+
+          The sum of `probAnsweringNotification`, `probIgnoringNotification`, and
+          `probDismissingNotification` is expected to be 1.0.
         """
         pass

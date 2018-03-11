@@ -37,4 +37,6 @@ class StubbornUser(BaseEnvironment):
         state = (stateTime, stateDay, stateLocation, stateActivity, stateNotification)
 
         probAnswerNotification = (1.0 if self.behavior[state] else 0.0)
-        return (stateLocation, stateActivity, probAnswerNotification)
+        probDismissNotification = 1.0 - probAnswerNotification
+        probIgnoreNotification = 0.0
+        return (stateLocation, stateActivity, probAnswerNotification, probIgnoreNotification, probDismissNotification)

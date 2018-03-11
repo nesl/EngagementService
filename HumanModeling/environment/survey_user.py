@@ -62,7 +62,9 @@ class SurveyUser(BaseEnvironment):
             chosenRecord = numpy.random.choice(a=records, p=probs)
             probAnswerNotification = (1.0 if chosenRecord['answerNotification'] else 0.0)
 
-        return (stateLocation, stateActivity, probAnswerNotification)
+        probDismissNotification = 1.0 - probAnswerNotification
+        probIgnoreNotification = 0.0
+        return (stateLocation, stateActivity, probAnswerNotification, probIgnoreNotification, probDismissNotification)
 
     def parse(self, line):
         """

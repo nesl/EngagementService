@@ -10,7 +10,7 @@ def main():
     #environment = AlwaysSayOKUser()
     #environment = StubbornUser()
     #environment = LessStubbornUser()
-    environment = SurveyUser('data/02.txt')
+    environment = SurveyUser('survey/ver1_pilot/data/02.txt')
     
     controller = Controller(agent, environment)
     results = controller.execute()
