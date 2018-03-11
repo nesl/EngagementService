@@ -5,6 +5,11 @@ import itertools
 # <question_statement>, <hour>, <minute>, <day>, <motion_activity>, <location>, <last_notification_time>
 
 
+# Script paramteres
+OUT_FILENAME = 'data/02_mar11_p1_1000.csv'
+NUM_QUESTIONS = 1000
+
+
 def get_time():
     # 8am-10pm with an interval of 15 minutes
     hour = np.random.randint(14) + 8
@@ -153,10 +158,10 @@ def generate_csv_row():
 
 
 def main():
-    out_filename = "data/1st_draft.csv"
+    out_filename = OUT_FILENAME
     with open(out_filename, "w") as fo:
         fo.write("content,hour,minute,day,motion,location,last_notification_time\n")
-        for i in range(100):
+        for i in range(NUM_QUESTIONS):
             fo.write(generate_csv_row())
 
 
