@@ -1,6 +1,6 @@
 import sys
 import csv
-import numpy
+import numpy as np
 
 from constant import *
 import utils
@@ -26,31 +26,32 @@ class MTurkSurveyUser(BaseEnvironment):
                         state = (sDay, sLocation, sActivity, sNotification)
                         self.behavior[state] = []
 
+        self.records = []
         for filePath in filePaths:
-            records = self.parseFile(filePath)
+            self.records.extend(self._parseFile(filePath))
 
-            # arrange the records to the correct category in self.behavior
-            for r in records:
-                state = (r['stateDay'], r['stateLocation'], r['stateActivity'], r['stateNotification'])
-                self.behavior[state].append(r)
+        # arrange the records to the correct category in self.behavior
+        for r in self.records:
+            state = (r['stateDay'], r['stateLocation'], r['stateActivity'], r['stateNotification'])
+            self.behavior[state].append(r)
 
-        numNoDataStates = 0
+        self.numNoDataStates = 0
         for state in self.behavior:
             if len(self.behavior[state]) == 0:
                 sDay, sLocation, sActivity, sNotification = state
                 sys.stderr.write("No record for day=%d, location=%d, activity=%d, notification=%d\n"
                         % (sDay, sLocation, sActivity, sNotification))
-                numNoDataStates += 1
-        if numNoDataStates > 0:
+                self.numNoDataStates += 1
+        if self.numNoDataStates > 0:
             sys.stderr.write("WARNING: No records for %d states. The behavior will be random.\n"
-                    % numNoDataStates)
+                    % self.numNoDataStates)
 
     def getUserContext(self, hour, minute, day, lastNotificationTime):
-        stateLocation = numpy.random.choice(
+        stateLocation = np.random.choice(
             a=[STATE_LOCATION_HOME, STATE_LOCATION_WORK, STATE_LOCATION_OTHER],
             p=[0.5, 0.4, 0.1],
         )
-        stateActivity = numpy.random.choice(
+        stateActivity = np.random.choice(
             a=[STATE_ACTIVITY_STATIONARY, STATE_ACTIVITY_WALKING, STATE_ACTIVITY_RUNNING, STATE_ACTIVITY_DRIVING],
             p=[0.7, 0.1, 0.1, 0.1],
         )
@@ -68,11 +69,11 @@ class MTurkSurveyUser(BaseEnvironment):
         else:
             timeDiffs = [abs(utils.getDeltaMinutes(0, hour, minute, 0, r['rawHour'], r['rawMinute']))
                     for r in records]
-            weights = numpy.array([1. / (t + 5.) for t in timeDiffs])
-            weightSum = numpy.sum(weights)
+            weights = np.array([1. / (t + 5.) for t in timeDiffs])
+            weightSum = np.sum(weights)
             probs = weights / weightSum
 
-            chosenRecord = numpy.random.choice(a=records, p=probs)
+            chosenRecord = np.random.choice(a=records, p=probs)
 
             probAnswerNotification, probIgnoreNotification, probDismissNotification = 0.0, 0.0, 0.0
             if chosenRecord['answerNotification'] == ANSWER_NOTIFICATION_ACCEPT:
@@ -84,18 +85,43 @@ class MTurkSurveyUser(BaseEnvironment):
 
         return (stateLocation, stateActivity, probAnswerNotification, probIgnoreNotification, probDismissNotification)
 
-    def parseFile(self, filename):
+    def getNumTotalRecords(self):
+        return len(self.records)
+
+    def getNumNoDataStates(self):
+        return self.numNoDataStates
+
+    def getNumRecordsAcceptingNotification(self):
+        return len([r for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_ACCEPT])
+
+    def getNumRecordsIgnoringNotification(self):
+        return len([r for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_IGNORE])
+
+    def getNumRecordsDismissingNotification(self):
+        return len([r for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_DISMISS])
+
+    def getNumUniqueWorkers(self):
+        return len(set([r['rawWorkerID'] for r in self.records]))
+
+    def getAvgWorkingTime(self):
+        workingDuration = [r['rawWorkingTimeSec'] for r in self.records]
+        return np.mean(workingDuration), np.std(workingDuration)
+
+    def _parseFile(self, filename):
         """
         This function receives a csv file obtained from mTurk and convert it to a list of
-        dictionary objects. Please see `parseLine()` for the format of the dictionary object.
+        dictionary objects. Please see `_parseLine()` for the format of the dictionary object.
         """
         with open(filename) as f:
             reader = csv.DictReader(f)
-            records = [self.parseCsvRow(row) for row in reader]
+            records = [self._parseCsvRow(row) for row in reader]
         
         return [r for r in records if r is not None]
 
-    def parseCsvRow(self, row):
+    def _parseCsvRow(self, row):
         """
         This function receives a line from the input file and convert it to a dictionary with
         the following keys:
