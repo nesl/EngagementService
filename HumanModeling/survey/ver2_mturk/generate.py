@@ -64,7 +64,7 @@ def template_moving_small_distnce():
     ]
     
     location_label, location_text = choose_tuple(location_label_text)
-    full_sentence = "You are walking around %s" % location_text
+    full_sentence = "You are walking around %s." % location_text
     return (full_sentence, 'walking', location_label)
 
 def template_stationary_question():
