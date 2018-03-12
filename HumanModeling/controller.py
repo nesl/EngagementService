@@ -9,7 +9,7 @@ from environment import *
 
 class Controller:
 
-    def __init__(self, agent, environment):
+    def __init__(self, agent, environment, simulationWeek=10):
         self.rewardCriteria = {
                 ANSWER_NOTIFICATION_ACCEPT: 1,
                 ANSWER_NOTIFICATION_IGNORE: 0,
@@ -20,7 +20,7 @@ class Controller:
         self.currentHour = 0
         self.currentDay = 0
 
-        self.simulationWeek = 10
+        self.simulationWeek = simulationWeek
         self.numDaysPassed = 0
 
         self.lastNotificationMinute = 0

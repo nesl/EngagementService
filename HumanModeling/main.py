@@ -17,23 +17,52 @@ def main():
             'survey/ver2_mturk/results/03_Batch_3149214_batch_results.csv',
     ], filterFunc=(lambda r: ord(r['rawWorkerID'][-1]) % 3 == 2))
     
-    controller = Controller(agent, environment)
+    simulationWeek = 20
+
+    controller = Controller(agent, environment, simulationWeek=simulationWeek)
     results = controller.execute()
 
-    notificationEvents = [r for r in results if r['decision']]
-    numNotifications = len(notificationEvents)
-    numAcceptedNotifications = len([r for r in notificationEvents if r['reward'] > 0])
-    answerRate = numAcceptedNotifications / numNotifications
-    numDismissedNotifications = len([r for r in notificationEvents if r['reward'] < 0])
-    dismissRate = numDismissedNotifications / numNotifications
+    numNotifications, numAcceptedNotis, numDismissedNotis = _getResponseRates(results)
+    answerRate = numAcceptedNotis / numNotifications
+    dismissRate = numDismissedNotis / numNotifications
 
     expectedNumDeliveredNotifications = sum([r['probOfAnswering'] for r in results])
 
     print("%d decision points" % len(results))
     print("%d notifications are sent:" % numNotifications)
-    print("  - %d are answered (%.2f%%)"  % (numAcceptedNotifications, answerRate * 100.))
-    print("  - %d are dismissed (%.2f%%)"  % (numDismissedNotifications, dismissRate * 100.))
+    print("  - %d are answered (%.2f%%)"  % (numAcceptedNotis, answerRate * 100.))
+    print("  - %d are dismissed (%.2f%%)"  % (numDismissedNotis, dismissRate * 100.))
     print("Expectation of total delivered notifications is %.2f" % expectedNumDeliveredNotifications)
+
+    # weekly performance
+    print("======")
+    print("Weekly performance:")
+    for iWeekNum in range(simulationWeek):
+        weekResults = _filterByWeek(results, iWeekNum)
+        weekTotalReward = sum([r['reward'] for r in weekResults])
+        numNotiTotal, numNotiAccepted, numNotiDismissed = _getResponseRates(weekResults)
+        answerRate = numNotiAccepted / numNotiTotal
+        dismissRate = numNotiDismissed / numNotiTotal
+
+        print("Week %d: total reward is %.1f (%d notifications, accept=%.1f%%, dismiss=%.1f%%" %
+                (iWeekNum + 1, weekTotalReward, numNotiTotal, answerRate * 100., dismissRate * 100.))
+
+def _getResponseRates(results):
+    """
+    Returns: (# Total events, # accepts, # dismisses)
+    """
+    notificationEvents = [r for r in results if r['decision']]
+    numNotifications = len(notificationEvents)
+    numAcceptedNotifications = len([r for r in notificationEvents if r['reward'] > 0])
+    numDismissedNotifications = len([r for r in notificationEvents if r['reward'] < 0])
+    return (numNotifications, numAcceptedNotifications, numDismissedNotifications)
+
+def _filterByWeek(results, week):
+    startDay = week * 7
+    endDay = startDay + 7
+    return [r for r in results
+            if startDay <= r['context']['numDaysPassed'] and r['context']['numDaysPassed'] < endDay]
+
 
 if __name__ == "__main__":
     main()
