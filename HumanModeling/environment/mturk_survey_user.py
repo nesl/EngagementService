@@ -1,6 +1,7 @@
 import sys
 import csv
 import numpy as np
+from collections import Counter
 
 from constant import *
 import utils
@@ -108,6 +109,31 @@ class MTurkSurveyUser(BaseEnvironment):
 
     def getNumUniqueWorkers(self):
         return len(set([r['rawWorkerID'] for r in self.records]))
+    
+    def getResponsesGroupByWorkers(self):
+        """
+        Return a dictionary whose keys are worker IDs, and values are tuples with the following
+        format: (numTotalResponses, numAccepts, numIgnores, numDismisses).
+        """
+        workerAcceptingCounts = Counter([r['rawWorkerID'] for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_ACCEPT])
+        workerIgnoringCounts = Counter([r['rawWorkerID'] for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_IGNORE])
+        workerDismissingCounts = Counter([r['rawWorkerID'] for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_DISMISS])
+        allWorkers = set([r['rawWorkerID'] for r in self.records])
+
+        results = {}
+        for worker in allWorkers:
+            numAccepts = (workerAcceptingCounts[worker]
+                    if worker in workerAcceptingCounts else 0)
+            numIgnores = (workerIgnoringCounts[worker]
+                    if worker in workerIgnoringCounts else 0)
+            numDismisses = (workerDismissingCounts[worker]
+                    if worker in workerDismissingCounts else 0)
+            numTotal = numAccepts + numIgnores + numDismisses
+            results[worker] = (numTotal, numAccepts, numIgnores, numDismisses)
+        return results
 
     def getAvgWorkingTime(self):
         workingDuration = [r['rawWorkingTimeSec'] for r in self.records]
