@@ -15,7 +15,7 @@ class MTurkSurveyUser(BaseEnvironment):
     for each record based on the inverse of the time delta.
     """
 
-    def __init__(self, filePaths):
+    def __init__(self, filePaths, filterFunc=None):
         # self.behavior is a dictionary of lists. The key is the state excluding time. The values
         # are the relavent records
         self.behavior = {}
@@ -29,6 +29,9 @@ class MTurkSurveyUser(BaseEnvironment):
         self.records = []
         for filePath in filePaths:
             self.records.extend(self._parseFile(filePath))
+
+        # apply the filter
+        self.records = list(filter(filterFunc, self.records))
 
         # arrange the records to the correct category in self.behavior
         for r in self.records:
