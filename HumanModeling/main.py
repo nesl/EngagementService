@@ -8,9 +8,12 @@ def main():
     #agent = QLearningAgent2()
     #agent = ContextualBanditSVMAgent()
 
-    agent = SVMAgent()
-    agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
+    #agent = SVMAgent()
+    #agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
     
+    agent = NNAgent(negRewardWeight=10)
+    agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
+
     #environment = AlwaysSayOKUser()
     #environment = StubbornUser()
     #environment = LessStubbornUser()
