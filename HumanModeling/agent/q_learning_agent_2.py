@@ -26,7 +26,7 @@ class QLearningAgent2(BaseAgent):
             self._updateQTable()
 
         eps = max(kMinEps, kInitEps * (0.85 ** (self.numSteps // 100)))
-        if numpy.random.uniform(1.) < eps:
+        if numpy.random.random() < eps:
             self.chosenAction = numpy.random.choice([a for a in qTable[state]])
         else:
             self.chosenAction = self.chooseAction(self.qTable[state])
