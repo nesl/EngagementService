@@ -1,6 +1,7 @@
 import sys
 import csv
 import numpy as np
+from collections import Counter
 
 from constant import *
 import utils
@@ -15,7 +16,7 @@ class MTurkSurveyUser(BaseEnvironment):
     for each record based on the inverse of the time delta.
     """
 
-    def __init__(self, filePaths):
+    def __init__(self, filePaths, filterFunc=None):
         # self.behavior is a dictionary of lists. The key is the state excluding time. The values
         # are the relavent records
         self.behavior = {}
@@ -29,6 +30,9 @@ class MTurkSurveyUser(BaseEnvironment):
         self.records = []
         for filePath in filePaths:
             self.records.extend(self._parseFile(filePath))
+
+        # apply the filter
+        self.records = list(filter(filterFunc, self.records))
 
         # arrange the records to the correct category in self.behavior
         for r in self.records:
@@ -105,6 +109,31 @@ class MTurkSurveyUser(BaseEnvironment):
 
     def getNumUniqueWorkers(self):
         return len(set([r['rawWorkerID'] for r in self.records]))
+    
+    def getResponsesGroupByWorkers(self):
+        """
+        Return a dictionary whose keys are worker IDs, and values are tuples with the following
+        format: (numTotalResponses, numAccepts, numIgnores, numDismisses).
+        """
+        workerAcceptingCounts = Counter([r['rawWorkerID'] for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_ACCEPT])
+        workerIgnoringCounts = Counter([r['rawWorkerID'] for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_IGNORE])
+        workerDismissingCounts = Counter([r['rawWorkerID'] for r in self.records
+                if r['answerNotification'] == ANSWER_NOTIFICATION_DISMISS])
+        allWorkers = set([r['rawWorkerID'] for r in self.records])
+
+        results = {}
+        for worker in allWorkers:
+            numAccepts = (workerAcceptingCounts[worker]
+                    if worker in workerAcceptingCounts else 0)
+            numIgnores = (workerIgnoringCounts[worker]
+                    if worker in workerIgnoringCounts else 0)
+            numDismisses = (workerDismissingCounts[worker]
+                    if worker in workerDismissingCounts else 0)
+            numTotal = numAccepts + numIgnores + numDismisses
+            results[worker] = (numTotal, numAccepts, numIgnores, numDismisses)
+        return results
 
     def getAvgWorkingTime(self):
         workingDuration = [r['rawWorkingTimeSec'] for r in self.records]

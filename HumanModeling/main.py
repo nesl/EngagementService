@@ -11,10 +11,11 @@ def main():
     #environment = StubbornUser()
     #environment = LessStubbornUser()
     #environment = SurveyUser('survey/ver1_pilot/data/02.txt')
-    environment = MTurkSurveyUser([
+    environment = MTurkSurveyUser(filePaths=[
             'survey/ver2_mturk/results/01_1st_Batch_3137574_batch_results.csv',
             'survey/ver2_mturk/results/02_Batch_3148398_batch_results.csv',
-    ])
+            'survey/ver2_mturk/results/03_Batch_3149214_batch_results.csv',
+    ], filterFunc=(lambda r: ord(r['rawWorkerID'][-1]) % 3 == 2))
     
     controller = Controller(agent, environment)
     results = controller.execute()
