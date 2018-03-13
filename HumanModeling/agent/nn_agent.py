@@ -5,11 +5,6 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.utils.np_utils import to_categorical
 
-#from keras.wrappers.scikit_learn import KerasClassifier
-
-#from sklearn.model_selection import cross_val_score
-#from sklearn.preprocessing import LabelEncoder
-
 from .base_classifier_agent import BaseClassifierAgent
 
 
@@ -31,6 +26,8 @@ class NNAgent(BaseClassifierAgent):
 
         model.fit(dataX, oneHopY, epochs=20, batch_size=16)
 
+        print("Finish training the model")
+
         return model
     
     def saveModel(self, filepath):
@@ -40,18 +37,6 @@ class NNAgent(BaseClassifierAgent):
         resMat = model.predict(np.array([dataXVec]))
         resIdx = np.argmax(resMat[0])
         return self.rewardLabels[resIdx]
-
-    """
-    def _createModel(self, inputDim):
-        model = Sequential()
-        model.add(Dense(32, input_dim=inputDim, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(32, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
-        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        return model
-    """
 
     def _encodeDataYScalar(self, scalarY):
         if scalarY > 0:
