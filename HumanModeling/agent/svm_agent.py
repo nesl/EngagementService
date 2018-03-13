@@ -1,13 +1,11 @@
 import sys
 import numpy as np
 
-from .base_classifier_agent import BaseClassifierAgent
-import utils
-from constant import *
-
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 from sklearn import preprocessing
+
+from .base_classifier_agent import BaseClassifierAgent
 
 
 kTunedParameters = [{
