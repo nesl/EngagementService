@@ -4,7 +4,8 @@ from controller import Controller
 
 def main():
     #agent = AlwaysSendNotificationAgent()
-    agent = QLearningAgent()
+    #agent = QLearningAgent()
+    agent = QLearningAgent2()
     #agent = ContextualBanditSVMAgent()
     
     #environment = AlwaysSayOKUser()
