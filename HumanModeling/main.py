@@ -17,7 +17,7 @@ def main():
             'survey/ver2_mturk/results/03_Batch_3149214_batch_results.csv',
     ], filterFunc=(lambda r: ord(r['rawWorkerID'][-1]) % 3 == 2))
     
-    simulationWeek = 20
+    simulationWeek = 52
 
     controller = Controller(agent, environment, simulationWeek=simulationWeek)
     results = controller.execute()

@@ -8,8 +8,8 @@ from constant import *
 kInitialLearningRate = 1.0
 kMinLearningRate = 0.003
 kGamma = 1.0
-kEps = 0.02
-
+kInitEps = 0.5
+kMinEps = 0.01
 
 class QLearningAgent(BaseAgent):
 
@@ -17,7 +17,9 @@ class QLearningAgent(BaseAgent):
         super().getAction(stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
         state = (stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
         self.currentState = state
-        if numpy.random.uniform(1.) < kEps:
+
+        eps = max(kMinEps, kInitEps * (0.85 ** (self.numSteps // 100)))
+        if numpy.random.uniform(1.) < eps:
             self.chosenAction = numpy.random.choice([a for a in qTable[state]])
         else:
             self.chosenAction = self.chooseAction(self.qTable[state])
