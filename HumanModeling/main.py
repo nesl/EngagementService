@@ -5,8 +5,11 @@ from controller import Controller
 def main():
     #agent = AlwaysSendNotificationAgent()
     #agent = QLearningAgent()
-    agent = QLearningAgent2()
+    #agent = QLearningAgent2()
     #agent = ContextualBanditSVMAgent()
+
+    agent = SVMAgent()
+    agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
     
     #environment = AlwaysSayOKUser()
     #environment = StubbornUser()
@@ -18,7 +21,7 @@ def main():
             'survey/ver2_mturk/results/03_Batch_3149214_batch_results.csv',
     ], filterFunc=(lambda r: ord(r['rawWorkerID'][-1]) % 3 == 2))
     
-    simulationWeek = 52
+    simulationWeek = 10
 
     controller = Controller(agent, environment, simulationWeek=simulationWeek)
     results = controller.execute()
