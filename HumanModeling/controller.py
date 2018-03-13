@@ -9,12 +9,14 @@ from environment import *
 
 class Controller:
 
-    def __init__(self, agent, environment, simulationWeek=10):
+    def __init__(self, agent, environment, simulationWeek=10, negativeReward=-10, verbose=True):
         self.rewardCriteria = {
                 ANSWER_NOTIFICATION_ACCEPT: 1,
                 ANSWER_NOTIFICATION_IGNORE: 0,
-                ANSWER_NOTIFICATION_DISMISS: -10,
+                ANSWER_NOTIFICATION_DISMISS: negativeReward,
         }
+
+        self.verbose = verbose
 
         self.currentMinute = 0
         self.currentHour = 0
@@ -35,7 +37,8 @@ class Controller:
     def execute(self):
         self.setNextTime()
         while self.numDaysPassed < self.simulationWeek * 7:
-            print("Day %d %d:%02d" % (self.numDaysPassed, self.currentHour, self.currentMinute))
+            if self.verbose:
+                print("Day %d %d:%02d" % (self.numDaysPassed, self.currentHour, self.currentMinute))
 
             # get environment info (user context)
             lastNotificationTime = utils.getDeltaMinutes(
