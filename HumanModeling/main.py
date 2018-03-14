@@ -6,13 +6,13 @@ def main():
     #agent = AlwaysSendNotificationAgent()
     #agent = QLearningAgent()
     #agent = QLearningAgent2()
-    #agent = ContextualBanditSVMAgent()
+    agent = ContextualBanditSVMAgent()
 
     #agent = SVMAgent()
     #agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
     
-    agent = NNAgent(negRewardWeight=10)
-    agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
+    #agent = NNAgent(negRewardWeight=10)
+    #agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
 
     #environment = AlwaysSayOKUser()
     #environment = StubbornUser()
@@ -26,7 +26,8 @@ def main():
     
     simulationWeek = 10
 
-    controller = Controller(agent, environment, simulationWeek=simulationWeek)
+    controller = Controller(agent, environment, simulationWeek=simulationWeek,
+            negativeReward=-5.)
     results = controller.execute()
 
     numNotifications, numAcceptedNotis, numDismissedNotis = _getResponseRates(results)
@@ -51,8 +52,10 @@ def main():
         answerRate = numNotiAccepted / numNotiTotal
         dismissRate = numNotiDismissed / numNotiTotal
 
-        print("Week %d: total reward is %.1f (%d notifications, accept=%.1f%%, dismiss=%.1f%%" %
+        print("Week %d: total reward is %.1f (%d notifications, accept=%.1f%%, dismiss=%.1f%%)" %
                 (iWeekNum + 1, weekTotalReward, numNotiTotal, answerRate * 100., dismissRate * 100.))
+
+    agent.printQTable()
 
 def _getResponseRates(results):
     """

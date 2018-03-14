@@ -65,6 +65,9 @@ class Controller:
                         p=[probAnsweringNotification, probIgnoringNotification, probDismissingNotification],
                 )
                 reward = self.rewardCriteria[userReaction]
+                self.lastNotificationNumDays = self.numDaysPassed
+                self.lastNotificationHour = self.currentHour
+                self.lastNotificationMinute = self.currentMinute
             self.agent.feedReward(reward)
 
             # log this session
