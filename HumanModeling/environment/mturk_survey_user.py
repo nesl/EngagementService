@@ -73,7 +73,7 @@ class MTurkSurveyUser(BaseEnvironment):
         else:
             timeDiffs = [abs(utils.getDeltaMinutes(0, hour, minute, 0, r['rawHour'], r['rawMinute']))
                     for r in records]
-            weights = np.array([1. / (t + 5.) for t in timeDiffs])
+            weights = np.array([(1. / (t + 5.)) ** 10 for t in timeDiffs])
             weightSum = np.sum(weights)
             probs = weights / weightSum
 
