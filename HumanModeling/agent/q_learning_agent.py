@@ -9,7 +9,7 @@ kInitialLearningRate = 1.0
 kMinLearningRate = 0.003
 kGamma = 1.0
 kInitEps = 0.5
-kMinEps = 0.01
+kMinEps = 0.1
 
 class QLearningAgent(BaseAgent):
 
@@ -22,7 +22,7 @@ class QLearningAgent(BaseAgent):
         if numpy.random.random() < eps:
             self.chosenAction = numpy.random.choice([a for a in self.qTable[state]])
         else:
-            self.chosenAction = self.chooseAction(self.qTable[state])
+            self.chosenAction = utils.argmaxDict(self.qTable[state])
         return self.chosenAction
     
     def feedReward(self, reward):
@@ -34,7 +34,7 @@ class QLearningAgent(BaseAgent):
         nxtStt = (curT, curD, curL, curA, nxtLN)
 
         eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.numSteps // 100)))
-        maxNextQVal = self.maxDictVal(self.qTable[nxtStt])
+        maxNextQVal = utils.maxDictVal(self.qTable[curStt])
         self.qTable[curStt][curAct] = self.qTable[curStt][curAct] + eta * (reward + kGamma * maxNextQVal - self.qTable[curStt][curAct])
 
         self.numSteps += 1
@@ -55,13 +55,3 @@ class QLearningAgent(BaseAgent):
     
     def saveModel(self, filepath):
         sys.stderr.write("Warning: saveModel() does not support\n")
-
-    def maxDictVal(self, d):
-        return max([d[k] for k in d])
-
-    def chooseAction(self, actionQValue):
-        # use softmax as action distribution
-        actions = [a for a in actionQValue]
-        logics = numpy.exp([actionQValue[a] for a in actions])
-        prob = logics / numpy.sum(logics)
-        return numpy.random.choice(actions, p=prob)

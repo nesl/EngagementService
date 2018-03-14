@@ -23,7 +23,7 @@ def getLastNotificationState(last_notification_time):
         return STATE_LAST_NOTIFICATION_LONG
 
 def getDeltaMinutes(day1, hour1, minute1, day2, hour2, minute2):
-    return (day2 - day1) * 24 * 60 + (hour2 - hour1) * 60 + (minute2 - minute1)
+    return (day1 - day2) * 24 * 60 + (hour1 - hour2) * 60 + (minute1 - minute2)
 
 def allTimeStates():
     return [STATE_TIME_MORNING, STATE_TIME_AFTERNOON, STATE_TIME_EVENING, STATE_TIME_SLEEPING]
@@ -49,3 +49,14 @@ def allLastNotificationStates():
 def normalize(*args):
     valSum = sum(args)
     return [v / valSum for v in args]
+
+def argmaxDict(d):
+    idx = None
+    val = -1e100
+    for k in d:
+        if d[k] > val:
+            idx, val = k, d[k]
+    return idx
+
+def maxDictVal(d):
+    return max([d[k] for k in d])

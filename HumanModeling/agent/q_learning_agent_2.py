@@ -1,15 +1,15 @@
 import sys
-import numpy
+import numpy as np
 
 from .base_agent import BaseAgent
 import utils
 from constant import *
 
 kInitialLearningRate = 1.0
-kMinLearningRate = 0.003
+kMinLearningRate = 0.1
 kGamma = 1.0
 kInitEps = 0.5
-kMinEps = 0.01
+kMinEps = 0.1
 
 
 class QLearningAgent2(BaseAgent):
@@ -26,10 +26,10 @@ class QLearningAgent2(BaseAgent):
             self._updateQTable()
 
         eps = max(kMinEps, kInitEps * (0.85 ** (self.numSteps // 100)))
-        if numpy.random.random() < eps:
-            self.chosenAction = numpy.random.choice([a for a in qTable[state]])
+        if np.random.random() < eps:
+            self.chosenAction = np.random.choice([a for a in self.qTable[state]])
         else:
-            self.chosenAction = self.chooseAction(self.qTable[state])
+            self.chosenAction = utils.argmaxDict(self.qTable[state])
         return self.chosenAction
     
     def feedReward(self, reward):
@@ -60,15 +60,9 @@ class QLearningAgent2(BaseAgent):
     def saveModel(self, filepath):
         sys.stderr.write("Warning: saveModel() does not support\n")
 
-    def maxDictVal(self, d):
-        return max([d[k] for k in d])
-
-    def chooseAction(self, actionQValue):
-        # use softmax as action distribution
-        actions = [a for a in actionQValue]
-        logics = numpy.exp([actionQValue[a] for a in actions])
-        prob = logics / numpy.sum(logics)
-        return numpy.random.choice(actions, p=prob)
+    def printQTable(self):
+        for state in self.qTable:
+            print(state, self.qTable[state])
 
     def _updateQTable(self):
         lstStt, lstAct = self.lastState, self.lastAction
@@ -76,5 +70,5 @@ class QLearningAgent2(BaseAgent):
         curStt = self.currentState
 
         eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.numSteps // 100)))
-        maxNextQVal = self.maxDictVal(self.qTable[curStt])
+        maxNextQVal = utils.maxDictVal(self.qTable[curStt])
         self.qTable[lstStt][lstAct] = self.qTable[lstStt][lstAct] + eta * (reward + kGamma * maxNextQVal - self.qTable[lstStt][lstAct])
