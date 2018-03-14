@@ -16,7 +16,7 @@ class MTurkSurveyUser(BaseEnvironment):
     for each record based on the inverse of the time delta.
     """
 
-    def __init__(self, filePaths, filterFunc=None):
+    def __init__(self, filePaths, filterFunc=None, dismissWarningMsg=False):
         # self.behavior is a dictionary of lists. The key is the state excluding time. The values
         # are the relavent records
         self.behavior = {}
@@ -32,7 +32,8 @@ class MTurkSurveyUser(BaseEnvironment):
             self.records.extend(self._parseFile(filePath))
 
         # apply the filter
-        self.records = list(filter(filterFunc, self.records))
+        if filterFunc:
+            self.records = list(filter(filterFunc, self.records))
 
         # arrange the records to the correct category in self.behavior
         for r in self.records:
@@ -43,12 +44,16 @@ class MTurkSurveyUser(BaseEnvironment):
         for state in self.behavior:
             if len(self.behavior[state]) == 0:
                 sDay, sLocation, sActivity, sNotification = state
-                sys.stderr.write("No record for day=%d, location=%d, activity=%d, notification=%d\n"
-                        % (sDay, sLocation, sActivity, sNotification))
+                if not dismissWarningMsg:
+                    sys.stderr.write("No record for day=%d, location=%d, activity=%d, notification=%d\n"
+                            % (sDay, sLocation, sActivity, sNotification))
                 self.numNoDataStates += 1
-        if self.numNoDataStates > 0:
-            sys.stderr.write("WARNING: No records for %d states. The behavior will be random.\n"
-                    % self.numNoDataStates)
+
+        # display warning message
+        if not dismissWarningMsg:
+            if self.numNoDataStates > 0:
+                sys.stderr.write("WARNING: No records for %d states. The behavior will be random.\n"
+                        % self.numNoDataStates)
 
     def getUserContext(self, hour, minute, day, lastNotificationTime):
         stateLocation = np.random.choice(
@@ -73,7 +78,7 @@ class MTurkSurveyUser(BaseEnvironment):
         else:
             timeDiffs = [abs(utils.getDeltaMinutes(0, hour, minute, 0, r['rawHour'], r['rawMinute']))
                     for r in records]
-            weights = np.array([(1. / (t + 5.)) ** 10 for t in timeDiffs])
+            weights = np.array([(1. / (t + 5.)) ** 1 for t in timeDiffs])
             weightSum = np.sum(weights)
             probs = weights / weightSum
 

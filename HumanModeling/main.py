@@ -5,13 +5,13 @@ from controller import Controller
 def main():
     #agent = AlwaysSendNotificationAgent()
     #agent = QLearningAgent()
-    #agent = QLearningAgent2()
-    agent = ContextualBanditSVMAgent()
+    agent = QLearningAgent2()
+    #agent = ContextualBanditSVMAgent()
 
     #agent = SVMAgent()
     #agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
     
-    #agent = NNAgent(negRewardWeight=10)
+    #agent = NNAgent(negRewardWeight=5)
     #agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
 
     #environment = AlwaysSayOKUser()
@@ -55,7 +55,7 @@ def main():
         print("Week %d: total reward is %.1f (%d notifications, accept=%.1f%%, dismiss=%.1f%%)" %
                 (iWeekNum + 1, weekTotalReward, numNotiTotal, answerRate * 100., dismissRate * 100.))
 
-    agent.printQTable()
+    #agent.printQTable()
 
 def _getResponseRates(results):
     """

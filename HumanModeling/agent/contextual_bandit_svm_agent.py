@@ -57,22 +57,26 @@ class ContextualBanditSVMAgent(BaseAgent):
             self.scaler = preprocessing.StandardScaler().fit(numpy.array(self.xData))
             xScaledData = self.scaler.transform(self.xData)
             
-            # try to train the model if the amount of data is sufficient
-            try:
-                self.clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold)
-                yDataNumpyFormat = numpy.array(self.yData)
-                self.clf.fit(xScaledData, yDataNumpyFormat)
-            except:
-                import traceback
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                print(exc_type, exc_value, exc_traceback)
-                self.clf = None
+            if self.countDown <= 0:
+                # try to train the model if the amount of data is sufficient
+                try:
+                    self.clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold)
+                    yDataNumpyFormat = numpy.array(self.yData)
+                    self.clf.fit(xScaledData, yDataNumpyFormat)
+                    self.countDown = max(1, int(len(self.xData) ** 0.5))
+                except:
+                    import traceback
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    print(exc_type, exc_value, exc_traceback)
+                    self.clf = None
+            self.countDown -= 1
     
     def generateInitialModel(self):
         # the history of sending-notification bandit
         self.xData = []
         self.yData = []  # 1: positive reward, 0: negative reward
         self.clf = None
+        self.countDown = 0
     
     def loadModel(self, filepath):
         sys.stderr.write("Warning: loadModel() does not support\n")        
