@@ -11,6 +11,13 @@ class BaseAgent:
     def __init__(self):
         self.stage = BaseAgent.STAGE_WAIT_ACTION
         self.generateInitialModel()
+        self.negativeReward = -5
+
+    def setNegativeReward(self, negativeReward):
+        self.negativeReward = negativeReward
+
+    def _getNegativeReward(self):
+        return self.negativeReward
 
     def getAction(self, stateTime, stateDay, stateLocation, stateActivity, stateLastNotification):
         """
