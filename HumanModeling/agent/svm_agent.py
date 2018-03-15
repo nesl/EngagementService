@@ -22,8 +22,8 @@ class SVMAgent(BaseClassifierAgent):
         print("Begin to train the model")
         dataX.astype(float)
         scaler = preprocessing.StandardScaler().fit(dataX)
-        scaledDataX = scaler.transform(dataX)
-        clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold)
+        scaledDataX = scaler.transform(dataX.astype(float))
+        clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold, n_jobs=8)
         clf.fit(scaledDataX, dataY)
         print("Finish training the model")
         return {

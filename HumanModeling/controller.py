@@ -34,6 +34,8 @@ class Controller:
 
         self.simulationResults = []
 
+        self.agent.setNegativeReward(negativeReward)
+
     def execute(self):
         self.setNextTime()
         while self.numDaysPassed < self.simulationWeek * 7:

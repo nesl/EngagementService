@@ -5,8 +5,9 @@ from controller import Controller
 def main():
     #agent = AlwaysSendNotificationAgent()
     #agent = QLearningAgent()
-    agent = QLearningAgent2()
+    #agent = QLearningAgent2()
     #agent = ContextualBanditSVMAgent()
+    agent = ContextualBanditSVMProbAgent()
 
     #agent = SVMAgent()
     #agent.loadModel('agent/pretrained_models/classifiers/mturk_3000_m3_r1.txt')
