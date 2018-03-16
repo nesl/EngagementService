@@ -24,7 +24,7 @@ class NNAgent(BaseClassifierAgent):
         model.add(Dense(3, activation='softmax'))
         model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-        model.fit(dataX, oneHopY, epochs=20, batch_size=16)
+        model.fit(dataX, oneHopY, epochs=20, batch_size=16, verbose=0)
 
         print("Finish training the model")
 
