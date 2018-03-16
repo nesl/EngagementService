@@ -9,7 +9,8 @@ from environment import *
 
 class Controller:
 
-    def __init__(self, agent, environment, simulationWeek=10, negativeReward=-10, verbose=True):
+    def __init__(self, agent, environment, behavior,
+            simulationWeek=10, negativeReward=-10, verbose=True):
         self.rewardCriteria = {
                 ANSWER_NOTIFICATION_ACCEPT: 1,
                 ANSWER_NOTIFICATION_IGNORE: 0,
@@ -31,6 +32,7 @@ class Controller:
 
         self.agent = agent
         self.environment = environment
+        self.behavior = behavior
 
         self.simulationResults = []
 
@@ -48,8 +50,14 @@ class Controller:
                     self.lastNotificationNumDays, self.lastNotificationHour, self.lastNotificationMinute,
             )
             stateLastNotification = utils.getLastNotificationState(lastNotificationTime)
-            stateLocation, stateActivity, probAnsweringNotification, probIgnoringNotification, probDismissingNotification = (
-                    self.environment.getUserContext(self.currentHour, self.currentMinute, self.currentDay, lastNotificationTime))
+            stateLocation, stateActivity = self.behavior.getLocationActivity(
+                    self.currentHour, self.currentMinute, self.currentDay)
+            probAnsweringNotification, probIgnoringNotification, probDismissingNotification = (
+                    self.environment.getResponseDistribution(
+                        self.currentHour, self.currentMinute, self.currentDay,
+                        stateLocation, stateActivity, lastNotificationTime,
+                    )
+            )
             probAnsweringNotification, probIgnoringNotification, probDismissingNotification = utils.normalize(
                     probAnsweringNotification, probIgnoringNotification, probDismissingNotification)
 

@@ -1,16 +1,13 @@
 class BaseEnvironment:
     
-    def getUserContext(self, hour, minute, day, lastNotificationTime):
+    def getResponseDistribution(self, hour, minute, day,
+            stateLocation, stateActivity, lastNotificationTime):
         """
-        This function returns user context including the following two parts: User's physical
-        states like location and activity as part of the observation, and user's internal
-        perception of notifications (i.e., at this given moment, how likely the user is going to
-        answer the notification.)
+        This function returns user's internal perception of notifications (i.e., at this given
+        context, how likely the user is going to answer the notification.)
 
         Returns:
-          (stateLocation, stateActivity, probAnsweringNotification, probIgnoringNotification, probDismissingNotification)
-            - stateLocation: An enum of location
-            - stateActivity: An enum of activity
+          (probAnsweringNotification, probIgnoringNotification, probDismissingNotification)
             - probAnsweringNotification: A float number between 0. to 1.
             - probIgnoringNotification: A float number between 0. to 1.
             - probDismissingNotification: A float number between 0. to 1.
