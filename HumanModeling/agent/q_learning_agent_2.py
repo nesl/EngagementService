@@ -7,9 +7,9 @@ from constant import *
 
 kInitialLearningRate = 1.0
 kMinLearningRate = 0.1
-kGamma = 1.0
-kInitEps = 0.5
-kMinEps = 0.1
+kGamma = 0.9
+kInitEps = 0.3
+kMinEps = 0.05
 
 
 class QLearningAgent2(BaseAgent):
