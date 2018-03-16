@@ -60,7 +60,7 @@ class ContextualBanditSVMAgent(BaseAgent):
             if self.countDown <= 0:
                 # try to train the model if the amount of data is sufficient
                 try:
-                    self.clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold)
+                    self.clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold, n_jobs=8)
                     yDataNumpyFormat = numpy.array(self.yData)
                     self.clf.fit(xScaledData, yDataNumpyFormat)
                     self.countDown = max(1, int(len(self.xData) ** 0.5))
