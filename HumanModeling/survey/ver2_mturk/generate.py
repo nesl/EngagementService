@@ -57,7 +57,7 @@ def template_moving_large_distance():
 def template_moving_small_distnce():
     location_label_text = [
         ('home', 'your home'),
-        ('work', 'your work'),
+        ('work', 'your working place'),
         ('market', 'a market'),
         ('mall', 'a shopping mall'),
         ('friend-house', 'your friend\'s place'),
@@ -70,7 +70,7 @@ def template_moving_small_distnce():
 def template_stationary_question():
     location_label_text = [
         ('home', 'home'),
-        ('work', 'your work'),
+        ('work', 'your working place'),
         ('restaurant', 'a restaurant'),
         ('market', 'a market'),
         ('movie-theater', 'a movie theater'),
@@ -79,7 +79,7 @@ def template_stationary_question():
 
     location_label, location_text = choose_tuple(location_label_text)
     full_sentence = "You are not moving (you could be sleeping or sitting some place). You are at %s." % location_text
-    return (full_sentence, 'walking', location_label)
+    return (full_sentence, 'stationary', location_label)
 
 def template_physical_question():
     motion_label_text = [
