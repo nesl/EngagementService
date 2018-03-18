@@ -2,7 +2,7 @@ import sys
 import numpy as np
 
 from .base_agent import BaseAgent
-import utils
+from utils import utils
 from constant import *
 
 

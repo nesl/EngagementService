@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 from constant import *
-import utils
+from utils import utils
 
 from agent import *
 from environment import *

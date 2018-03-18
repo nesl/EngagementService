@@ -1,7 +1,7 @@
 import numpy
 
 from constant import *
-import utils
+from utils import utils
 from .base_environment import BaseEnvironment
 
 
