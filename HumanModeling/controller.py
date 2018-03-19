@@ -3,9 +3,11 @@ import numpy as np
 
 from constant import *
 from utils import utils
+from utils.chronometer import Chronometer
 
 from agent import *
 from environment import *
+
 
 class Controller:
 
@@ -19,12 +21,12 @@ class Controller:
 
         self.verbose = verbose
 
-        self.currentMinute = 0
-        self.currentHour = 0
-        self.currentDay = 0
+        # set chronometer which automatically skips 10pm to 8am because it's usually when people
+        # sleep
+        self.chronometer = Chronometer(skipFunc=(lambda hour, _m, _d: hour < 8 or hour >= 22))
 
+        self.stepWidthMinutes = 10
         self.simulationWeek = simulationWeek
-        self.numDaysPassed = 0
 
         self.lastNotificationMinute = 0
         self.lastNotificationHour = 0
@@ -39,22 +41,23 @@ class Controller:
         self.agent.setNegativeReward(negativeReward)
 
     def execute(self):
-        self.setNextTime()
-        while self.numDaysPassed < self.simulationWeek * 7:
+        numDaysPassed, currentHour, currentMinute, currentDay = self.chronometer.getCurrentTime()
+
+        while numDaysPassed < self.simulationWeek * 7:
             if self.verbose:
-                print("Day %d %d:%02d" % (self.numDaysPassed, self.currentHour, self.currentMinute))
+                print("Day %d %d:%02d" % (numDaysPassed, currentHour, currentMinute))
 
             # get environment info (user context)
             lastNotificationTime = utils.getDeltaMinutes(
-                    self.numDaysPassed, self.currentHour, self.currentDay,
+                    numDaysPassed, currentHour, currentDay,
                     self.lastNotificationNumDays, self.lastNotificationHour, self.lastNotificationMinute,
             )
             stateLastNotification = utils.getLastNotificationState(lastNotificationTime)
             stateLocation, stateActivity = self.behavior.getLocationActivity(
-                    self.currentHour, self.currentMinute, self.currentDay)
+                    currentHour, currentMinute, currentDay)
             probAnsweringNotification, probIgnoringNotification, probDismissingNotification = (
                     self.environment.getResponseDistribution(
-                        self.currentHour, self.currentMinute, self.currentDay,
+                        currentHour, currentMinute, currentDay,
                         stateLocation, stateActivity, lastNotificationTime,
                     )
             )
@@ -62,8 +65,8 @@ class Controller:
                     probAnsweringNotification, probIgnoringNotification, probDismissingNotification)
 
             # prepare observables and get action
-            stateTime = utils.getTimeState(self.currentHour, self.currentMinute)
-            stateDay = utils.getDayState(self.currentDay)
+            stateTime = utils.getTimeState(currentHour, currentMinute)
+            stateDay = utils.getDayState(currentDay)
             sendNotification = self.agent.getAction(stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
 
             # calculate reward
@@ -75,18 +78,18 @@ class Controller:
                         p=[probAnsweringNotification, probIgnoringNotification, probDismissingNotification],
                 )
                 reward = self.rewardCriteria[userReaction]
-                self.lastNotificationNumDays = self.numDaysPassed
-                self.lastNotificationHour = self.currentHour
-                self.lastNotificationMinute = self.currentMinute
+                self.lastNotificationNumDays = numDaysPassed
+                self.lastNotificationHour = currentHour
+                self.lastNotificationMinute = currentMinute
             self.agent.feedReward(reward)
 
             # log this session
             self.simulationResults.append({
                     'context': {
-                        'numDaysPassed': self.numDaysPassed,
-                        'day': self.currentDay,
-                        'hour': self.currentHour,
-                        'minute': self.currentMinute,
+                        'numDaysPassed': numDaysPassed,
+                        'hour': currentHour,
+                        'minute': currentMinute,
+                        'day': currentDay,
                         'location': stateLocation,
                         'activity': stateActivity,
                         'lastNotification': lastNotificationTime,
@@ -98,26 +101,8 @@ class Controller:
                     'reward': reward,
             })
 
-            self.setNextTime()
+            # get the next decision time point
+            numDaysPassed, currentHour, currentMinute, currentDay = self.chronometer.forward(
+                    self.stepWidthMinutes)
 
         return self.simulationResults
-
-    def setNextTime(self, timeDeltaMin=10):
-        """
-        Set the clock to next timeDeltaMin minutes. We skip 10pm to 8am because we are not
-        interested in getting data in this period
-        """
-        needSetTime = True
-        while needSetTime:
-            self.currentMinute += timeDeltaMin
-            if self.currentMinute >= 60:
-                self.currentMinute -= 60
-                self.currentHour += 1
-                if self.currentHour >= 24:
-                    self.currentHour -= 24
-                    self.currentDay += 1
-                    self.numDaysPassed += 1
-                    if self.currentDay >= 7:
-                        self.currentDay %= 7
-            needSetTime = (self.currentHour < 8 or self.currentHour >= 22)
-
