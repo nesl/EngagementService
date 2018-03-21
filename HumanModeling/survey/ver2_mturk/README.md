@@ -1,6 +1,7 @@
 #### Prepare
 
 `ln -s /path/to/data/folder data`
+
 `ln -s /path/to/results/folder results`
 
 #### Sample data and results folders
