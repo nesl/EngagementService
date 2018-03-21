@@ -17,7 +17,7 @@ def main():
 
     print("Emulator created")
    
-   	# generate survey questions
+    # generate survey questions
     roundStartDay, roundEndDay = emulator.getRoundStartEndDays()
     print("Generating notification questions for day %d to day %d..."
             % (roundStartDay, roundEndDay))
