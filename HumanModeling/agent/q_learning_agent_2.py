@@ -20,10 +20,12 @@ class QLearningAgent2(BaseAgent):
         state = (stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
         self.currentState = state
 
-        # Now we get last state, last action, last reward, and current state, time to update
-        # Q-table
-        if self.numSteps > 0:
-            self._updateQTable(self.lastState, self.lastAction, self.lastReward, self.currentState)
+        if self.operatingMode == BaseAgent.MODE_ITERATIVE:
+            # Now we get last state, last action, last reward, and current state, time to update
+            # Q-table
+            if self.numSteps > 0:
+                self._updateQTable(
+                        self.lastState, self.lastAction, self.lastReward, self.currentState)
 
         eps = max(kMinEps, kInitEps * (0.85 ** (self.numSteps // 100)))
         if np.random.random() < eps:
@@ -40,7 +42,9 @@ class QLearningAgent2(BaseAgent):
         self.lastReward = reward
         self.numSteps += 1
     
-    def feedBatchReward(self, history):
+    def feedBatchRewards(self, history):
+        super().feedBatchRewards(history)
+
         for i in range(len(history) - 1):
             curState, curAction, reward = history[i]
             nxtState, _, _ = history[i + 1]
@@ -55,7 +59,7 @@ class QLearningAgent2(BaseAgent):
                     for sActivity in utils.allActivityStates():
                         for sNotification in utils.allLastNotificationStates():
                             state = (sTime, sDay, sLocation, sActivity, sNotification)
-                            self.qTable[state] = {a: 0.0 for a in [True, False]}
+                            self.qTable[state] = {a: np.random.random() * 1e-3 for a in [True, False]}
         self.lastState = None
         self.lastAction = None
         self.lastReward = None
