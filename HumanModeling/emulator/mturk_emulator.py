@@ -93,7 +93,9 @@ class MTurkEmulator:
                     % (lastStartDay, lastEndDay))
 
         lastSavePointPath = os.path.join(folderPath, lastSavePointFile)
-        return dill.load(open(lastSavePointPath, "rb"))
+        emulator = dill.load(open(lastSavePointPath, "rb"))
+        emulator._updateFolderPath(folderPath)
+        return emulator
 
     @staticmethod
     def getRoundEndDay(startDay):
@@ -316,3 +318,6 @@ class MTurkEmulator:
 
     def getRoundStartEndDays(self):
         return (self.roundStartDay, self.roundEndDay)
+
+    def _updateFolderPath(self, folderPath):
+        self.folderPath = os.path.abspath(folderPath)

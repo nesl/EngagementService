@@ -14,13 +14,14 @@ def main():
     args = parser.parse_args()
 
     emulator = MTurkEmulator.restoreEmulator(args.folder)
+    emulator.agent.printQTable()
 
     # check if reward file exists
     responsePath = emulator.probeResponseFile()
     if responsePath is None:
         roundStartDay, roundEndDay = emulator.getRoundStartEndDays()
-        print("The response file for day %d to day %d does not exist. Please place the response " +
-              "under the emulator folder with the file name \"%03d-%03d.response.csv\"" %
+        print(("The response file for day %d to day %d does not exist. Please place the response " +
+               "under the emulator folder with the file name \"%03d-%03d.response.csv\"") %
                 (roundStartDay, roundEndDay, roundStartDay, roundEndDay))
         exit(0)
     
