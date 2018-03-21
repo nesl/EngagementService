@@ -41,7 +41,8 @@ class Controller:
         self.agent.setNegativeReward(negativeReward)
 
     def execute(self):
-        numDaysPassed, currentHour, currentMinute, currentDay = self.chronometer.getCurrentTime()
+        numDaysPassed, currentHour, currentMinute, currentDay = self.chronometer.forward(
+                self.stepWidthMinutes)
 
         while numDaysPassed < self.simulationWeek * 7:
             if self.verbose:
@@ -49,7 +50,7 @@ class Controller:
 
             # get environment info (user context)
             lastNotificationTime = utils.getDeltaMinutes(
-                    numDaysPassed, currentHour, currentDay,
+                    numDaysPassed, currentHour, currentMinute,
                     self.lastNotificationNumDays, self.lastNotificationHour, self.lastNotificationMinute,
             )
             stateLastNotification = utils.getLastNotificationState(lastNotificationTime)
