@@ -2,7 +2,7 @@ import sys
 import numpy
 
 from .base_agent import BaseAgent
-import utils
+from utils import utils
 from constant import *
 
 kInitialLearningRate = 1.0
