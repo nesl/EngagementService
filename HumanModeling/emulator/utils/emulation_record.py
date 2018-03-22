@@ -1,4 +1,4 @@
-class SimulationRecord:
+class EmulationRecord:
     """
     All the attributes should be treated as publicly accessable
     """

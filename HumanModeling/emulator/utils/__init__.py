@@ -1,1 +1,1 @@
-from .simulation_record import SimulationRecord
+from .emulation_record import EmulationRecord

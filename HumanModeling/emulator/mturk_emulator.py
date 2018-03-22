@@ -163,7 +163,7 @@ class MTurkEmulator:
         }
 
         # entire results
-        self.allEmulationResults = []  # a list of `SimulationRecord` objects
+        self.allEmulationResults = []  # a list of `EmulationRecord` objects
 
         # states to survey labels
         self.activityState2Labels = {
@@ -208,8 +208,8 @@ class MTurkEmulator:
                 stateAll = (stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
                 sendNotification = self.agent.getAction(*stateAll)
                 
-                # simulation recrod, but keep the reward field blank
-                self.roundNotificationResults.append(SimulationRecord(
+                # emulation recrod, but keep the reward field blank
+                self.roundNotificationResults.append(EmulationRecord(
                         cxtNumDaysPassed=self.numDaysPassed,
                         cxtHour=self.currentHour,
                         cxtMinute=self.currentMinute,
