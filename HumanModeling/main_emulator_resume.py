@@ -33,8 +33,15 @@ def main():
     # feed the reward file
     emulator.processRewards()
 
+    # emulator status
+    print()
+    print("The following is the weekly result:")
+    emulator.printEmulationResultsByWeek(
+            "Total rewards: $totalReward ($numNotifications notifications sent, ratio: $ratioAcceptsExcludeIgnores)")
+
    	# generate survey questions
     roundStartDay, roundEndDay = emulator.getRoundStartEndDays()
+    print()
     print("Generating notification questions for day %d to day %d..."
             % (roundStartDay, roundEndDay))
     surveyPath, numNotifications = emulator.generateNotifications()
