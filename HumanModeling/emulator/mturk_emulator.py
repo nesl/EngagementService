@@ -8,9 +8,10 @@ import string
 from string import Template
 
 from utils import utils
+from constant import *
 from utils.chronometer import Chronometer
 from survey.ver3_mturk_interactive.mturk_survey_generator import MTurkSurveyGenerator
-from constant import *
+from .utils import *
 
 
 class MTurkEmulator:
@@ -162,7 +163,7 @@ class MTurkEmulator:
         }
 
         # entire results
-        self.allEmulationResults = []
+        self.allEmulationResults = []  # a list of `SimulationRecord` objects
 
         # states to survey labels
         self.activityState2Labels = {
@@ -208,20 +209,18 @@ class MTurkEmulator:
                 sendNotification = self.agent.getAction(*stateAll)
                 
                 # simulation recrod, but keep the reward field blank
-                self.roundNotificationResults.append({
-                        'context': {
-                            'numDaysPassed': self.numDaysPassed,
-                            'hour': self.currentHour,
-                            'minute': self.currentMinute,
-                            'day': self.currentDay,
-                            'location': stateLocation,
-                            'activity': stateActivity,
-                            'lastNotification': lastNotificationTime,
-                        },
-                        'state': stateAll,
-                        'decision': sendNotification,
-                        'reward': None,
-                })
+                self.roundNotificationResults.append(SimulationRecord(
+                        cxtNumDaysPassed=self.numDaysPassed,
+                        cxtHour=self.currentHour,
+                        cxtMinute=self.currentMinute,
+                        cxtDay=self.currentDay,
+                        cxtLocation=stateLocation,
+                        cxtActivity=stateActivity,
+                        cxtLastNotificationTime=lastNotificationTime,
+                        stateTuple=stateAll,
+                        decisionIsSending=sendNotification,
+                        reward=None,
+                ))
 
                 # generate survey question 
                 if sendNotification:
@@ -240,7 +239,7 @@ class MTurkEmulator:
         # update action status
         self.nextAction = MTurkEmulator.ACTION_RECEIVING_REWARDS
 
-        numNotificationsSent = sum([r['decision'] for r in self.roundNotificationResults])
+        numNotificationsSent = self._numNotifications(self.roundNotificationResults)
 
         return (surveyFilePath, numNotificationsSent)
 
@@ -283,21 +282,19 @@ class MTurkEmulator:
 
         # assign reward
         for record in self.roundNotificationResults:
-            if record['decision'] == False:  # didn't send notification
-                record['reward'] = 0
+            if not record.decisionIsSending:
+                record.reward = 0
             else:
-                numDaysPassed = record['context']['numDaysPassed']
-                hour = record['context']['hour']
-                minute = record['context']['minute']
-                time = (numDaysPassed, hour, minute)
+                time = (record.cxtNumDaysPassed, record.cxtHour, record.cxtMinute)
                 if time not in responseResults:
                     raise Exception("No response found at numDaysPassed=%d, hour=%d, minute=%d"
-                            % (numDaysPassed, hour, minute))
+                            % time)
                 userResponse = responseResults[time]
-                record['reward'] = self.rewardCriteria[userResponse]
+                record.reward = self.rewardCriteria[userResponse]
 
         # generate reward batch history
-        history = [(r['state'], r['decision'], r['reward']) for r in self.roundNotificationResults]
+        history = [(r.stateTuple, r.decisionIsSending, r.reward)
+                for r in self.roundNotificationResults]
         self.agent.feedBatchRewards(history)
 
         # merge the result back
@@ -330,15 +327,14 @@ class MTurkEmulator:
         numWeeks = math.ceil(self.roundStartDay / 7)
         recordPartitions = [[] for _ in range(numWeeks)]
         for r in self.allEmulationResults:
-            week = int(r['context']['numDaysPassed'] / 7)
+            week = int(r.cxtNumDaysPassed / 7)
             recordPartitions[week].append(r)
         return recordPartitions
 
     def getEmulationResultsGroupByDay(self):
         recordPartitions = [[] for _ in range(self.roundStartDay)]
         for r in self.allEmulationResults:
-            dayCnt = r['context']['numDaysPassed']
-            recordPartitions[dayCnt].append(r)
+            recordPartitions[r.cxtNumDaysPassed].append(r)
 
     def getEmulationResultsPrintingFormat(self, formatStr):
         return self._formatEmulationResults(self.allEmulationResults, formatStr)
@@ -381,7 +377,7 @@ class MTurkEmulator:
         """
 
         processors = {
-                '$totalReward': lambda records: sum([r['reward'] for r in records]),
+                '$totalReward': lambda records: sum([r.reward for r in records]),
                 '$numNotifications': lambda records: self._numNotifications(records),
                 '$numAcceptingNotifications': lambda records: self._numAcceptingNotifications(records),
                 '$numIgnoringNotifications': lambda records: self._numIgnoringNotifications(records),
@@ -412,19 +408,19 @@ class MTurkEmulator:
         startDay = week * 7
         endDay = startDay + 7
         return [r for r in results
-                if startDay <= r['context']['numDaysPassed'] and r['context']['numDaysPassed'] < endDay]
+                if startDay <= r.cxtNumDaysPassed and r.cxtNumDaysPassed < endDay]
 
     def _numNotifications(self, results):
-        return len([r for r in results if r['decision']])
+        return len([r for r in results if r.decisionIsSending])
 
     def _numAcceptingNotifications(self, results):
-        return len([r for r in results if r['decision'] and r['reward'] > 0])
+        return len([r for r in results if r.isAnAcceptedNotification()])
 
     def _numIgnoringNotifications(self, results):
-        return len([r for r in results if r['decision'] and r['reward'] == 0])
+        return len([r for r in results if r.isAnIgnoredNotification()])
 
     def _numDismissingNotifications(self, results):
-        return len([r for r in results if r['decision'] and r['reward'] < 0])
+        return len([r for r in results if r.isADismissedNotification()])
 
     def _getRatioAcceptsExcludeIgnores(self, results):
         numAccepts = self._numAcceptingNotifications(results)
