@@ -1,5 +1,5 @@
 import sys
-import numpy
+import numpy as np
 
 from .base_agent import BaseAgent
 from utils import utils
@@ -41,7 +41,7 @@ class ContextualBanditSVMAgent(BaseAgent):
         # always gives 0 reward, what matters is whether the reward from sending bandit is positive
         # or negative. On top of that, we encourage sending bandit to explore with a certain
         # probability regardless the outcome.
-        if numpy.random.uniform() < kEps:
+        if np.random.uniform() < kEps:
             self.chosenAction = True
         else:
             self.chosenAction = self.getTestLabel(self.currentX)
@@ -53,24 +53,23 @@ class ContextualBanditSVMAgent(BaseAgent):
 
         if self.chosenAction:
             self.xData.append(self.currentX)
-            self.yData.append(1 if reward > 0 else 0)
-            self.scaler = preprocessing.StandardScaler().fit(numpy.array(self.xData))
-            xScaledData = self.scaler.transform(self.xData)
+            self.yData.append(self._rewardToYLabel(reward))
             
             if self.countDown <= 0:
-                # try to train the model if the amount of data is sufficient
-                try:
-                    self.clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold, n_jobs=8)
-                    yDataNumpyFormat = numpy.array(self.yData)
-                    self.clf.fit(xScaledData, yDataNumpyFormat)
-                    self.countDown = max(1, int(len(self.xData) ** 0.5))
-                except:
-                    import traceback
-                    exc_type, exc_value, exc_traceback = sys.exc_info()
-                    print(exc_type, exc_value, exc_traceback)
-                    self.clf = None
+                self._trainModel()
             self.countDown -= 1
     
+    def feedBatchRewards(self, history):
+        super().feedBatchRewards(history)
+
+        states, rewards = zip(*[(self.encode(*s), r) for s, _, r in history])
+        yLabels = [self._rewardToYLabel(r) for r in rewards]
+        self.xData.extend(states)
+        self.yData.extend(yLabels)
+        self.countDown -= len(states)
+        if self.countDown <= 0:
+            self._trainModel()
+
     def generateInitialModel(self):
         # the history of sending-notification bandit
         self.xData = []
@@ -105,7 +104,7 @@ class ContextualBanditSVMAgent(BaseAgent):
     
     def getTestLabel(self, testX):
         try:
-            scaledTestX = self.scaler.transform(numpy.array([testX]))
+            scaledTestX = self.scaler.transform(np.array([testX]))
             res = self.clf.predict(scaledTestX)
             return (res[0] == 1)
         except:
@@ -115,3 +114,22 @@ class ContextualBanditSVMAgent(BaseAgent):
             #exc_type, exc_value, exc_traceback = sys.exc_info()
             #print(exc_type, exc_value, exc_traceback)
             return True
+
+    def _trainModel(self):
+        # try to train the model if the amount of data is sufficient
+        try:
+            self.scaler = preprocessing.StandardScaler().fit(np.array(self.xData))
+
+            self.clf = GridSearchCV(SVC(), kTunedParameters, cv=kFold, n_jobs=8)
+            xScaledData = self.scaler.transform(self.xData)
+            yDataNumpyFormat = np.array(self.yData)
+            self.clf.fit(xScaledData, yDataNumpyFormat)
+            self.countDown = max(1, int(len(self.xData) ** 0.5))
+        except:
+            import traceback
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(exc_type, exc_value, exc_traceback)
+            self.scaler, self.clf = None, None
+
+    def _rewardToYLabel(self, reward):
+        return 1 if reward > 0 else 0
