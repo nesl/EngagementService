@@ -49,7 +49,7 @@ class ResponseCounter:
         return "%d accepts, %d laters, %d dismisses" % (self.accepts, self.ignores, self.dismisses)
 
 # parse all the csv files
-files = glob.glob(dirPath + '/mturk_emulator_files/**/[0-9][0-9][0-9]-[0-9][0-9][0-9].response*.csv')
+files = glob.glob(dirPath + '/mturk_emulator_files/*/[0-9][0-9][0-9]-[0-9][0-9][0-9].response*.csv')
 allRecords = []
 
 for fileName in files:

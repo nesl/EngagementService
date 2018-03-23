@@ -259,9 +259,15 @@ class MTurkEmulator:
                 self.roundStartDay, self.roundEndDay, fileType='response', extension='csv')
         responseFilePath = os.path.join(self.folderPath, responseFileName)
 
+        flaggedWorkers = set(mturk_utils.getFlaggedWorkers())
+
         responseResults = {}  # (numDaysPassed, hour, minute) => ANSWER_NOTIFICATION_*
         with open(responseFilePath) as f:
             for row in csv.DictReader(f):
+
+                # if the worker is flagged, then skip
+                if row['WorkerId'] in flaggedWorkers:
+                    continue
 
                 # time is (numDaysPassed, hour, minute)
                 time = tuple([int(row[k]) for k
