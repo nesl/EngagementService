@@ -32,7 +32,7 @@ def main():
     #behavior = ExtraSensoryBehavior('behavior/data/5.txt')
     behavior = ExtraSensoryBehavior('behavior/data/6.txt')
 
-    simulationWeek = 10
+    simulationWeek = 20
 
     controller = Controller(agent, environment, behavior,
             simulationWeek=simulationWeek, negativeReward=-5.)

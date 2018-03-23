@@ -9,11 +9,34 @@ def main():
     rootFolder = "emulator/mturk_emulator_files/"
 
     # agent=Q-learning, behavior=2.txt
-    emulatorFilePath = os.path.join(rootFolder, "qlearning_2txt")
-    agent = QLearningAgent2(operatingMode=BaseAgent.MODE_BATCH)
+    #emulatorFilePath = os.path.join(rootFolder, "qlearning_2txt")
+    #agent = QLearningAgent2(operatingMode=BaseAgent.MODE_BATCH)
+    #behavior = ExtraSensoryBehavior('behavior/data/2.txt')
+    #emulator = MTurkEmulator.createEmulator(emulatorFilePath, behavior, agent)
+    
+    # agent=Q-learning, behavior=4.txt
+    #emulatorFilePath = os.path.join(rootFolder, "qlearning_4txt")
+    #agent = QLearningAgent2(operatingMode=BaseAgent.MODE_BATCH)
+    #behavior = ExtraSensoryBehavior('behavior/data/4.txt')
+    #emulator = MTurkEmulator.createEmulator(emulatorFilePath, behavior, agent)
+
+    # agent=Q-learning, behavior=5.txt
+    #emulatorFilePath = os.path.join(rootFolder, "qlearning_5txt")
+    #agent = QLearningAgent2(operatingMode=BaseAgent.MODE_BATCH)
+    #behavior = ExtraSensoryBehavior('behavior/data/5.txt')
+    #emulator = MTurkEmulator.createEmulator(emulatorFilePath, behavior, agent)
+    
+    # agent=Q-learning, behavior=6.txt
+    #emulatorFilePath = os.path.join(rootFolder, "qlearning_6txt")
+    #agent = QLearningAgent2(operatingMode=BaseAgent.MODE_BATCH)
+    #behavior = ExtraSensoryBehavior('behavior/data/6.txt')
+    #emulator = MTurkEmulator.createEmulator(emulatorFilePath, behavior, agent)
+
+    # agent=contextualBandit, behavior=2.txt
+    emulatorFilePath = os.path.join(rootFolder, "contextual_2txt")
+    agent = ContextualBanditSVMAgent(operatingMode=BaseAgent.MODE_BATCH)
     behavior = ExtraSensoryBehavior('behavior/data/2.txt')
     emulator = MTurkEmulator.createEmulator(emulatorFilePath, behavior, agent)
-    
 
     print("Emulator created")
    
