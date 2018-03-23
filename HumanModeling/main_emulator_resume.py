@@ -14,7 +14,7 @@ def main():
     args = parser.parse_args()
 
     emulator = MTurkEmulator.restoreEmulator(args.folder)
-    emulator.agent.printQTable()
+    #emulator.agent.printQTable()
 
     # check if reward file exists
     responsePath = emulator.probeResponseFile()
@@ -36,8 +36,9 @@ def main():
     # emulator status
     print()
     print("The following is the weekly result:")
-    emulator.printEmulationResultsByWeek(
-            "Total rewards: $totalReward ($numNotifications notifications sent, ratio: $ratioAcceptsExcludeIgnores)")
+    with emulator.getResultAnalyzer() as analyzer:
+        analyzer.printEmulationResultsByWeek(
+                "Total rewards: $totalReward ($numNotifications notifications sent, ratio: $ratioAcceptsExcludeIgnores)")
 
    	# generate survey questions
     roundStartDay, roundEndDay = emulator.getRoundStartEndDays()

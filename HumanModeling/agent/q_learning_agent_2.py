@@ -59,7 +59,8 @@ class QLearningAgent2(BaseAgent):
                     for sActivity in utils.allActivityStates():
                         for sNotification in utils.allLastNotificationStates():
                             state = (sTime, sDay, sLocation, sActivity, sNotification)
-                            self.qTable[state] = {a: np.random.random() * 1e-3 for a in [True, False]}
+                            #self.qTable[state] = {a: np.random.random() * 1e-3 for a in [True, False]}
+                            self.qTable[state] = {True: 1e-5, False: 0.}
         self.lastState = None
         self.lastAction = None
         self.lastReward = None
