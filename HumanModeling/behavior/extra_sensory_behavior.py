@@ -2,6 +2,7 @@ import numpy as np
 
 from .base_behavior_model import BaseBehaviorModel
 from constant import *
+from collections import Counter
 
 
 class ExtraSensoryBehavior(BaseBehaviorModel):
@@ -70,7 +71,7 @@ class ExtraSensoryBehavior(BaseBehaviorModel):
             'walking': STATE_ACTIVITY_WALKING,
             'running': STATE_ACTIVITY_RUNNING,
             'driving': STATE_ACTIVITY_DRIVING,
-            'commuting': STATE_ACTIVITY_DRIVING,
+            'commuting': STATE_ACTIVITY_COMMUTE,
         }
 
         locationToState = {
@@ -87,6 +88,25 @@ class ExtraSensoryBehavior(BaseBehaviorModel):
                 activityToState[terms[0]],
         )
 
+    def printSummary(self):
+        print("# of total records: %d" % len(self.routing))
+        print("# of `nan` in location: %d" % self.numLocationNan)
+        print("# of `nan` in Activity: %d" % self.numActivityNan)
+        
+        locCnts = Counter([r[3] for r in self.routing])
+        print("Location:")
+        print("    home: %d" % locCnts[STATE_LOCATION_HOME])
+        print("    work: %d" % locCnts[STATE_LOCATION_WORK])
+        print("  others: %d" % locCnts[STATE_LOCATION_OTHER])
+
+        actCnts = Counter([r[4] for r in self.routing])
+        print("Activity:")
+        print("  stationary: %d" % actCnts[STATE_ACTIVITY_STATIONARY])
+        print("     walking: %d" % actCnts[STATE_ACTIVITY_WALKING])
+        print("     running: %d" % actCnts[STATE_ACTIVITY_RUNNING])
+        print("     driving: %d" % actCnts[STATE_ACTIVITY_DRIVING])
+        print("   commuting: %d" % actCnts[STATE_ACTIVITY_COMMUTE])
+        
     def _getRecordTime(self, idx):
         """
         Returns:
