@@ -3,13 +3,14 @@ import glob
 import csv
 import os
 
+from utils import mturk_utils
+
 
 dirPath = os.path.dirname(os.path.realpath(__file__))
 
 
 # general setup
-flaggedWorkers = [
-]
+flaggedWorkers = mturk_utils.getFlaggedWorkers()
 
 checkPeriodMins = [10, 30, 60, 180, 144000]
 
