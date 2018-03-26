@@ -18,8 +18,8 @@ class BaseClassifierAgent(BaseAgent):
 
         trainX = []
         trainY = []
-        for reward, t, d, l, a, ln in mat:
-            vec = self.encode(t, d, l, a, ln)
+        for reward, h, m, d, l, a, ln in mat:
+            vec = self.encode(h, m, d, l, a, ln)
             repeat = 1 if reward >= 0 else self.negRewardWeight
             for _ in range(repeat):
                 trainX.append(vec)
@@ -30,20 +30,18 @@ class BaseClassifierAgent(BaseAgent):
 
         self.model = self.trainModel(trainX, trainY)
     
-    def getAction(self, stateTime, stateDay, stateLocation, stateActivity, stateLastNotification):
-        super().getAction(stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
-        self.currentX = self.encode(stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
+    def getAction(self, hour, minute, day, stateLocation, stateActivity, lastNotificationTime):
+        super().getAction(hour, minute, day, stateLocation, stateActivity, lastNotificationTime)
+        self.currentX = self.encode(
+                hour, minute, day, stateLocation, stateActivity, lastNotificationTime)
         self.expectedReward = self.getRewardLabel(self.model, self.currentX)
         return self.expectedReward > 0
     
-    def encode(self, stateTime, stateDay, stateLocation, stateActivity, stateLastNotification):
+    def encode(self, hour, minute, day, stateLocation, stateActivity, lastNotificationTime):
         return [
-            1 if stateTime == STATE_TIME_MORNING else 0,
-            1 if stateTime == STATE_TIME_AFTERNOON else 0,
-            1 if stateTime == STATE_TIME_EVENING else 0,
-            1 if stateTime == STATE_TIME_SLEEPING else 0,
-            1 if stateDay == STATE_DAY_WEEKDAY else 0,
-            1 if stateDay == STATE_DAY_WEEKEND else 0,
+            hour,
+            minute,
+            day,
             1 if stateLocation == STATE_LOCATION_HOME else 0,
             1 if stateLocation == STATE_LOCATION_WORK else 0,
             1 if stateLocation == STATE_LOCATION_OTHER else 0,
@@ -51,8 +49,7 @@ class BaseClassifierAgent(BaseAgent):
             1 if stateActivity == STATE_ACTIVITY_WALKING else 0,
             1 if stateActivity == STATE_ACTIVITY_RUNNING else 0,
             1 if stateActivity == STATE_ACTIVITY_DRIVING else 0,
-            1 if stateLastNotification == STATE_LAST_NOTIFICATION_WITHIN_1HR else 0,
-            1 if stateLastNotification == STATE_LAST_NOTIFICATION_LONG else 0,
+            lastNotificationTime,
         ]
 
     def trainModel(self, dataX, dataY):
