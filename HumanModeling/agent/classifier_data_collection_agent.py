@@ -6,26 +6,26 @@ from utils import utils
 from constant import *
 
 
-kProbeRate = 0.2
+kProbeRate = 0.25
 
 class ClassifierDataCollectionAgent(BaseAgent):
 
-    def getAction(self, stateTime, stateDay, stateLocation, stateActivity, stateLastNotification):
-        super().getAction(stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
-        state = (stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
-        self.currentState = state
+    def getAction(self, hour, minute, day, stateLocation, stateActivity, lastNotificationTime):
+        super().getAction(hour, minute, day, stateLocation, stateActivity, lastNotificationTime)
+        observation = (hour, minute, day, stateLocation, stateActivity, lastNotificationTime)
+        self.currentObservation = observation
         self.chosenAction = np.random.random() < kProbeRate
         return self.chosenAction
     
     def feedReward(self, reward):
         super().feedReward(reward)
         if self.chosenAction:
-            curT, curD, curL, curA, curLN = self.currentState
-            self.data.append([reward, curT, curD, curL, curA, curLN])
+            row = [reward] + list(self.currentObservation)
+            self.data.append(row)
     
     def generateInitialModel(self):
         self.data = []  # a list of lists, each child list has
-                        # [reward, stateTime, stateDay, stateLoc, stateAct, stateNotiTime]
+                        # [reward, hour, minute, day, stateLocation, stateActivity, lastNotifTime]
     
     def loadModel(self, filepath):
         sys.stderr.write("Warning: loadModel() does not support\n")        
