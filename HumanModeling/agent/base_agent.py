@@ -47,11 +47,11 @@ class BaseAgent:
     def _getNegativeReward(self):
         return self.negativeReward
 
-    def getAction(self, stateTime, stateDay, stateLocation, stateActivity, stateLastNotification):
+    def getAction(self, hour, minute, day, stateLocation, stateActivity, lastNotificationTime):
         """
-        The function feedObservation() receives the 4-tuple elements (i.e., time, location,
-        activity, and time elapsed since last notification) and makes a decision of sending a
-        notificatiion or not.
+        The function `getAction()` receives the observations including time, location, activity,
+        and time elapsed since last notification) and makes a decision of sending a notificatiion
+        or not.
 
         The function is anticipated to be provided implementation
 
@@ -64,18 +64,6 @@ class BaseAgent:
             if self.stage != BaseAgent.STAGE_WAIT_ACTION:
                 raise Exception("It is not in the stage of determining action")
             self.stage = BaseAgent.STAGE_WAIT_REWARD
-
-        # check argument value 
-        if stateTime not in utils.allTimeStates():
-            raise Exception("Invalid stateTime value (got %d)" % stateTime)
-        if stateDay not in utils.allDayStates():
-            raise Exception("Invalid stateDay value (got %d)" % stateDay)
-        if stateLocation not in utils.allLocationStates():
-            raise Exception("Invalid stateLocation value (got %d)" % stateLocation)
-        if stateActivity not in utils.allActivityStates():
-            raise Exception("Invalid stateActivity value (got %d)" % stateActivity)
-        if stateLastNotification not in utils.allLastNotificationStates():
-            raise Exception("Invalid stateActivity value (got %d)" % stateLastNotification)
 
     def feedReward(self, reward):
         """
@@ -99,8 +87,9 @@ class BaseAgent:
         The function is anticipated to be provided implementation
 
         Params:
-          - history: A list of (state, action, reward) tuples
-            - state is a 5-tuple of (sTime, sDay, sLocation, sActivity, sLastNotificationTime)
+          - history: A list of (observation, action, reward) tuples
+            - observation is a 6-tuple which fits the argument interface of `self.getAction()`,
+              i.e., (hour, minute, day, stateLocation, stateActivity, lastNotificationTime)
         """
         if self.operatingMode != BaseAgent.MODE_BATCH:
             raise Exception("feedBatchRewards() is expected to call in the batch mode")

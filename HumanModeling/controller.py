@@ -53,7 +53,6 @@ class Controller:
                     numDaysPassed, currentHour, currentMinute,
                     self.lastNotificationNumDays, self.lastNotificationHour, self.lastNotificationMinute,
             )
-            stateLastNotification = utils.getLastNotificationState(lastNotificationTime)
             stateLocation, stateActivity = self.behavior.getLocationActivity(
                     currentHour, currentMinute, currentDay)
             probAnsweringNotification, probIgnoringNotification, probDismissingNotification = (
@@ -66,9 +65,8 @@ class Controller:
                     probAnsweringNotification, probIgnoringNotification, probDismissingNotification)
 
             # prepare observables and get action
-            stateTime = utils.getTimeState(currentHour, currentMinute)
-            stateDay = utils.getDayState(currentDay)
-            sendNotification = self.agent.getAction(stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
+            sendNotification = self.agent.getAction(currentHour, currentMinute, currentDay,
+                    stateLocation, stateActivity, lastNotificationTime)
 
             # calculate reward
             if not sendNotification:
