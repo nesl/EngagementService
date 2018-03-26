@@ -8,7 +8,7 @@ from constant import *
 
 
 # configuration
-inPath = "emulator/mturk_emulator_files/contextual_2txt/035-041.action.csv"
+inPath = "emulator/mturk_emulator_files/contextual_2txt/063-069.action.csv"
 environment = MTurkSurveyUser(filePaths=[
         'survey/ver2_mturk/results/01_1st_Batch_3137574_batch_results.csv',
         'survey/ver2_mturk/results/02_Batch_3148398_batch_results.csv',
