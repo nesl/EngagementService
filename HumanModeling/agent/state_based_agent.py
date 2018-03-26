@@ -3,7 +3,7 @@ from utils import utils
 from .base_agent import BaseAgent
 
 
-class StateBasedAgent:
+class StateBasedAgent(BaseAgent):
     """
     `StateBasedAgent` converts an observation into a 5-tuple state, i.e., 
     (stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)
@@ -13,7 +13,7 @@ class StateBasedAgent:
         super().getAction(hour, minute, day, stateLocation, stateActivity, lastNotificationTime)
 
         state = self._convertObservationToState(
-                hour, minute_day, stateLocation, stateActivity, lastNotificationTime)
+                hour, minute, day, stateLocation, stateActivity, lastNotificationTime)
         return self.getActionByState(*state)
 
     def getActionByState(self, stateTime, stateDay, stateLocation, stateActivity,
@@ -37,8 +37,8 @@ class StateBasedAgent:
 
     def _convertObservationToState(self, hour, minute, day, stateLocation, stateActivity,
             lastNotificationTime):
-        stateTime = utils.getTimeState(currentHour, currentMinute)
-        stateDay = utils.getDayState(currentDay)
+        stateTime = utils.getTimeState(hour, minute)
+        stateDay = utils.getDayState(day)
         stateLastNotification = utils.getLastNotificationState(lastNotificationTime)
 
         return (stateTime, stateDay, stateLocation, stateActivity, stateLastNotification)

@@ -7,3 +7,5 @@ from .contextual_bandit_svm_prob_agent import ContextualBanditSVMProbAgent
 from .classifier_data_collection_agent import ClassifierDataCollectionAgent
 from .svm_agent import SVMAgent
 from .nn_agent import NNAgent
+from .svm_state_agent import SVMStateAgent
+from .nn_state_agent import NNStateAgent
