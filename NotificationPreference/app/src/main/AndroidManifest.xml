@@ -3,6 +3,8 @@
     package="ucla.nesl.notificationpreference">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -18,7 +20,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.TaskActivity"></activity>
+        <activity android:name=".activity.TaskActivity" />
+
+        <service
+            android:name=".service.TaskSchedulingService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name=".alarm.AlarmProxyReceiver"
+            android:enabled="true"
+            android:exported="false"></receiver>
+
     </application>
 
 </manifest>

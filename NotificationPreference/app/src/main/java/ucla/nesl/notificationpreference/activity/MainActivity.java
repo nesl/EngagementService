@@ -1,24 +1,42 @@
 package ucla.nesl.notificationpreference.activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Vibrator;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
 import ucla.nesl.notificationpreference.R;
+import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.service.TestAlarmWorker;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Notification related
+    // permissions
+    private static final int ACTIVITY_EDITOR_RESULT_REQUEST_CODE = 0;
+
+    private static final int PERMISSIONS_REQUEST_CODE = 1;
+
+    private static final String[] requiredPermissions = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+    };
+
+    // notification related
     private NotificationHelper notificationHelper;
     private ToastShortcut toastHelper;
+
+
 
 
     @Override
@@ -28,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
         notificationHelper = new NotificationHelper(this);
 
+        ActivityCompat.requestPermissions(this, requiredPermissions, PERMISSIONS_REQUEST_CODE);
+
         // UI
         Button button;
 
@@ -36,6 +56,16 @@ public class MainActivity extends AppCompatActivity {
 
         button = findViewById(R.id.button2);
         button.setOnClickListener(cancelNotificationEvent);
+
+        AlarmEventManager alarmEventManager = new AlarmEventManager(this);
+        alarmEventManager.registerWorker(new TestAlarmWorker("B", 3000L, 5000L));
+        alarmEventManager.registerWorker(new TestAlarmWorker("A", 5000L, 10000L));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
 
     View.OnClickListener sendNotificationEvent = new View.OnClickListener() {
