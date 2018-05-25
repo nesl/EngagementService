@@ -1,5 +1,7 @@
 package ucla.nesl.notificationpreference.task;
 
+import android.util.Log;
+
 /**
  * Created by timestring on 5/18/18.
  *
@@ -13,6 +15,7 @@ public class PeriodicTaskScheduler extends TaskSchedulerBase {
     private int decisionIntervalSeconds;
 
     public PeriodicTaskScheduler(int intervalSeconds) {
+        super();
         decisionIntervalSeconds = intervalSeconds;
     }
 
@@ -22,7 +25,8 @@ public class PeriodicTaskScheduler extends TaskSchedulerBase {
     }
 
     @Override
-    protected void onPlan() {
+    public void onPlan() {
+        Log.i("PeriodicTaskScheduler", "call sendTaskRightAway()");
         sendTaskRightAway();
     }
 }

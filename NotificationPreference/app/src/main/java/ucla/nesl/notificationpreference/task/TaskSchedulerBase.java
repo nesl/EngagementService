@@ -14,7 +14,7 @@ import ucla.nesl.notificationpreference.utils.ArrayUtils;
 
 public abstract class TaskSchedulerBase {
 
-    private int decisionIntervalSec;
+    private int decisionIntervalSec = 0;
     private PriorityQueue<Long> eventTimestamps;
 
     private static Comparator<Long> comparator = new Comparator<Long>() {
@@ -25,7 +25,6 @@ public abstract class TaskSchedulerBase {
     };
 
     public TaskSchedulerBase() {
-        decisionIntervalSec = getInitialDecisionIntervalSec();
         eventTimestamps = new PriorityQueue<>(comparator);
     }
 
@@ -38,6 +37,10 @@ public abstract class TaskSchedulerBase {
      * @return an interval length in seconds
      */
     public final int checkDecisionIntervalSec() {
+        // if this is the first time being called, get the initial interval
+        if (decisionIntervalSec == 0)
+            decisionIntervalSec = getInitialDecisionIntervalSec();
+        
         return decisionIntervalSec;
     }
 
@@ -46,7 +49,7 @@ public abstract class TaskSchedulerBase {
      *
      * @param seconds: The length of decision interval
      */
-    protected void updateDecisionIntervalSec(int seconds) {
+    protected final void updateDecisionIntervalSec(int seconds) {
         decisionIntervalSec = seconds;
     }
 
@@ -55,7 +58,7 @@ public abstract class TaskSchedulerBase {
      * `checkDecisionIntervalSec()`. This gives the scheduler a chance to plan out what the actions
      * the scheduler should perform, e.g., send a task right away, send a task in a couple minutes.
      */
-    protected abstract void onPlan();
+    public abstract void onPlan();
 
     protected void sendTaskRightAway() {
         sendTaskDelayedSec(0);
@@ -75,5 +78,13 @@ public abstract class TaskSchedulerBase {
         long[] result = ArrayUtils.toPrimitive(tmp);
         Arrays.sort(result);
         return result;
+    }
+
+    public Long getFirstTask() {
+        return eventTimestamps.peek();
+    }
+
+    public Long removeFirstTask() {
+        return eventTimestamps.poll();
     }
 }

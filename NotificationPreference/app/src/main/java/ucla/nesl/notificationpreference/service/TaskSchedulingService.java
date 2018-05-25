@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.task.PeriodicTaskScheduler;
 import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 
@@ -26,6 +27,9 @@ public class TaskSchedulingService extends Service {
     public void onCreate() {
         taskScheduler = new PeriodicTaskScheduler(3 * 60);  // 3 minutes
 
+        AlarmEventManager alarmEventManager = new AlarmEventManager(this);
+        alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler));
+        alarmEventManager.registerWorker(new TaskPlanningWorker(taskScheduler));
     }
 
     @Override

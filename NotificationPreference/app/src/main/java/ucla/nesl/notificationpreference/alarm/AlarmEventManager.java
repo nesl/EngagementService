@@ -60,8 +60,6 @@ public class AlarmEventManager {
         workerToCode.put(worker, nextWorkerCode);
         codeToWorker.put(nextWorkerCode, worker);
 
-        Log.i(TAG, "schedule worker");
-
         // fire the first event of the registered worker in 5 seconds
         scheduleWorker(worker, new NextTrigger(5000L, 1000L));
 
@@ -77,14 +75,12 @@ public class AlarmEventManager {
         //alarmManager.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP,
         //        firedTime, trigger.toleranceMs, pendingIntent);
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, firedTime    , pendingIntent);
-        Log.i(TAG, "A event is going to be fired in " + trigger.timeIntervalMs);
     }
 
     private final BroadcastReceiver eventReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             int workerCode = intent.getIntExtra(WORKER_CODE, -1);
-            Log.i(TAG, "Get event " + workerCode);
             AlarmWorker worker = codeToWorker.get(workerCode, null);
             if (worker == null) {
                 Log.e(TAG, "Fail to retrieve worker (" + workerCode + ")");

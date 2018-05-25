@@ -148,7 +148,7 @@ public class NotificationHelper {
                 .setContentText("Would like to see a popup notification")
                 .setTicker("Where is the ticker?")
                 //.setVisibility(Notification.VISIBILITY_PUBLIC)
-                .addAction(android.R.drawable.ic_menu_view, "View details", activityPendingIntent)
+                .addAction(android.R.drawable.checkbox_on_background, "View details", activityPendingIntent)
                 .setVibrate(new long[]{200,200,200,200,200})
                 .setSound(defaultSoundUri)
                 .setAutoCancel(false);

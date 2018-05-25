@@ -2,6 +2,7 @@ package ucla.nesl.notificationpreference.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,9 +14,8 @@ import android.view.View;
 import android.widget.Button;
 
 import ucla.nesl.notificationpreference.R;
-import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
-import ucla.nesl.notificationpreference.service.TestAlarmWorker;
+import ucla.nesl.notificationpreference.service.TaskSchedulingService;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,9 +57,12 @@ public class MainActivity extends AppCompatActivity {
         button = findViewById(R.id.button2);
         button.setOnClickListener(cancelNotificationEvent);
 
-        AlarmEventManager alarmEventManager = new AlarmEventManager(this);
-        alarmEventManager.registerWorker(new TestAlarmWorker("B", 3000L, 5000L));
-        alarmEventManager.registerWorker(new TestAlarmWorker("A", 5000L, 10000L));
+        //AlarmEventManager alarmEventManager = new AlarmEventManager(this);
+        //alarmEventManager.registerWorker(new TestAlarmWorker("B", 3000L, 5000L));
+        //alarmEventManager.registerWorker(new TestAlarmWorker("A", 5000L, 10000L));
+
+        Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
+        startService(serviceIntent);
     }
 
     @Override
