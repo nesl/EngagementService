@@ -5,13 +5,16 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -26,6 +29,8 @@ import ucla.nesl.notificationpreference.activity.TaskActivity;
  */
 
 public class NotificationHelper {
+
+    static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
     public enum Type {
         FOREGROUND_SERVICE(1),
@@ -76,6 +81,10 @@ public class NotificationHelper {
             notificationManager.createNotificationChannel(mChannel);
             //mChannel.setGroup(CHANNEL_GROUP_ID);
         }
+
+        IntentFilter intentFilter = new IntentFilter(INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        localBroadcastManager.registerReceiver(responseReceiver, intentFilter);
     }
 
     public Notification getNotification(Type type) {
@@ -136,6 +145,16 @@ public class NotificationHelper {
         PendingIntent activityPendingIntent = PendingIntent.getActivity(mContext, 0,
                 new Intent(mContext, TaskActivity.class), 0);
 
+        Intent yesIntent = new Intent(mContext, NotificationProxyReceiver.class);
+        yesIntent.putExtra("response", "1");
+        PendingIntent yesPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+                yesIntent, 0);
+
+        Intent noIntent = new Intent(mContext, NotificationProxyReceiver.class);
+        yesIntent.putExtra("response", "0");
+        PendingIntent noPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+                noIntent, 0);
+
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, CHANNEL_ID)
@@ -145,10 +164,13 @@ public class NotificationHelper {
                 .setContentIntent(activityPendingIntent)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentTitle("TimeString test Notifications")
-                .setContentText("Would like to see a popup notification")
+                .setContentText("Please answer the following survey question")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Is it a good time to reach out you via sending this notification?"))
                 .setTicker("Where is the ticker?")
                 //.setVisibility(Notification.VISIBILITY_PUBLIC)
-                .addAction(android.R.drawable.checkbox_on_background, "View details", activityPendingIntent)
+                .addAction(android.R.drawable.checkbox_on_background, "Yes", yesPendingIntent)
+                .addAction(android.R.drawable.checkbox_on_background, "No", noPendingIntent)
                 .setVibrate(new long[]{200,200,200,200,200})
                 .setSound(defaultSoundUri)
                 .setAutoCancel(false);
@@ -182,4 +204,12 @@ public class NotificationHelper {
         service.startForeground(type.getID(), getNotification(type));
     }
 
+
+    private final BroadcastReceiver responseReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String response = intent.getStringExtra("response");
+            Log.i("NotificationHelper", "Receive response:" + response);
+        }
+    };
 }

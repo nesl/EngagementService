@@ -5,6 +5,7 @@ import android.util.Log;
 
 import ucla.nesl.notificationpreference.alarm.AlarmWorker;
 import ucla.nesl.notificationpreference.alarm.NextTrigger;
+import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 
 /**
@@ -14,10 +15,13 @@ import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 public class TaskDispatchWorker extends AlarmWorker {
 
     private TaskSchedulerBase taskScheduler;
+    private NotificationHelper notificationHelper;
 
 
-    public TaskDispatchWorker(TaskSchedulerBase _taskScheduler) {
+    public TaskDispatchWorker(TaskSchedulerBase _taskScheduler,
+                              NotificationHelper _notificationHelper) {
         taskScheduler = _taskScheduler;
+        notificationHelper = _notificationHelper;
     }
 
     @NonNull
@@ -27,7 +31,7 @@ public class TaskDispatchWorker extends AlarmWorker {
         Log.i("TaskDispatchWorker", "check event queue " + nextEvent + "/" + System.currentTimeMillis());
         if (nextEvent != null && System.currentTimeMillis() >= nextEvent) {
             taskScheduler.removeFirstTask();
-            //TODO: fire a task
+            notificationHelper.sendNotification(NotificationHelper.Type.LOCATION_CHANGED);
             Log.i("TaskDispatchWorker", "hey we just fired a task!!");
         }
 

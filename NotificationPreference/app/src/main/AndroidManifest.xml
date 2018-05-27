@@ -30,7 +30,11 @@
         <receiver
             android:name=".alarm.AlarmProxyReceiver"
             android:enabled="true"
-            android:exported="false"></receiver>
+            android:exported="false" />
+        <receiver
+            android:name=".notification.NotificationProxyReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
     </application>
 

@@ -4,9 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 
 import ucla.nesl.notificationpreference.R;
-import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.service.TaskSchedulingService;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
 
@@ -33,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // notification related
-    private NotificationHelper notificationHelper;
     private ToastShortcut toastHelper;
 
 
@@ -43,8 +38,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        notificationHelper = new NotificationHelper(this);
 
         ActivityCompat.requestPermissions(this, requiredPermissions, PERMISSIONS_REQUEST_CODE);
 
@@ -74,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener sendNotificationEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            notificationHandler.sendEmptyMessageDelayed(0, 5000L);
+            //notificationHandler.sendEmptyMessageDelayed(0, 5000L);
             Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             vibrator.vibrate(300);
         }
@@ -83,14 +76,8 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener cancelNotificationEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            notificationHelper.cancelNotification(NotificationHelper.Type.LOCATION_CHANGED);
+            //notificationHelper.cancelNotification(NotificationHelper.Type.LOCATION_CHANGED);
         }
     };
 
-    Handler notificationHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message inputMessage) {
-            notificationHelper.sendNotification(NotificationHelper.Type.LOCATION_CHANGED);
-        }
-    };
 }

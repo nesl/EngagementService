@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
+import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.task.PeriodicTaskScheduler;
 import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 
@@ -17,18 +18,18 @@ public class TaskSchedulingService extends Service {
     //private final IBinder mBinder = new LocalBinder();
 
 
+    private NotificationHelper notificationHelper;
+
     private TaskSchedulerBase taskScheduler;
-
-
-    public TaskSchedulingService() {
-    }
 
     @Override
     public void onCreate() {
-        taskScheduler = new PeriodicTaskScheduler(3 * 60);  // 3 minutes
+        taskScheduler = new PeriodicTaskScheduler(1 * 60);  // 3 minutes
+
+        notificationHelper = new NotificationHelper(this);
 
         AlarmEventManager alarmEventManager = new AlarmEventManager(this);
-        alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler));
+        alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
         alarmEventManager.registerWorker(new TaskPlanningWorker(taskScheduler));
     }
 
