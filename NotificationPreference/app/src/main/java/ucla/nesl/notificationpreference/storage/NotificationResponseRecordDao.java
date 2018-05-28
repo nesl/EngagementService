@@ -3,7 +3,7 @@ package ucla.nesl.notificationpreference.storage;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
+import android.support.annotation.NonNull;
 
 /**
  * Created by timestring on 5/25/18.
@@ -30,7 +30,8 @@ public interface NotificationResponseRecordDao {
     @Query("SELECT COUNT(*) from notification_response_record")
     int countAll();
 
-    @Update
-    void update(NotificationResponseRecord record);
-
+    @Query("UPDATE notification_response_record " +
+           "SET answer_time = :answerTime, answer = :answer " +
+           "WHERE ID = :notificationID")
+    void updateAnswer(int notificationID, long answerTime, @NonNull String answer);
 }

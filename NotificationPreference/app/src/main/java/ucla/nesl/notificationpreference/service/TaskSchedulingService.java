@@ -1,14 +1,13 @@
 package ucla.nesl.notificationpreference.service;
 
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
+import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
 import ucla.nesl.notificationpreference.task.PeriodicTaskScheduler;
 import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 
@@ -22,7 +21,6 @@ public class TaskSchedulingService extends Service {
 
     // Binder
     //private final IBinder mBinder = new LocalBinder();
-
 
     private NotificationHelper notificationHelper;
 
@@ -54,14 +52,4 @@ public class TaskSchedulingService extends Service {
     //        return TaskSchedulingService.this;
     //    }
     //}
-
-    public class TaskSchedulingAlarmReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            // For our recurring task, we'll just display a message
-            Toast.makeText(context, "I'm running", Toast.LENGTH_SHORT).show();
-        }
-    }
 }

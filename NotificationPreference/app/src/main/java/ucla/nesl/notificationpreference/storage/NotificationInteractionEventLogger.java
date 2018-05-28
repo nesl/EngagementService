@@ -80,6 +80,7 @@ public class NotificationInteractionEventLogger {
             PrintWriter out = new PrintWriter(new FileOutputStream(file, true));
             String message = String.format(Locale.getDefault(), "%d,%s,%d,%s",
                     System.currentTimeMillis(), event, notificationID, meta);
+            Log.i(TAG, "going to log message: " + message);
             out.println(message);
             out.close();
         } catch (Exception e) {

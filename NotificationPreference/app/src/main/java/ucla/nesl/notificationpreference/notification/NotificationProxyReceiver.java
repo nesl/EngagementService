@@ -17,7 +17,7 @@ public class NotificationProxyReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent passedIntent) {
-        Log.i("NotificationProxy", "got intent");
+        Log.i("NotificationProxy", "got intent. -> " + passedIntent.getStringExtra("response"));
         Intent forwardedIntent = new Intent(
                 NotificationHelper.INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION);
         forwardedIntent.putExtras(passedIntent);

@@ -20,6 +20,8 @@ import android.util.SparseArray;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
+import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
+import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
 
 /**
  * Created by timestring on 2/12/18.
@@ -31,6 +33,8 @@ import ucla.nesl.notificationpreference.activity.TaskActivity;
  */
 
 public class NotificationHelper {
+
+    private static final String TAG = NotificationHelper.class.getSimpleName();
 
     static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
@@ -56,10 +60,14 @@ public class NotificationHelper {
     private static final String CHANNEL_GROUP_ID = "group_0";
     private static final String CHANNEL_GROUP_NAME = "group_0_name";
 
+
     private NotificationManager notificationManager;
     private Context mContext;
 
     private SparseArray<Notification> cache = new SparseArray<>();
+
+    private NotificationResponseRecordDatabase responseDatabase;
+    private NotificationInteractionEventLogger interactionLogger;
 
 
     public NotificationHelper(Context context) {
@@ -84,9 +92,14 @@ public class NotificationHelper {
             //mChannel.setGroup(CHANNEL_GROUP_ID);
         }
 
+        // register local broadcast receiver for notification response callback
         IntentFilter intentFilter = new IntentFilter(INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
         localBroadcastManager.registerReceiver(responseReceiver, intentFilter);
+
+        // acquire notification event loggers
+        responseDatabase = NotificationResponseRecordDatabase.getAppDatabase(context);
+        interactionLogger = NotificationInteractionEventLogger.getInstance();
     }
 
     public Notification getNotification(Type type) {
@@ -144,17 +157,28 @@ public class NotificationHelper {
         }
         */
 
-        PendingIntent activityPendingIntent = PendingIntent.getActivity(mContext, 0,
+        int notificationID = responseDatabase.createResponseRecord(0, 0);
+        interactionLogger.logRegisterNotification(notificationID);
+        Log.i(TAG, "just created a notification with ID " + notificationID);
+
+        Intent activityIntent = new Intent(mContext, TaskActivity.class);
+        int activityRequestCode = 100000 + notificationID;
+        activityIntent.putExtra("notificationID", notificationID);
+        PendingIntent activityPendingIntent = PendingIntent.getActivity(mContext, activityRequestCode,
                 new Intent(mContext, TaskActivity.class), 0);
 
         Intent yesIntent = new Intent(mContext, NotificationProxyReceiver.class);
-        yesIntent.putExtra("response", "1");
-        PendingIntent yesPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+        int yesRequestCode = 200000 + notificationID;
+        yesIntent.putExtra("notificationID", notificationID);
+        yesIntent.putExtra("response", "yes");
+        PendingIntent yesPendingIntent = PendingIntent.getBroadcast(mContext, yesRequestCode,
                 yesIntent, 0);
 
         Intent noIntent = new Intent(mContext, NotificationProxyReceiver.class);
-        yesIntent.putExtra("response", "0");
-        PendingIntent noPendingIntent = PendingIntent.getBroadcast(mContext, 0,
+        int noRequestCode = 300000 + notificationID;
+        noIntent.putExtra("notificationID", notificationID);
+        noIntent.putExtra("response", "no");
+        PendingIntent noPendingIntent = PendingIntent.getBroadcast(mContext, noRequestCode,
                 noIntent, 0);
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -210,8 +234,16 @@ public class NotificationHelper {
     private final BroadcastReceiver responseReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            int notificationID = intent.getIntExtra("notificationID", -1);
             String response = intent.getStringExtra("response");
+            if (response == null)
+                response = "**(undefined)**_";
             Log.i("NotificationHelper", "Receive response:" + response);
+
+            responseDatabase.fillAnswer(notificationID, response);
+            interactionLogger.logRespondInNotification(notificationID, response);
+
+            //TODO: remove the notification
         }
     };
 }

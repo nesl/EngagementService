@@ -4,6 +4,7 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * Created by timestring on 5/25/18.
@@ -46,6 +47,10 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
 
     public NotificationResponseRecord getRecordByID(int ID) {
         return getDao().getRecordByID(ID);
+    }
+
+    public void fillAnswer(int notificationID, @NonNull String answer) {
+        getDao().updateAnswer(notificationID, System.currentTimeMillis(), answer);
     }
 }
 
