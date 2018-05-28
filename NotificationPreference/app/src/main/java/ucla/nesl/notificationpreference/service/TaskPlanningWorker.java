@@ -8,6 +8,9 @@ import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 
 /**
  * Created by timestring on 5/24/18.
+ *
+ * `TaskPlanningWorker` wakes up a specified `TaskSchedulerBase` object based on the given
+ * schedules.
  */
 
 public class TaskPlanningWorker extends AlarmWorker {

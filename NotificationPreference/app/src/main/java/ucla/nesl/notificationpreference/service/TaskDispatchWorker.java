@@ -10,6 +10,9 @@ import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 
 /**
  * Created by timestring on 5/24/18.
+ *
+ * `TaskDispatchWorker` schedules when to deliver tasks to users. The strategy is to check every
+ * half minute (with half minute tolerance).
  */
 
 public class TaskDispatchWorker extends AlarmWorker {

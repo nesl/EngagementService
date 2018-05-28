@@ -11,6 +11,13 @@ import java.util.Locale;
 
 /**
  * Created by timestring on 5/25/18.
+ *
+ * `NotificationInteractionEventLogger` aims to collect all the interaction events no matter how
+ * subtle they are. These events include showing, clicking, or responding a notification.
+ *
+ * Note that this class implements the singleton pattern. Please note that after the logger is
+ * created, the class will not accept the request of getting the instance with explicit file
+ * location.
  */
 
 public class NotificationInteractionEventLogger {

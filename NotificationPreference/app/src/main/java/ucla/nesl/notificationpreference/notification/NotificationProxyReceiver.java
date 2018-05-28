@@ -8,6 +8,9 @@ import android.util.Log;
 
 /**
  * Created by timestring on 5/26/18.
+ *
+ * `NotificationProxyReceiver` handles tedious flow forwarding between `NotificationService` and
+ * `NotificationHelper`. Please see `NotificationHelper` for more information.
  */
 
 public class NotificationProxyReceiver extends BroadcastReceiver {

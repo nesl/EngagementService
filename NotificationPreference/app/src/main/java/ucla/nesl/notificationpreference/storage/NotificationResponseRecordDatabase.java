@@ -7,6 +7,9 @@ import android.content.Context;
 
 /**
  * Created by timestring on 5/25/18.
+ *
+ * `NotificationResponseRecordDatabase` provides a couple operations and communicates with low-level
+ * database system. This class implements the singleton pattern.
  */
 
 @Database(entities = {NotificationResponseRecord.class}, version = 1)

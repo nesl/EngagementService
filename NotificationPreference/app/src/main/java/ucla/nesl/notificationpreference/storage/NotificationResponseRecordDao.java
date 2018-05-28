@@ -7,6 +7,9 @@ import android.arch.persistence.room.Update;
 
 /**
  * Created by timestring on 5/25/18.
+ *
+ * This class defines the common database queries when updating `notification_response_record`
+ * table. Please see `NotificationResponseRecord` class for more details.
  */
 
 @Dao

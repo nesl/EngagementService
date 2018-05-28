@@ -9,7 +9,13 @@ import ucla.nesl.notificationpreference.utils.ArrayUtils;
 /**
  * Created by timestring on 5/17/18.
  *
- * `TaskSchedulerBase` handles when to deliver tasks to users
+ * `TaskSchedulerBase` handles when to deliver tasks to users. Typically, a scheduler has an
+ * infinite loop which wraps the planning logic. `TaskSchedulerBase` follows this pattern.
+ * A `TaskSchedulerBase` class needs to implement the following two things: First, how often the
+ * planning logic should be triggered. Second, the implementation of the scheduler logic.
+ *
+ * Please note that `TaskSchedulerBase` does not execute the scheduler. A separate timer has to
+ * be provided to run the `TaskSchedulerBase` object.
  */
 
 public abstract class TaskSchedulerBase {
@@ -31,8 +37,7 @@ public abstract class TaskSchedulerBase {
     protected abstract int getInitialDecisionIntervalSec();
 
     /**
-     * After the ??WHAT?? service calls `onPlan()`, it checks whether the decision interval is
-     * updated or not via this method.
+     * Check how often the `onPlan()` method has to be called.
      *
      * @return an interval length in seconds
      */
@@ -54,9 +59,9 @@ public abstract class TaskSchedulerBase {
     }
 
     /**
-     * The ??WHAT?? service will call `onPlan()` based on the configured intervals (see
-     * `checkDecisionIntervalSec()`. This gives the scheduler a chance to plan out what the actions
-     * the scheduler should perform, e.g., send a task right away, send a task in a couple minutes.
+     * The callback for task scheduling implementation. This gives the scheduler a chance to plan
+     * out what the actions to be performed (e.g., sending a task right away, sending a task in a
+     * couple minutes, or skipping the current iteration.)
      */
     public abstract void onPlan();
 

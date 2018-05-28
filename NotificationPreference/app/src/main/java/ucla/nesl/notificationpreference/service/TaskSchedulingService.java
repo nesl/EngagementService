@@ -12,6 +12,12 @@ import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.task.PeriodicTaskScheduler;
 import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
 
+/**
+ * Created by timestring on 5/27/18.
+ *
+ * `TaskSchedulingService` is the backbone background service for sending notifications, sensor
+ * data collection, and all the other peripheral features.
+ */
 public class TaskSchedulingService extends Service {
 
     // Binder

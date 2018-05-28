@@ -7,6 +7,9 @@ import android.support.annotation.NonNull;
 
 /**
  * Created by timestring on 5/25/18.
+ *
+ * This class is a data structure for the record of notification responses. Each object records
+ * the status of one notification. This class also declares the database table schema.
  */
 
 @Entity(tableName = "notification_response_record")

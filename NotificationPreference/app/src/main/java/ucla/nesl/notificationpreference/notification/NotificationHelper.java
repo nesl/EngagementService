@@ -26,6 +26,8 @@ import ucla.nesl.notificationpreference.activity.TaskActivity;
  *
  * Notification helps populate the content of the notifications. Now we assume all the notifications
  * are static.
+ *
+ * TODO: need to come back and revise the class assumption here
  */
 
 public class NotificationHelper {
