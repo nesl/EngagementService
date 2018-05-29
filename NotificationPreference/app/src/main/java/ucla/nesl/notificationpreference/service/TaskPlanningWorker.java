@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import ucla.nesl.notificationpreference.alarm.AlarmWorker;
 import ucla.nesl.notificationpreference.alarm.NextTrigger;
-import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
+import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
 /**
  * Created by timestring on 5/24/18.

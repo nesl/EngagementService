@@ -6,10 +6,8 @@ import android.os.IBinder;
 
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
-import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
-import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
-import ucla.nesl.notificationpreference.task.PeriodicTaskScheduler;
-import ucla.nesl.notificationpreference.task.TaskSchedulerBase;
+import ucla.nesl.notificationpreference.task.scheduler.PeriodicTaskScheduler;
+import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
 /**
  * Created by timestring on 5/27/18.

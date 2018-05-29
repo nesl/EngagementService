@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -22,6 +23,8 @@ import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
 import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
+import ucla.nesl.notificationpreference.task.MoodTask;
+import ucla.nesl.notificationpreference.task.ShortQuestionTask;
 
 /**
  * Created by timestring on 2/12/18.
@@ -35,6 +38,10 @@ import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDataba
 public class NotificationHelper {
 
     private static final String TAG = NotificationHelper.class.getSimpleName();
+
+    private static final String INTENT_EXTRA_NAME_NOTIFICATION_ID = "notificationID";
+    private static final String INTENT_EXTRA_NAME_RESPONSE = "response";
+    private static final int OFFSET = 100000;
 
     static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
@@ -161,43 +168,24 @@ public class NotificationHelper {
         interactionLogger.logRegisterNotification(notificationID);
         Log.i(TAG, "just created a notification with ID " + notificationID);
 
-        Intent activityIntent = new Intent(mContext, TaskActivity.class);
-        int activityRequestCode = 100000 + notificationID;
-        activityIntent.putExtra("notificationID", notificationID);
-        PendingIntent activityPendingIntent = PendingIntent.getActivity(mContext, activityRequestCode,
-                new Intent(mContext, TaskActivity.class), 0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, CHANNEL_ID);
 
-        Intent yesIntent = new Intent(mContext, NotificationProxyReceiver.class);
-        int yesRequestCode = 200000 + notificationID;
-        yesIntent.putExtra("notificationID", notificationID);
-        yesIntent.putExtra("response", "yes");
-        PendingIntent yesPendingIntent = PendingIntent.getBroadcast(mContext, yesRequestCode,
-                yesIntent, 0);
+        ShortQuestionTask task = new MoodTask(this, notificationID);
 
-        Intent noIntent = new Intent(mContext, NotificationProxyReceiver.class);
-        int noRequestCode = 300000 + notificationID;
-        noIntent.putExtra("notificationID", notificationID);
-        noIntent.putExtra("response", "no");
-        PendingIntent noPendingIntent = PendingIntent.getBroadcast(mContext, noRequestCode,
-                noIntent, 0);
+        task.fillNotificationLayout(builder);
 
+        // configure non-UI part of the notification
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher)
+        builder.setSmallIcon(R.mipmap.ic_launcher)
                 //.setLargeIcon(R.mipmap.)
                 .setWhen(System.currentTimeMillis())
-                .setContentIntent(activityPendingIntent)
+                .setContentIntent(makeActivityPendingIndent(notificationID))
                 .setDefaults(Notification.DEFAULT_ALL)
-                .setContentTitle("TimeString test Notifications")
+                .setContentTitle("Please answer short question")
                 .setContentText("Please answer the following survey question")
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Is it a good time to reach out you via sending this notification?"))
-                .setTicker("Where is the ticker?")
+                //.setTicker("Where is the ticker?")
                 //.setVisibility(Notification.VISIBILITY_PUBLIC)
-                .addAction(android.R.drawable.checkbox_on_background, "Yes", yesPendingIntent)
-                .addAction(android.R.drawable.checkbox_on_background, "No", noPendingIntent)
-                .setVibrate(new long[]{200,200,200,200,200})
+                //.setVibrate(new long[]{200,200,200,200,200})
                 .setSound(defaultSoundUri)
                 .setAutoCancel(false);
 
@@ -234,10 +222,8 @@ public class NotificationHelper {
     private final BroadcastReceiver responseReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int notificationID = intent.getIntExtra("notificationID", -1);
-            String response = intent.getStringExtra("response");
-            if (response == null)
-                response = "**(undefined)**_";
+            int notificationID = interpretIntentGetNotificationID(intent);
+            String response = interpretIntentGetResponse(intent);
             Log.i("NotificationHelper", "Receive response:" + response);
 
             responseDatabase.fillAnswer(notificationID, response);
@@ -246,4 +232,41 @@ public class NotificationHelper {
             //TODO: remove the notification
         }
     };
+
+
+    //region Section: PendingIntent factory and interpreter
+    // =============================================================================================
+    public PendingIntent makeActivityPendingIndent(int notificationID) {
+        Intent intent = new Intent(mContext, TaskActivity.class);
+        intent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
+        int requestCode = notificationID * OFFSET;
+        return PendingIntent.getActivity(mContext, requestCode, intent, 0);
+    }
+
+    public PendingIntent makeActionPendingIndent(
+            int notificationID, int buttonID, String response) {
+
+        if (buttonID <= 0 || buttonID >= OFFSET) {
+            throw new IllegalArgumentException("button ID has to be 1 ~ " + (OFFSET - 1));
+        }
+
+        Intent intent = new Intent(mContext, NotificationProxyReceiver.class);
+        int requestCode = notificationID * OFFSET + buttonID;
+        intent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
+        intent.putExtra(INTENT_EXTRA_NAME_RESPONSE, response);
+        return PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
+    }
+
+    private int interpretIntentGetNotificationID(Intent intent) {
+        return intent.getIntExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, -1);
+    }
+
+    @NonNull
+    private String interpretIntentGetResponse(Intent intent) {
+        String response = intent.getStringExtra("response");
+        if (response == null)
+            response = "**(undefined)**_";
+        return response;
+    }
+    //endregion
 }

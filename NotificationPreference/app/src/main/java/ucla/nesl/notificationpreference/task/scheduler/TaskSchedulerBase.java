@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.task;
+package ucla.nesl.notificationpreference.task.scheduler;
 
 import java.util.Arrays;
 import java.util.Comparator;
