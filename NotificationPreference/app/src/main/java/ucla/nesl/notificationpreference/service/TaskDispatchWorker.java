@@ -34,7 +34,7 @@ public class TaskDispatchWorker extends AlarmWorker {
         Log.i("TaskDispatchWorker", "check event queue " + nextEvent + "/" + System.currentTimeMillis());
         if (nextEvent != null && System.currentTimeMillis() >= nextEvent) {
             taskScheduler.removeFirstTask();
-            notificationHelper.sendNotification(NotificationHelper.Type.LOCATION_CHANGED);
+            notificationHelper.createAndSendTaskNotification();
             Log.i("TaskDispatchWorker", "hey we just fired a task!!");
         }
 

@@ -1,6 +1,7 @@
 package ucla.nesl.notificationpreference.task;
 
 import android.app.PendingIntent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
@@ -11,11 +12,11 @@ import ucla.nesl.notificationpreference.notification.NotificationHelper;
 
 public abstract class ShortQuestionTask {
 
-    private NotificationHelper notificationHelper;
     private int notificationID;
 
-    public ShortQuestionTask(NotificationHelper _notificationHelper, int _notificationID) {
-        notificationHelper = _notificationHelper;
+    private NotificationHelper notificationHelper;
+
+    public ShortQuestionTask(int _notificationID) {
         notificationID = _notificationID;
     }
 
@@ -26,11 +27,25 @@ public abstract class ShortQuestionTask {
      *
      * @param builder: The notification builder to build the layout of the notification
      */
-    public abstract void fillNotificationLayout(NotificationCompat.Builder builder);
+    public abstract void fillNotificationLayout(NotificationHelper notificationHelper,
+                                                NotificationCompat.Builder builder);
 
     //TODO: abstract void getViewLayoutInActivity();
 
+    protected final void setNotificationHelper(NotificationHelper _notificationHelper) {
+        notificationHelper = _notificationHelper;
+    }
+
+    protected final PendingIntent getActionPendingIndent(
+            @NonNull NotificationHelper _notificationHelper, int buttonID, String response) {
+        setNotificationHelper(_notificationHelper);
+        return getActionPendingIndent(buttonID, response);
+    }
+
     protected final PendingIntent getActionPendingIndent(int buttonID, String response) {
+        if (notificationHelper == null) {
+            throw new IllegalStateException("no notification helper is given");
+        }
         return notificationHelper.makeActionPendingIndent(notificationID, buttonID, response);
     }
 }

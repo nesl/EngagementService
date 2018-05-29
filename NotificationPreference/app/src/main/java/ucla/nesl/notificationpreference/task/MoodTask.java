@@ -13,17 +13,19 @@ public class MoodTask extends ShortQuestionTask {
     private static final int BUTTON_ID_YES = 1;
     private static final int BUTTON_ID_NO = 2;
 
-    public MoodTask(NotificationHelper notificationHelper, int notificationID) {
-        super(notificationHelper, notificationID);
+    public MoodTask(int notificationID) {
+        super(notificationID);
     }
 
     @Override
-    public void fillNotificationLayout(NotificationCompat.Builder builder) {
+    public void fillNotificationLayout(NotificationHelper notificationHelper,
+                                       NotificationCompat.Builder builder) {
+
         builder.setContentText("Please answer the following survey question")
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("Is it a good time to reach out you via sending this notification?"))
                 .addAction(android.R.drawable.checkbox_on_background, "Yes",
-                        getActionPendingIndent(BUTTON_ID_YES, "Yes"))
+                        getActionPendingIndent(notificationHelper, BUTTON_ID_YES, "Yes"))
                 .addAction(android.R.drawable.checkbox_on_background, "No",
                         getActionPendingIndent(BUTTON_ID_NO, "No"));
     }
