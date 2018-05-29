@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -63,6 +65,28 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
     }
+
+    //region Section: UI Option menu
+    // =============================================================================================
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_debug: {
+                Intent intent = new Intent(getApplicationContext(), DebugActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+    //endregion
 
     View.OnClickListener sendNotificationEvent = new View.OnClickListener() {
         @Override

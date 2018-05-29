@@ -27,7 +27,7 @@ public class NotificationResponseRecord {
     public int questionType;
 
     @ColumnInfo(name = "sub_question_type")
-    public int questionSubType;
+    public int subQuestionType;
 
     @ColumnInfo(name = "answer_time")
     public long answerTime = NOT_SET;

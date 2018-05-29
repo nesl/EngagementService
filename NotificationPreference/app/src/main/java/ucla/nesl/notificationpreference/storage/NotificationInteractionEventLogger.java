@@ -25,7 +25,7 @@ public class NotificationInteractionEventLogger {
     private static final String TAG = "NotiEventLogger";
 
     private static final File DEFAULT_FILE = new File(
-            Environment.getExternalStorageDirectory(), "notification_interaction.evevt.txt");
+            Environment.getExternalStorageDirectory(), "notification_interaction.event.txt");
 
     private static NotificationInteractionEventLogger instance;
 

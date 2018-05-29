@@ -27,7 +27,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "questionSubType",
+            "fieldPath": "subQuestionType",
             "columnName": "sub_question_type",
             "affinity": "INTEGER",
             "notNull": true

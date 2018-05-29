@@ -36,6 +36,10 @@
             android:enabled="true"
             android:exported="false" />
 
+        <activity
+            android:name=".activity.DebugActivity"
+            android:label="@string/title_activity_debug"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

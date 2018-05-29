@@ -5,6 +5,8 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.support.annotation.NonNull;
 
+import java.util.List;
+
 /**
  * Created by timestring on 5/25/18.
  *
@@ -20,6 +22,9 @@ public interface NotificationResponseRecordDao {
 
     @Query("SELECT * FROM notification_response_record WHERE ID = :ID")
     NotificationResponseRecord getRecordByID(int ID);
+
+    @Query("SELECT * FROM notification_response_record ORDER BY ID")
+    List<NotificationResponseRecord> getAllRecords();
 
     //@Query("SELECT * FROM user_activity WHERE end_time_ms = " + Utils.INVALID_TIME + " ORDER BY start_time_ms DESC")
     //List<UserActivity> getAllWithInvalidEndTimeStartTimeDesc();
