@@ -3,7 +3,9 @@ package ucla.nesl.notificationpreference.task;
 import android.app.PendingIntent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.view.ViewGroup;
 
+import ucla.nesl.notificationpreference.activity.TaskActivity;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 
 /**
@@ -32,7 +34,7 @@ public abstract class ShortQuestionTask {
     public abstract void fillNotificationLayout(NotificationHelper notificationHelper,
                                                 NotificationCompat.Builder builder);
 
-    //TODO: abstract void getViewLayoutInActivity();
+    public abstract ViewGroup getViewLayoutInActivity(TaskActivity taskActivity);
 
     protected final void setNotificationHelper(NotificationHelper _notificationHelper) {
         notificationHelper = _notificationHelper;
@@ -40,6 +42,10 @@ public abstract class ShortQuestionTask {
 
     @NonNull
     public abstract String getPrimaryQuestionStatement();
+
+    protected final int getNotificationID() {
+        return notificationID;
+    }
 
     protected final PendingIntent getActionPendingIndent(
             @NonNull NotificationHelper _notificationHelper, int buttonID, String response) {

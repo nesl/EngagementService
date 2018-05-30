@@ -40,6 +40,8 @@ public class NotificationHelper {
 
     static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
+    public static final int NOTIFICATION_ID_NOT_SET = -1;
+
     private static final String INTENT_EXTRA_NAME_NOTIFICATION_ID = "notificationID";
     private static final String INTENT_EXTRA_NAME_RESPONSE = "response";
     private static final int OFFSET = 100000;
@@ -189,8 +191,8 @@ public class NotificationHelper {
         return PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
     }
 
-    private int interpretIntentGetNotificationID(Intent intent) {
-        return intent.getIntExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, -1);
+    public static int interpretIntentGetNotificationID(Intent intent) {
+        return intent.getIntExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, NOTIFICATION_ID_NOT_SET);
     }
 
     @NonNull
