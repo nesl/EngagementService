@@ -15,6 +15,12 @@ import android.support.annotation.NonNull;
 @Entity(tableName = "notification_response_record")
 public class NotificationResponseRecord {
 
+    public static final int STATUS_APPEAR = 0;
+    public static final int STATUS_SEEN = 1;
+    public static final int STATUS_RESPONDED = 2;
+    public static final int STATUS_EXPIRED = 3;
+
+
     public static final long NOT_SET = 0L;
 
     @PrimaryKey(autoGenerate = true)
@@ -28,6 +34,9 @@ public class NotificationResponseRecord {
 
     @ColumnInfo(name = "sub_question_type")
     public int subQuestionType;
+
+    @ColumnInfo(name = "status")
+    public int status;
 
     @ColumnInfo(name = "answer_time")
     public long answerTime = NOT_SET;

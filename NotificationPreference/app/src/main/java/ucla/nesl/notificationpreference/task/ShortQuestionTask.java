@@ -20,6 +20,8 @@ public abstract class ShortQuestionTask {
         notificationID = _notificationID;
     }
 
+    public abstract int getTypeID();
+
     /**
      * `fillNotificationLayout()` takes care of the visual part of the notification, including
      * the content, style, and actions. This method shouldn't configure things such as title, when
@@ -35,6 +37,9 @@ public abstract class ShortQuestionTask {
     protected final void setNotificationHelper(NotificationHelper _notificationHelper) {
         notificationHelper = _notificationHelper;
     }
+
+    @NonNull
+    public abstract String getPrimaryQuestionStatement();
 
     protected final PendingIntent getActionPendingIndent(
             @NonNull NotificationHelper _notificationHelper, int buttonID, String response) {

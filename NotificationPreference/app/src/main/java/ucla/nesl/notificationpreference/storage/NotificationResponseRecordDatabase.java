@@ -11,6 +11,7 @@ import com.opencsv.CSVWriter;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 /**
  * Created by timestring on 5/25/18.
@@ -51,11 +52,16 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
         record.createdTime = System.currentTimeMillis();
         record.questionType = questionType;
         record.subQuestionType = questionSubType;
+        record.status = NotificationResponseRecord.STATUS_APPEAR;
         return (int) getDao().insert(record);
     }
 
     public NotificationResponseRecord getRecordByID(int ID) {
         return getDao().getRecordByID(ID);
+    }
+
+    public ArrayList<NotificationResponseRecord> getAllRecordsReverseOrder() {
+        return new ArrayList<>(getDao().getAllRecordsReverseOrder());
     }
 
     public void fillAnswer(int notificationID, @NonNull String answer) {
@@ -72,6 +78,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                     "created_time",
                     "question_type",
                     "sub_question_type",
+                    "status",
                     "answer_time",
                     "answer",
                     "expired_time"
@@ -84,6 +91,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                         String.valueOf(record.createdTime),
                         String.valueOf(record.questionType),
                         String.valueOf(record.subQuestionType),
+                        String.valueOf(record.status),
                         String.valueOf(record.answerTime),
                         String.valueOf(record.answer),
                         String.valueOf(record.expiredTime)
@@ -99,6 +107,3 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
         return true;
     }
 }
-
-
-

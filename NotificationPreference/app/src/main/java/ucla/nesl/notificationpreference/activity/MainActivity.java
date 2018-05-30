@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 
 import ucla.nesl.notificationpreference.R;
+import ucla.nesl.notificationpreference.activity.history.ResponseHistoryActivity;
 import ucla.nesl.notificationpreference.service.TaskSchedulingService;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
 
@@ -101,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             //notificationHelper.cancelNotification(NotificationHelper.Type.LOCATION_CHANGED);
+            Intent intent = new Intent(getApplicationContext(), ResponseHistoryActivity.class);
+            startActivity(intent);
         }
     };
 

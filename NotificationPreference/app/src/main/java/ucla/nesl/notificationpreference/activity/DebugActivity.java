@@ -21,10 +21,10 @@ public class DebugActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Button dumpDBButton = (Button) findViewById(R.id.buttonDBDump);
+        Button dumpDBButton = findViewById(R.id.buttonDBDump);
         dumpDBButton.setOnClickListener(dumpDBEvent);
 
         toastHelper = new ToastShortcut(this);

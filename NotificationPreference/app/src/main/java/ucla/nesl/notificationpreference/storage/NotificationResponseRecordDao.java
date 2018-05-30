@@ -26,6 +26,9 @@ public interface NotificationResponseRecordDao {
     @Query("SELECT * FROM notification_response_record ORDER BY ID")
     List<NotificationResponseRecord> getAllRecords();
 
+    @Query("SELECT * FROM notification_response_record ORDER BY ID DESC")
+    List<NotificationResponseRecord> getAllRecordsReverseOrder();
+
     //@Query("SELECT * FROM user_activity WHERE end_time_ms = " + Utils.INVALID_TIME + " ORDER BY start_time_ms DESC")
     //List<UserActivity> getAllWithInvalidEndTimeStartTimeDesc();
 
@@ -36,7 +39,8 @@ public interface NotificationResponseRecordDao {
     int countAll();
 
     @Query("UPDATE notification_response_record " +
-           "SET answer_time = :answerTime, answer = :answer " +
+           "SET answer_time = :answerTime, answer = :answer, " +
+           "    status = " + NotificationResponseRecord.STATUS_RESPONDED + " " +
            "WHERE ID = :notificationID")
     void updateAnswer(int notificationID, long answerTime, @NonNull String answer);
 }

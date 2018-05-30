@@ -1,5 +1,9 @@
 package ucla.nesl.notificationpreference.utils;
 
+import android.text.format.DateFormat;
+
+import java.util.Date;
+
 /**
  * Created by timestring on 05/15/18.
  *
@@ -24,6 +28,13 @@ public class Utils {
             builder.append(cs);
         }
         return builder.toString();
+    }
+    //endregion
+
+    //region Section: Date formatting utilities
+    // =============================================================================================
+    public static String formatDate(String format, long timestamp) {
+        return DateFormat.format(format, new Date(timestamp)).toString();
     }
     //endregion
 }

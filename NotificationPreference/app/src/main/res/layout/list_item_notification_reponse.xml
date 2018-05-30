@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/textQuestionStr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Question: "/>
+
+        <TextView
+            android:id="@+id/textQuestionStat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/textQuestionStr"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/textAppearTimeStr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notified at: "/>
+
+        <TextView
+            android:id="@+id/textAppearTimeStat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/textAppearTimeStr"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/textStatusStr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: "/>
+
+        <TextView
+            android:id="@+id/textStatusStat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/textStatusStr"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="2dp"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/textAnswerStr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your answer: "/>
+
+        <TextView
+            android:id="@+id/textAnswerStat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/textAnswerStr"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/buttonComplete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="center_horizontal"
+        android:text="Complete the question"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_marginTop="8dp"
+        android:background="#FFBBBBBB" />
+
+</LinearLayout>
