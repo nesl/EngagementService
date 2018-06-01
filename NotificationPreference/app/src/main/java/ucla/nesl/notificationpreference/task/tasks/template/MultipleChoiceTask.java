@@ -63,7 +63,6 @@ public abstract class MultipleChoiceTask extends ShortQuestionTask {
                 DP.toPX(200), LinearLayout.LayoutParams.WRAP_CONTENT);
         buttonLayoutParams.gravity = Gravity.CENTER;
 
-        String[] options = getOptions();
         for (String option : getOptions()) {
             Button button = new Button(taskActivity);
             button.setText(option);

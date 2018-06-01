@@ -9,7 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
-import ucla.nesl.notificationpreference.task.tasks.MoodTask;
+import ucla.nesl.notificationpreference.task.tasks.template.FreeTextTask;
 
 /**
  * Created by timestring on 5/31/18.
@@ -27,7 +27,7 @@ public class NotificationInlineTextProxyReceiver extends BroadcastReceiver {
             return;
         }
 
-        CharSequence sequence = remoteInput.getCharSequence(MoodTask.KEY_TEXT_REPLY);
+        CharSequence sequence = remoteInput.getCharSequence(FreeTextTask.KEY_TEXT_REPLY);
         if (sequence == null) {
             Log.e(TAG, "char-sequence is null");
             return;

@@ -12,7 +12,9 @@ public class TaskTypeSampler {
 
     public void sample() {
         Random random = new Random();
-        questionType = random.nextInt(3);
+        questionType = random.nextInt(4);
+
+        //questionType = 1;
     }
 
     public int getQuestionType() {

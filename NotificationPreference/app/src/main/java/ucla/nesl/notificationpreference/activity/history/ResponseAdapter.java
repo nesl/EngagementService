@@ -90,7 +90,6 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
                 historyActivity.getOnClickEventListenerToCompleteTask(record.getID()));
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return records.size();

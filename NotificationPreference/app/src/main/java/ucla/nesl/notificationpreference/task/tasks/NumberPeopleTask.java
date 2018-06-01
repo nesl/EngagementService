@@ -8,12 +8,12 @@ import ucla.nesl.notificationpreference.task.tasks.template.FreeTextTask;
  * Created by timestring on 5/31/18.
  */
 
-public class MoodTask extends FreeTextTask {
+public class NumberPeopleTask extends FreeTextTask {
 
-    public static final int TASK_ID = 1;
+    public static final int TASK_ID = 3;
 
 
-    public MoodTask(int notificationID) {
+    public NumberPeopleTask(int notificationID) {
         super(notificationID);
     }
 
@@ -23,6 +23,6 @@ public class MoodTask extends FreeTextTask {
 
     @NonNull
     public String getPrimaryQuestionStatement() {
-        return "Please your current mood in one or two words.";
+        return "How many people are there around you?";
     }
 }
