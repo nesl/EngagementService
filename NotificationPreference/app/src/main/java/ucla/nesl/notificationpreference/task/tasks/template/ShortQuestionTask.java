@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.task;
+package ucla.nesl.notificationpreference.task.tasks.template;
 
 import android.app.PendingIntent;
 import android.support.annotation.CallSuper;

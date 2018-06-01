@@ -24,7 +24,7 @@ import ucla.nesl.notificationpreference.notification.receiver.NotificationButton
 import ucla.nesl.notificationpreference.notification.receiver.NotificationInlineTextProxyReceiver;
 import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
-import ucla.nesl.notificationpreference.task.ShortQuestionTask;
+import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 import ucla.nesl.notificationpreference.task.TaskFactory;
 import ucla.nesl.notificationpreference.task.TaskTypeSampler;
 

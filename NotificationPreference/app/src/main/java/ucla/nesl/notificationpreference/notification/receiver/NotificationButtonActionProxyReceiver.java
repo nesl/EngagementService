@@ -9,7 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
-import ucla.nesl.notificationpreference.task.MoodTask;
+import ucla.nesl.notificationpreference.task.tasks.MoodTask;
 
 /**
  * Created by timestring on 5/26/18.

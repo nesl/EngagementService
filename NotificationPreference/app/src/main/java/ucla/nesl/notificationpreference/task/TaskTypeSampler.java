@@ -1,5 +1,7 @@
 package ucla.nesl.notificationpreference.task;
 
+import java.util.Random;
+
 /**
  * Created by timestring on 5/31/18.
  */
@@ -9,10 +11,8 @@ public class TaskTypeSampler {
     private int subQuestionType = 0;
 
     public void sample() {
-        //Random random = new Random();
-        //questionType = random.nextInt(2);
-
-        questionType = 1;
+        Random random = new Random();
+        questionType = random.nextInt(3);
     }
 
     public int getQuestionType() {

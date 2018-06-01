@@ -16,7 +16,7 @@ import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
-import ucla.nesl.notificationpreference.task.ShortQuestionTask;
+import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 import ucla.nesl.notificationpreference.task.TaskFactory;
 
 public class TaskActivity extends AppCompatActivity {

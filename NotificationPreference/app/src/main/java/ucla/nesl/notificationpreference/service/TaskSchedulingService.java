@@ -26,7 +26,7 @@ public class TaskSchedulingService extends Service {
 
     @Override
     public void onCreate() {
-        taskScheduler = new PeriodicTaskScheduler(10 * 60);  // 10 minutes
+        taskScheduler = new PeriodicTaskScheduler(3 * 60);  // 10 minutes
 
         notificationHelper = new NotificationHelper(this);
 

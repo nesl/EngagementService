@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.task;
+package ucla.nesl.notificationpreference.task.tasks;
 
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
@@ -15,6 +15,7 @@ import android.widget.TextView;
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 import ucla.nesl.notificationpreference.utils.DP;
 
 /**

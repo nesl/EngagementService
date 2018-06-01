@@ -3,6 +3,10 @@ package ucla.nesl.notificationpreference.task;
 import android.util.Log;
 
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecord;
+import ucla.nesl.notificationpreference.task.tasks.AvailabilityTask;
+import ucla.nesl.notificationpreference.task.tasks.MoodTask;
+import ucla.nesl.notificationpreference.task.tasks.template.HowLoudTask;
+import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 
 /**
  * Created by timestring on 5/29/18.
@@ -22,6 +26,8 @@ public class TaskFactory {
                 return new AvailabilityTask(notificationID);
             case MoodTask.TASK_ID:
                 return new MoodTask(notificationID);
+            case HowLoudTask.TASK_ID:
+                return new HowLoudTask(notificationID);
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }
