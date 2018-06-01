@@ -27,6 +27,7 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
     private static final String DATE_FORMAT = "MMM dd, H:mm";
 
     private ArrayList<NotificationResponseRecord> records;
+    private ResponseHistoryActivity historyActivity;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
@@ -37,8 +38,12 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
         }
     }
 
-    public ResponseAdapter(@NonNull ArrayList<NotificationResponseRecord> _records) {
+    public ResponseAdapter(
+            @NonNull ArrayList<NotificationResponseRecord> _records,
+            ResponseHistoryActivity _activity
+    ) {
         records = _records;
+        historyActivity = _activity;
     }
 
     @Override
@@ -54,7 +59,7 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.i("ResponseAdapter", "Get view in position " + position);
         View rowView = holder.view;
-        NotificationResponseRecord record = records.get(position);
+        final NotificationResponseRecord record = records.get(position);
         ShortQuestionTask task = TaskFactory.retrieveExistingTask(record);
 
         TextView questionText = rowView.findViewById(R.id.textQuestionStat);
@@ -81,6 +86,8 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
         } else {
             buttonCompleteQuestion.setVisibility(View.GONE);
         }
+        buttonCompleteQuestion.setOnClickListener(
+                historyActivity.getOnClickEventListenerToCompleteTask(record.getID()));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

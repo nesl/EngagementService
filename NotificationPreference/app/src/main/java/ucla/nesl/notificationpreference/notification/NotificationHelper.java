@@ -20,10 +20,13 @@ import android.util.SparseArray;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
+import ucla.nesl.notificationpreference.notification.receiver.NotificationButtonActionProxyReceiver;
+import ucla.nesl.notificationpreference.notification.receiver.NotificationInlineTextProxyReceiver;
 import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
-import ucla.nesl.notificationpreference.task.MoodTask;
 import ucla.nesl.notificationpreference.task.ShortQuestionTask;
+import ucla.nesl.notificationpreference.task.TaskFactory;
+import ucla.nesl.notificationpreference.task.TaskTypeSampler;
 
 /**
  * Created by timestring on 2/12/18.
@@ -38,7 +41,7 @@ public class NotificationHelper {
 
     private static final String TAG = NotificationHelper.class.getSimpleName();
 
-    static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
+    public static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
     public static final int NOTIFICATION_ID_NOT_SET = -1;
 
@@ -102,16 +105,21 @@ public class NotificationHelper {
     // =============================================================================================
     public int createAndSendTaskNotification() {
 
+        // decide task type
+        TaskTypeSampler taskSampler = new TaskTypeSampler();
+        taskSampler.sample();
+        int questionType = taskSampler.getQuestionType();
+        int subQuestionType = taskSampler.getSubQuestionType();
+
         // register a notification record in database
-        int notificationID = responseDatabase.createResponseRecord(0, 0);
+        int notificationID = responseDatabase.createResponseRecord(questionType, subQuestionType);
         interactionLogger.logRegisterNotification(notificationID);
         Log.i(TAG, "just created a notification with ID " + notificationID);
 
         // fill task-specific content in the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, CHANNEL_ID);
 
-        // TODO: may instantiate a different kind of task
-        ShortQuestionTask task = new MoodTask(notificationID);
+        ShortQuestionTask task = TaskFactory.getTask(questionType, subQuestionType, notificationID);
 
         task.fillNotificationLayout(this, builder);
 
@@ -123,7 +131,6 @@ public class NotificationHelper {
                 .setContentIntent(makeActivityPendingIndent(notificationID))
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentTitle("Please answer short question")
-                .setContentText("Please answer the following survey question")
                 //.setTicker("Where is the ticker?")
                 //.setVisibility(Notification.VISIBILITY_PUBLIC)
                 //.setVibrate(new long[]{200,200,200,200,200})
@@ -163,31 +170,63 @@ public class NotificationHelper {
             responseDatabase.fillAnswer(notificationID, response);
             interactionLogger.logRespondInNotification(notificationID, response);
 
-            //TODO: remove the notification
+/*
+            Log.i("NotificationHelper", "notification ID:" + notificationID);
+
+            Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+            if (remoteInput != null){
+                CharSequence seq = remoteInput.getCharSequence(MoodTask.KEY_TEXT_REPLY);
+                if (seq == null) {
+                    Log.i("NotificationHelper", "sequence is null");
+                } else {
+                    Log.i("NotificationHelper", "Yes! we get " + seq.toString());
+                }
+            } else {
+                Log.i("NotificationHelper", "Sounds like an empty bundle");
+            }*/
+
+            cancelNotification(notificationID);
         }
     };
     //endregion
 
     //region Section: PendingIntent factory and interpreter
     // =============================================================================================
-    public PendingIntent makeActivityPendingIndent(int notificationID) {
-        Intent intent = new Intent(mContext, TaskActivity.class);
+    public static void overloadInfoOnIntentForActivity(Intent intent, int notificationID) {
         intent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
+    }
+
+    public static void overloadIDAndResponseOnIntent(
+            Intent intent, int notificationID, @NonNull String response) {
+        intent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
+        intent.putExtra(INTENT_EXTRA_NAME_RESPONSE, response);
+    }
+
+    private PendingIntent makeActivityPendingIndent(int notificationID) {
+        Intent intent = new Intent(mContext, TaskActivity.class);
+        overloadInfoOnIntentForActivity(intent, notificationID);
         int requestCode = notificationID * OFFSET;
         return PendingIntent.getActivity(mContext, requestCode, intent, 0);
     }
 
-    public PendingIntent makeActionPendingIndent(
+    public PendingIntent makeButtonActionPendingIndent(
             int notificationID, int buttonID, String response) {
 
         if (buttonID <= 0 || buttonID >= OFFSET) {
             throw new IllegalArgumentException("button ID has to be 1 ~ " + (OFFSET - 1));
         }
 
-        Intent intent = new Intent(mContext, NotificationProxyReceiver.class);
+        Intent intent = new Intent(mContext, NotificationButtonActionProxyReceiver.class);
         int requestCode = notificationID * OFFSET + buttonID;
-        intent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
-        intent.putExtra(INTENT_EXTRA_NAME_RESPONSE, response);
+        overloadIDAndResponseOnIntent(intent, notificationID, response);
+        return PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
+    }
+
+    public PendingIntent makeInlineTextActionPendingIndent(int notificationID) {
+        Log.i(TAG, "in makeInlineTextActionPendingIndent()");
+        Intent intent = new Intent(mContext, NotificationInlineTextProxyReceiver.class);
+        int requestCode = notificationID * OFFSET;
+        overloadInfoOnIntentForActivity(intent, notificationID);
         return PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
     }
 

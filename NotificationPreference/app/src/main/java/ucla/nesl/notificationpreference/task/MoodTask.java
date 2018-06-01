@@ -1,40 +1,35 @@
 package ucla.nesl.notificationpreference.task;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.RemoteInput;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
-import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
-import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
 import ucla.nesl.notificationpreference.utils.DP;
 
 /**
- * Created by timestring on 5/28/18.
+ * Created by timestring on 5/31/18.
  */
 
 public class MoodTask extends ShortQuestionTask {
 
-    public static final int TASK_ID = 0;
+    public static final int TASK_ID = 1;
 
-    private static final int BUTTON_ID_YES = 1;
-    private static final int BUTTON_ID_NO = 2;
-
-    private static final String RESPONSE_TEXT_YES = "Yes";
-    private static final String RESPONSE_TEXT_NO = "No";
-
-    private static final String RESPONSE_VALUE_YES = "Yes";
-    private static final String RESPONSE_VALUE_NO = "No";
+    public static final String KEY_TEXT_REPLY = "key.text.reply";
 
     private static final String QUESTION_STATEMENT =
-            "Is it a good time to reach out you via sending this notification?";
+            "Please your current mood in one or two words.";
+
 
     public MoodTask(int notificationID) {
         super(notificationID);
@@ -53,14 +48,23 @@ public class MoodTask extends ShortQuestionTask {
     public void fillNotificationLayout(NotificationHelper notificationHelper,
                                        NotificationCompat.Builder builder) {
 
-        builder.setContentText("Please answer the following survey question")
+        super.fillNotificationLayout(notificationHelper, builder);
+
+        RemoteInput remoteInput = new RemoteInput.Builder(KEY_TEXT_REPLY)
+                .setLabel("Your response")
+                .build();
+
+        NotificationCompat.Action action = new NotificationCompat.Action.Builder(
+                R.mipmap.ic_launcher_round, "Reply", getInlineTextActionPendingIndent())
+                .addRemoteInput(remoteInput)
+                .build();
+
+        builder.setContentText(QUESTION_STATEMENT)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(QUESTION_STATEMENT))
-                .addAction(android.R.drawable.checkbox_on_background, RESPONSE_TEXT_YES,
-                        getActionPendingIndent(notificationHelper, BUTTON_ID_YES, RESPONSE_VALUE_YES))
-                .addAction(android.R.drawable.checkbox_on_background, RESPONSE_TEXT_NO,
-                        getActionPendingIndent(BUTTON_ID_NO, RESPONSE_VALUE_NO));
+                .addAction(action);
     }
 
+    @Override
     public ViewGroup getViewLayoutInActivity(TaskActivity taskActivity) {
 
         LinearLayout layout = new LinearLayout(taskActivity);
@@ -69,31 +73,36 @@ public class MoodTask extends ShortQuestionTask {
         // blank space
         TextView blankSpace = new TextView(taskActivity);
         LinearLayout.LayoutParams blankSpaceLayoutParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, DP.toPX(80));
+                LinearLayout.LayoutParams.MATCH_PARENT, DP.toPX(50));
         blankSpace.setLayoutParams(blankSpaceLayoutParams);
         blankSpace.setVisibility(View.INVISIBLE);
         layout.addView(blankSpace);
 
-        // buttons
+        // the edit-text field
+        EditText answerEdit = new EditText(taskActivity);
+        LinearLayout.LayoutParams answerLayoutParameter = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        int dp50 = DP.toPX(50);
+        answerLayoutParameter.setMargins(dp50, dp50, dp50, dp50);
+        answerEdit.setLayoutParams(answerLayoutParameter);
+        answerEdit.setSingleLine();
+        answerEdit.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        answerEdit.setOnEditorActionListener(
+                taskActivity.getOnEditorActionListenerForResponse(getNotificationID()));
+        layout.addView(answerEdit);
+
+        // the submit button
+        Button submitButton = new Button(taskActivity);
+        submitButton.setText("Submit");
+
         LinearLayout.LayoutParams buttonLayoutParams = new LinearLayout.LayoutParams(
                 DP.toPX(200), LinearLayout.LayoutParams.WRAP_CONTENT);
         buttonLayoutParams.gravity = Gravity.CENTER;
-
-        Button yesButton = new Button(taskActivity);
-        yesButton.setText(RESPONSE_TEXT_YES);
-        yesButton.setLayoutParams(buttonLayoutParams);
-        yesButton.setOnClickListener(taskActivity.getOnClickEventListenerForResponse(
-                getNotificationID(), RESPONSE_VALUE_YES));
-        //yesButton.setGravity(Gravity.CENTER);
-        layout.addView(yesButton);
-
-        Button noButton = new Button(taskActivity);
-        noButton.setText(RESPONSE_TEXT_NO);
-        noButton.setLayoutParams(buttonLayoutParams);
-        noButton.setOnClickListener(taskActivity.getOnClickEventListenerForResponse(
-                getNotificationID(), RESPONSE_VALUE_NO));
-        //noButton.setGravity(Gravity.CENTER);
-        layout.addView(noButton);
+        submitButton.setLayoutParams(buttonLayoutParams);
+        submitButton.setOnClickListener(taskActivity.getOnClickEventListenerForSubmittingEditText(
+                getNotificationID(), answerEdit));
+        submitButton.setGravity(Gravity.CENTER);
+        layout.addView(submitButton);
 
         return layout;
     }

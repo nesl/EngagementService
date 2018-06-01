@@ -1,6 +1,7 @@
 package ucla.nesl.notificationpreference.task;
 
 import android.app.PendingIntent;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.view.ViewGroup;
@@ -29,10 +30,14 @@ public abstract class ShortQuestionTask {
      * the content, style, and actions. This method shouldn't configure things such as title, when
      * to trigger the notification, interaction mode, priority, etc.
      *
-     * @param builder: The notification builder to build the layout of the notification
+     * @param _notificationHelper: The notification helper instance
+     * @param _builder: The notification builder to build the layout of the notification
      */
-    public abstract void fillNotificationLayout(NotificationHelper notificationHelper,
-                                                NotificationCompat.Builder builder);
+    @CallSuper
+    public void fillNotificationLayout(NotificationHelper _notificationHelper,
+                                       NotificationCompat.Builder _builder) {
+        notificationHelper = _notificationHelper;
+    }
 
     public abstract ViewGroup getViewLayoutInActivity(TaskActivity taskActivity);
 
@@ -47,16 +52,11 @@ public abstract class ShortQuestionTask {
         return notificationID;
     }
 
-    protected final PendingIntent getActionPendingIndent(
-            @NonNull NotificationHelper _notificationHelper, int buttonID, String response) {
-        setNotificationHelper(_notificationHelper);
-        return getActionPendingIndent(buttonID, response);
+    protected final PendingIntent getButtonActionPendingIndent(int buttonID, String response) {
+        return notificationHelper.makeButtonActionPendingIndent(notificationID, buttonID, response);
     }
 
-    protected final PendingIntent getActionPendingIndent(int buttonID, String response) {
-        if (notificationHelper == null) {
-            throw new IllegalStateException("no notification helper is given");
-        }
-        return notificationHelper.makeActionPendingIndent(notificationID, buttonID, response);
+    protected final PendingIntent getInlineTextActionPendingIndent() {
+        return notificationHelper.makeInlineTextActionPendingIndent(notificationID);
     }
 }

@@ -47,11 +47,11 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
         INSTANCE = null;
     }
 
-    public int createResponseRecord(int questionType, int questionSubType) {
+    public int createResponseRecord(int questionType, int subQuestionType) {
         NotificationResponseRecord record = new NotificationResponseRecord();
         record.createdTime = System.currentTimeMillis();
         record.questionType = questionType;
-        record.subQuestionType = questionSubType;
+        record.subQuestionType = subQuestionType;
         record.status = NotificationResponseRecord.STATUS_APPEAR;
         return (int) getDao().insert(record);
     }

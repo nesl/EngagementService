@@ -1,11 +1,15 @@
 package ucla.nesl.notificationpreference.activity.history;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import ucla.nesl.notificationpreference.R;
+import ucla.nesl.notificationpreference.activity.TaskActivity;
+import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
 
 public class ResponseHistoryActivity extends AppCompatActivity {
@@ -42,7 +46,7 @@ public class ResponseHistoryActivity extends AppCompatActivity {
     }
 
     private void updateList() {
-        mAdapter = new ResponseAdapter(database.getAllRecordsReverseOrder());
+        mAdapter = new ResponseAdapter(database.getAllRecordsReverseOrder(), this);
         if (firstTimeSetAdapter) {
             mRecyclerView.setAdapter(mAdapter);
         } else {
@@ -50,5 +54,16 @@ public class ResponseHistoryActivity extends AppCompatActivity {
         }
 
         firstTimeSetAdapter = false;
+    }
+
+    public View.OnClickListener getOnClickEventListenerToCompleteTask(final int notificationID) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ResponseHistoryActivity.this, TaskActivity.class);
+                NotificationHelper.overloadInfoOnIntentForActivity(intent, notificationID);
+                startActivity(intent);
+            }
+        };
     }
 }

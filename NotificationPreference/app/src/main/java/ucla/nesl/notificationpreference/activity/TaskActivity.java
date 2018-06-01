@@ -1,9 +1,13 @@
 package ucla.nesl.notificationpreference.activity;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,6 +23,7 @@ public class TaskActivity extends AppCompatActivity {
 
     private NotificationResponseRecordDatabase responseDatabase;
     private NotificationInteractionEventLogger interactionLogger;
+    private NotificationHelper notificationHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +37,7 @@ public class TaskActivity extends AppCompatActivity {
 
         responseDatabase = NotificationResponseRecordDatabase.getAppDatabase(this);
         interactionLogger = NotificationInteractionEventLogger.getInstance();
+        notificationHelper = new NotificationHelper(this);
 
         NotificationResponseRecord record = responseDatabase.getRecordByID(notificationID);
         ShortQuestionTask task = TaskFactory.retrieveExistingTask(record);
@@ -53,10 +59,40 @@ public class TaskActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                responseDatabase.fillAnswer(notificationID, responseValue);
-                interactionLogger.logRespondInApp(notificationID, responseValue);
-                finish();
+                logAndTerminate(notificationID, responseValue);
             }
         };
+    }
+
+    public TextView.OnEditorActionListener getOnEditorActionListenerForResponse(
+            final int notificationID) {
+        return new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView tv, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    logAndTerminate(notificationID, tv.getText().toString());
+                    handled = true;
+                }
+                return handled;
+            }
+        };
+    }
+
+    public View.OnClickListener getOnClickEventListenerForSubmittingEditText(
+            final int notificationID, final EditText editText) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logAndTerminate(notificationID, editText.getText().toString());
+            }
+        };
+    }
+
+    private void logAndTerminate(int notificationID, @NonNull String responseValue) {
+        responseDatabase.fillAnswer(notificationID, responseValue);
+        interactionLogger.logRespondInApp(notificationID, responseValue);
+        notificationHelper.cancelNotification(notificationID);
+        finish();
     }
 }
