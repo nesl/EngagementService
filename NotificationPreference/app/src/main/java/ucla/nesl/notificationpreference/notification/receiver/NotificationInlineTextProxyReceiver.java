@@ -12,7 +12,9 @@ import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.task.tasks.template.FreeTextTask;
 
 /**
- * Created by timestring on 5/31/18.
+ * `NotificationInlineTextProxyReceiver` handles tedious flow forwarding between
+ * `NotificationService` and `NotificationHelper`. It takes in charge of the response from the
+ * inline text-field in a notification. Please see `NotificationHelper` for more information.
  */
 
 public class NotificationInlineTextProxyReceiver extends BroadcastReceiver {

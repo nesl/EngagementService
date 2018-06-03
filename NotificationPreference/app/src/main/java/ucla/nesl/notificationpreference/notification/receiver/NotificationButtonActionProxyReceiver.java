@@ -14,8 +14,9 @@ import ucla.nesl.notificationpreference.task.tasks.MoodTask;
 /**
  * Created by timestring on 5/26/18.
  *
- * `NotificationProxyReceiver` handles tedious flow forwarding between `NotificationService` and
- * `NotificationHelper`. Please see `NotificationHelper` for more information.
+ * `NotificationButtonActionProxyReceiver` handles tedious flow forwarding between
+ * `NotificationService` and `NotificationHelper`. It takes in charge of the response from a button.
+ * Please see `NotificationHelper` for more information.
  */
 
 public class NotificationButtonActionProxyReceiver extends BroadcastReceiver {

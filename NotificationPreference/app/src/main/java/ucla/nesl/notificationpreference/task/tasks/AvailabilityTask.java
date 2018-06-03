@@ -6,6 +6,8 @@ import ucla.nesl.notificationpreference.task.tasks.template.MultipleChoiceTask;
 
 /**
  * Created by timestring on 5/28/18.
+ *
+ * Ask whether the user likes this notification or not.
  */
 
 public class AvailabilityTask extends MultipleChoiceTask {

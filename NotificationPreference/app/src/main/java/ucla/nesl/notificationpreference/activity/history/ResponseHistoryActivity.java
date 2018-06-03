@@ -5,17 +5,23 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
+import ucla.nesl.notificationpreference.notification.INotificationEventListener;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
 
-public class ResponseHistoryActivity extends AppCompatActivity {
+public class ResponseHistoryActivity extends AppCompatActivity
+        implements INotificationEventListener {
 
     // database
     NotificationResponseRecordDatabase database;
+
+    // notification helper to receive events
+    NotificationHelper notificationHelper;
 
     // UI Widgets
     private RecyclerView mRecyclerView;
@@ -31,6 +37,8 @@ public class ResponseHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_response_history);
 
         database = NotificationResponseRecordDatabase.getAppDatabase(this);
+
+        notificationHelper = new NotificationHelper(this, false, this);
 
         mRecyclerView = findViewById(R.id.listViewResponses);
         //mRecyclerView.setHasFixedSize(true);
@@ -65,5 +73,11 @@ public class ResponseHistoryActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         };
+    }
+
+    @Override
+    public void onNotificationEvent(int notificationID, int eventID) {
+        Log.i("ResponseHistoryA", "Receive " + notificationID + " " + eventID);
+        updateList();
     }
 }

@@ -11,6 +11,13 @@ import ucla.nesl.notificationpreference.notification.NotificationHelper;
 
 /**
  * Created by timestring on 5/28/18.
+ *
+ * `ShortQuestionTask` is the base of all kind of short questions, including the multiple choices
+ * or the free text problem. The main goal of a task is three-fold:
+ *
+ *     1) Provide the primary problem statement
+ *     2) Render a notification
+ *     3) Render a view for `TaskActivity`
  */
 
 public abstract class ShortQuestionTask {

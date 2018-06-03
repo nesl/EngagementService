@@ -15,6 +15,10 @@ import ucla.nesl.notificationpreference.utils.DP;
 
 /**
  * Created by timestring on 5/31/18.
+ *
+ * `MultipleChoiceTask` provides templates for both the notification part and the view for
+ * `TaskActivity`. It requires the subclass to provide the options in `getOptions` and it will
+ * take care of the rest of the rendering jobs.
  */
 
 public abstract class MultipleChoiceTask extends ShortQuestionTask {

@@ -18,6 +18,8 @@ import ucla.nesl.notificationpreference.utils.DP;
 
 /**
  * Created by timestring on 5/31/18.
+ *
+ * `FreeTextTask` provides templates for both the notification part and the view for `TaskActivity`.
  */
 
 public abstract class FreeTextTask extends ShortQuestionTask {

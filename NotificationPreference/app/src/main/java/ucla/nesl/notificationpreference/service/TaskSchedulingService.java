@@ -28,7 +28,7 @@ public class TaskSchedulingService extends Service {
     public void onCreate() {
         taskScheduler = new PeriodicTaskScheduler(1 * 60);  // 10 minutes
 
-        notificationHelper = new NotificationHelper(this);
+        notificationHelper = new NotificationHelper(this, true);
 
         AlarmEventManager alarmEventManager = new AlarmEventManager(this);
         alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));

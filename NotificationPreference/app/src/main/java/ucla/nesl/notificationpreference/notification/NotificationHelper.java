@@ -23,24 +23,40 @@ import ucla.nesl.notificationpreference.activity.TaskActivity;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationButtonActionProxyReceiver;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationInlineTextProxyReceiver;
 import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
+import ucla.nesl.notificationpreference.storage.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
 import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 import ucla.nesl.notificationpreference.task.TaskFactory;
 import ucla.nesl.notificationpreference.task.TaskTypeSampler;
 
 /**
- * Created by timestring on 2/12/18.
+ * Originally created by timestring on 2/12/18.
+ * Copied to the project on 5/18/18.
  *
- * Notification helps populate the content of the notifications. Now we assume all the notifications
- * are static.
+ * `NotificationHelper` provides the following features/functionality:
+ *    1) Register notifications in `NotificationService`
+ *    2) Deliver notification events to the subscribed listeners (notification is sent, notification
+ *       is responded)
  *
- * TODO: need to come back and revise the class assumption here
+ * Receiving notification responses has to be done in an asynchronous manner, specifically, the
+ * `NotificationManager` will broadcast the specified `Intent` and we have to register a
+ * `BroadcastReceiver` or some other Android components to receive it. However, to complete the
+ * feedback loop (i.e., to receive this response information to update the `NotificationHelper`
+ * object), several notification proxy receivers are implemented (e.g.,
+ * `NotificationButtonActionProxyReceiver`.)
+ *
+ * `NotificationHelper` also logs user responses and interaction events (e.g., notification is
+ * responded). However, as the design of aforementioned message forwarding mechanism, all the
+ * `NotificationHelper` instances will receive the `Intent`. Hence, the app developer needs to
+ * assure that exactly one instance is instantiated in the logging enabled mode. Otherwise,
+ * duplicated interaction events will be logged.
  */
 
 public class NotificationHelper {
 
     private static final String TAG = NotificationHelper.class.getSimpleName();
 
+    private static final String INTENT_CREATE_NOTIFICATION = "intent.create.notification";
     public static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
     public static final int NOTIFICATION_ID_NOT_SET = -1;
@@ -54,9 +70,11 @@ public class NotificationHelper {
     private static final String CHANNEL_GROUP_ID = "group_0";
     private static final String CHANNEL_GROUP_NAME = "group_0_name";
 
+    private Context context;
+    private boolean loggingEnabled;
+    private INotificationEventListener eventListener;
 
     private NotificationManager notificationManager;
-    private Context mContext;
 
     private SparseArray<Notification> cache = new SparseArray<>();
 
@@ -66,10 +84,32 @@ public class NotificationHelper {
 
     //region Section: Initialization
     // =============================================================================================
-    public NotificationHelper(Context context) {
-        mContext = context;
 
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    public NotificationHelper(Context _context, boolean _loggingEnabled) {
+        this(_context, _loggingEnabled, null);
+    }
+
+    /**
+     * Different components (activities, services) may instantiate a `NotificationHelper`. However,
+     * as the fact of how the message passing mechanism is designed in `NotificationHelper`, when a
+     * notification is responded, all the `NotificationHelper` instances will receive the signal.
+     * The app developer needs to make sure who is the master instance and only that one should
+     * enable logging.
+     *
+     * @param _context: For acquiring notification service from the OS
+     * @param _loggingEnabled: Indicate whether this instance should log the events. There should
+     *                         only be one instance which enables logging.
+     * @param _eventListener: A callback triggered when a new notification is scheduled or a
+     *                        response is received.
+     */
+    public NotificationHelper(Context _context, boolean _loggingEnabled,
+                              INotificationEventListener _eventListener) {
+        context = _context;
+        loggingEnabled = _loggingEnabled;
+        eventListener = _eventListener;
+
+        notificationManager = (NotificationManager) context.getSystemService(
+                Context.NOTIFICATION_SERVICE);
 
         // create a notification channel as Android O requires
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -80,7 +120,7 @@ public class NotificationHelper {
             // the importance of notification channel has to be the highest possible so that users
             // can see the heads-up style notifications (only if the priority of the notifications
             // are also configured to be the highest possible)
-            CharSequence name = mContext.getString(R.string.app_name);
+            CharSequence name = context.getString(R.string.app_name);
             NotificationChannel mChannel = new NotificationChannel(
                     CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);
             mChannel.enableLights(true);
@@ -90,20 +130,29 @@ public class NotificationHelper {
             //mChannel.setGroup(CHANNEL_GROUP_ID);
         }
 
-        // register local broadcast receiver for notification response callback
-        IntentFilter intentFilter = new IntentFilter(INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION);
+        // register local broadcast receiver for notification creating event and response callback
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
-        localBroadcastManager.registerReceiver(responseReceiver, intentFilter);
+        localBroadcastManager.registerReceiver(responseReceiver,
+                new IntentFilter(INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION));
+        localBroadcastManager.registerReceiver(createEventReceiver,
+                new IntentFilter(INTENT_CREATE_NOTIFICATION));
 
-        // acquire notification event loggers
-        responseDatabase = NotificationResponseRecordDatabase.getAppDatabase(context);
-        interactionLogger = NotificationInteractionEventLogger.getInstance();
+        // acquire notification event loggers if logging is enabled
+        if (loggingEnabled) {
+            responseDatabase = NotificationResponseRecordDatabase.getAppDatabase(context);
+            interactionLogger = NotificationInteractionEventLogger.getInstance();
+        }
     }
     //endregion
 
     //region Section: Main operations (send and cancel notifications)
     // =============================================================================================
     public int createAndSendTaskNotification() {
+
+        if (!loggingEnabled) {
+            throw new IllegalStateException(
+                    "Sending notification is blocked if logging is disabled");
+        }
 
         // decide task type
         TaskTypeSampler taskSampler = new TaskTypeSampler();
@@ -117,7 +166,7 @@ public class NotificationHelper {
         Log.i(TAG, "just created a notification with ID " + notificationID);
 
         // fill task-specific content in the notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, CHANNEL_ID);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
 
         ShortQuestionTask task = TaskFactory.getTask(questionType, subQuestionType, notificationID);
 
@@ -150,6 +199,12 @@ public class NotificationHelper {
         Notification notification = builder.build();
         notificationManager.notify(notificationID, notification);
 
+        Intent creatingEventIntent = new Intent(
+                NotificationHelper.INTENT_CREATE_NOTIFICATION);
+        creatingEventIntent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        localBroadcastManager.sendBroadcast(creatingEventIntent);
+
         return notificationID;
     }
 
@@ -160,6 +215,14 @@ public class NotificationHelper {
 
     //region Section: Notification response receiver
     // =============================================================================================
+    private final BroadcastReceiver createEventReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int notificationID = interpretIntentGetNotificationID(intent);
+            notifyEventListener(notificationID, NotificationResponseRecord.STATUS_APPEAR);
+        }
+    };
+
     private final BroadcastReceiver responseReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -167,23 +230,12 @@ public class NotificationHelper {
             String response = interpretIntentGetResponse(intent);
             Log.i("NotificationHelper", "Receive response:" + response);
 
-            responseDatabase.fillAnswer(notificationID, response);
-            interactionLogger.logRespondInNotification(notificationID, response);
+            if (loggingEnabled) {
+                responseDatabase.fillAnswer(notificationID, response);
+                interactionLogger.logRespondInNotification(notificationID, response);
+            }
 
-/*
-            Log.i("NotificationHelper", "notification ID:" + notificationID);
-
-            Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-            if (remoteInput != null){
-                CharSequence seq = remoteInput.getCharSequence(MoodTask.KEY_TEXT_REPLY);
-                if (seq == null) {
-                    Log.i("NotificationHelper", "sequence is null");
-                } else {
-                    Log.i("NotificationHelper", "Yes! we get " + seq.toString());
-                }
-            } else {
-                Log.i("NotificationHelper", "Sounds like an empty bundle");
-            }*/
+            notifyEventListener(notificationID, NotificationResponseRecord.STATUS_RESPONDED);
 
             cancelNotification(notificationID);
         }
@@ -203,10 +255,10 @@ public class NotificationHelper {
     }
 
     private PendingIntent makeActivityPendingIndent(int notificationID) {
-        Intent intent = new Intent(mContext, TaskActivity.class);
+        Intent intent = new Intent(context, TaskActivity.class);
         overloadInfoOnIntentForActivity(intent, notificationID);
         int requestCode = notificationID * OFFSET;
-        return PendingIntent.getActivity(mContext, requestCode, intent, 0);
+        return PendingIntent.getActivity(context, requestCode, intent, 0);
     }
 
     public PendingIntent makeButtonActionPendingIndent(
@@ -216,18 +268,18 @@ public class NotificationHelper {
             throw new IllegalArgumentException("button ID has to be 1 ~ " + (OFFSET - 1));
         }
 
-        Intent intent = new Intent(mContext, NotificationButtonActionProxyReceiver.class);
+        Intent intent = new Intent(context, NotificationButtonActionProxyReceiver.class);
         int requestCode = notificationID * OFFSET + buttonID;
         overloadIDAndResponseOnIntent(intent, notificationID, response);
-        return PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
+        return PendingIntent.getBroadcast(context, requestCode, intent, 0);
     }
 
     public PendingIntent makeInlineTextActionPendingIndent(int notificationID) {
         Log.i(TAG, "in makeInlineTextActionPendingIndent()");
-        Intent intent = new Intent(mContext, NotificationInlineTextProxyReceiver.class);
+        Intent intent = new Intent(context, NotificationInlineTextProxyReceiver.class);
         int requestCode = notificationID * OFFSET;
         overloadInfoOnIntentForActivity(intent, notificationID);
-        return PendingIntent.getBroadcast(mContext, requestCode, intent, 0);
+        return PendingIntent.getBroadcast(context, requestCode, intent, 0);
     }
 
     public static int interpretIntentGetNotificationID(Intent intent) {
@@ -240,6 +292,15 @@ public class NotificationHelper {
         if (response == null)
             response = "**(undefined)**_";
         return response;
+    }
+    //endregion
+
+    //region Section: Callback of event listener
+    // =============================================================================================
+    private void notifyEventListener(int notificationID, int eventID) {
+        if (eventListener != null) {
+            eventListener.onNotificationEvent(notificationID, eventID);
+        }
     }
     //endregion
 }

@@ -6,6 +6,8 @@ import ucla.nesl.notificationpreference.task.tasks.template.FreeTextTask;
 
 /**
  * Created by timestring on 5/31/18.
+ *
+ * Ask how many people are there around the user.
  */
 
 public class NumberPeopleTask extends FreeTextTask {

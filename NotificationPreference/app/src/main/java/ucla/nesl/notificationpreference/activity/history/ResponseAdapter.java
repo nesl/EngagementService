@@ -20,6 +20,8 @@ import ucla.nesl.notificationpreference.utils.Utils;
 
 /**
  * Created by timestring on 5/29/18.
+ *
+ * An adapter of `RecyclerView` to help `ResponseHistoryActivity` to list all the existing tasks
  */
 
 public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHolder> {
