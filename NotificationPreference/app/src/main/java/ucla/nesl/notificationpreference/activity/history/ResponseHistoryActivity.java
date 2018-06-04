@@ -12,6 +12,7 @@ import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
 import ucla.nesl.notificationpreference.notification.INotificationEventListener;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
 
 public class ResponseHistoryActivity extends AppCompatActivity
@@ -76,8 +77,8 @@ public class ResponseHistoryActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNotificationEvent(int notificationID, int eventID) {
-        Log.i("ResponseHistoryA", "Receive " + notificationID + " " + eventID);
+    public void onNotificationEvent(int notificationID, NotificationEventType event) {
+        Log.i("ResponseHistoryA", "Receive " + notificationID + " " + event);
         updateList();
     }
 }

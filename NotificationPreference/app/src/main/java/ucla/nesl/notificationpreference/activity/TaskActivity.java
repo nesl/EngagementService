@@ -14,6 +14,7 @@ import android.widget.TextView;
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.notification.INotificationEventListener;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
 import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
@@ -111,9 +112,9 @@ public class TaskActivity extends AppCompatActivity implements INotificationEven
     //region Section: Notification event listener
     // =============================================================================================
     @Override
-    public void onNotificationEvent(int targetNotificationID, int eventID) {
+    public void onNotificationEvent(int targetNotificationID, NotificationEventType event) {
         if (targetNotificationID == notificationID
-                && eventID == NotificationResponseRecord.STATUS_RESPONDED) {
+                && event == NotificationEventType.RESPONDED) {
             finish();
         }
     }

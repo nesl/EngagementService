@@ -44,6 +44,9 @@ public class NotificationResponseRecord {
     @ColumnInfo(name = "answer")
     public @NonNull String answer = "";
 
+    @ColumnInfo(name = "is_dismissed")
+    public int is_dismissed = 0;
+
     @ColumnInfo(name = "expired_time")
     public long expiredTime = NOT_SET;
 

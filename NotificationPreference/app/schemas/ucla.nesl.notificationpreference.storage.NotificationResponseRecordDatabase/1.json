@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "72c4f21d03d3bbd47e4448c8fbb565b3",
+    "identityHash": "cd964300c385b5906a62feb719e26036",
     "entities": [
       {
         "tableName": "notification_response_record",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_time` INTEGER NOT NULL, `question_type` INTEGER NOT NULL, `sub_question_type` INTEGER NOT NULL, `status` INTEGER NOT NULL, `answer_time` INTEGER NOT NULL, `answer` TEXT NOT NULL, `expired_time` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_time` INTEGER NOT NULL, `question_type` INTEGER NOT NULL, `sub_question_type` INTEGER NOT NULL, `status` INTEGER NOT NULL, `answer_time` INTEGER NOT NULL, `answer` TEXT NOT NULL, `is_dismissed` INTEGER NOT NULL, `expired_time` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "ID",
@@ -51,6 +51,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "is_dismissed",
+            "columnName": "is_dismissed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "expiredTime",
             "columnName": "expired_time",
             "affinity": "INTEGER",
@@ -69,7 +75,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"72c4f21d03d3bbd47e4448c8fbb565b3\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"cd964300c385b5906a62feb719e26036\")"
     ]
   }
 }

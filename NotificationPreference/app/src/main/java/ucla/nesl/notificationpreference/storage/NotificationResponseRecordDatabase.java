@@ -68,6 +68,10 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
         getDao().updateAnswer(notificationID, System.currentTimeMillis(), answer);
     }
 
+    public void recordDismissedNotification(int notificationID) {
+        getDao().setDismiss(notificationID);
+    }
+
     public boolean dump(File file) {
         try {
             CSVWriter writer = new CSVWriter(new FileWriter(file));

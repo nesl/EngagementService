@@ -20,14 +20,15 @@ import android.util.SparseArray;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
+import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationButtonActionProxyReceiver;
+import ucla.nesl.notificationpreference.notification.receiver.NotificationDismissedProxyReceiver;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationInlineTextProxyReceiver;
 import ucla.nesl.notificationpreference.storage.NotificationInteractionEventLogger;
-import ucla.nesl.notificationpreference.storage.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
-import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 import ucla.nesl.notificationpreference.task.TaskFactory;
 import ucla.nesl.notificationpreference.task.TaskTypeSampler;
+import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 
 /**
  * Originally created by timestring on 2/12/18.
@@ -57,6 +58,7 @@ public class NotificationHelper {
     private static final String TAG = NotificationHelper.class.getSimpleName();
 
     private static final String INTENT_CREATE_NOTIFICATION = "intent.create.notification";
+    private static final String INTENT_DISMISS_NOTIFICATION = "intent.dismiss.notification";
     public static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
     public static final int NOTIFICATION_ID_NOT_SET = -1;
@@ -136,6 +138,8 @@ public class NotificationHelper {
                 new IntentFilter(INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION));
         localBroadcastManager.registerReceiver(createEventReceiver,
                 new IntentFilter(INTENT_CREATE_NOTIFICATION));
+        localBroadcastManager.registerReceiver(dismissNotificationEventReceiver,
+                new IntentFilter(INTENT_DISMISS_NOTIFICATION));
 
         // acquire notification event loggers if logging is enabled
         if (loggingEnabled) {
@@ -178,6 +182,7 @@ public class NotificationHelper {
                 //.setLargeIcon(R.mipmap.)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(makeActivityPendingIndent(notificationID))
+                .setDeleteIntent(makeDismissNotificationPendingIndent(notificationID))
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentTitle("Please answer short question")
                 //.setTicker("Where is the ticker?")
@@ -219,7 +224,21 @@ public class NotificationHelper {
         @Override
         public void onReceive(Context context, Intent intent) {
             int notificationID = interpretIntentGetNotificationID(intent);
-            notifyEventListener(notificationID, NotificationResponseRecord.STATUS_APPEAR);
+
+            if (loggingEnabled) {
+                responseDatabase.recordDismissedNotification(notificationID);
+                interactionLogger.logDismissNotification(notificationID);
+            }
+
+            notifyEventListener(notificationID, NotificationEventType.DISMISSED);
+        }
+    };
+
+    private final BroadcastReceiver dismissNotificationEventReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int notificationID = interpretIntentGetNotificationID(intent);
+            notifyEventListener(notificationID, NotificationEventType.CREATED);
         }
     };
 
@@ -235,7 +254,7 @@ public class NotificationHelper {
                 interactionLogger.logRespondInNotification(notificationID, response);
             }
 
-            notifyEventListener(notificationID, NotificationResponseRecord.STATUS_RESPONDED);
+            notifyEventListener(notificationID, NotificationEventType.RESPONDED);
 
             cancelNotification(notificationID);
         }
@@ -275,10 +294,16 @@ public class NotificationHelper {
     }
 
     public PendingIntent makeInlineTextActionPendingIndent(int notificationID) {
-        Log.i(TAG, "in makeInlineTextActionPendingIndent()");
         Intent intent = new Intent(context, NotificationInlineTextProxyReceiver.class);
         int requestCode = notificationID * OFFSET;
         overloadInfoOnIntentForActivity(intent, notificationID);
+        return PendingIntent.getBroadcast(context, requestCode, intent, 0);
+    }
+
+    private PendingIntent makeDismissNotificationPendingIndent(int notificationID) {
+        Intent intent = new Intent(context, NotificationDismissedProxyReceiver.class);
+        overloadInfoOnIntentForActivity(intent, notificationID);
+        int requestCode = notificationID * OFFSET;
         return PendingIntent.getBroadcast(context, requestCode, intent, 0);
     }
 
@@ -297,9 +322,9 @@ public class NotificationHelper {
 
     //region Section: Callback of event listener
     // =============================================================================================
-    private void notifyEventListener(int notificationID, int eventID) {
+    private void notifyEventListener(int notificationID, NotificationEventType event) {
         if (eventListener != null) {
-            eventListener.onNotificationEvent(notificationID, eventID);
+            eventListener.onNotificationEvent(notificationID, event);
         }
     }
     //endregion

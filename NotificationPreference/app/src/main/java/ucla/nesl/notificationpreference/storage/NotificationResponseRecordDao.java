@@ -3,7 +3,6 @@ package ucla.nesl.notificationpreference.storage;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
-import android.support.annotation.NonNull;
 
 import java.util.List;
 
@@ -42,5 +41,10 @@ public interface NotificationResponseRecordDao {
            "SET answer_time = :answerTime, answer = :answer, " +
            "    status = " + NotificationResponseRecord.STATUS_RESPONDED + " " +
            "WHERE ID = :notificationID")
-    void updateAnswer(int notificationID, long answerTime, @NonNull String answer);
+    void updateAnswer(int notificationID, long answerTime, String answer);
+
+    @Query("UPDATE notification_response_record " +
+           "SET is_dismissed = 1 " +
+           "WHERE ID = :notificationID")
+    void setDismiss(int notificationID);
 }

@@ -71,6 +71,10 @@ public class NotificationInteractionEventLogger {
         log("RESPOND_IN_APP", notificationID, response);
     }
 
+    public void logDismissNotification(int notificationID) {
+        log("DISMISS", notificationID, "");
+    }
+
     private void log(@NonNull String event, int notificationID, @NonNull String meta) {
         try {
             // to ease the effort of data analysis, we make sure `meta` does not span across

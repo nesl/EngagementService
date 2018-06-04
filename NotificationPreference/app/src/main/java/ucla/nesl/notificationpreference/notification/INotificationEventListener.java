@@ -1,5 +1,7 @@
 package ucla.nesl.notificationpreference.notification;
 
+import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
+
 /**
  * Created by timestring on 6/2/18.
  *
@@ -12,9 +14,7 @@ public interface INotificationEventListener {
      * The callback of coming notification events.
      *
      * @param notificationID: Notification ID.
-     * @param eventID: State defined in `NotificationResponseRecord`. The ones to be reported are:
-     *                     - STATUS_APPEAR
-     *                     - STATUS_RESPONDED
+     * @param event: Event type.
      */
-    void onNotificationEvent(int notificationID, int eventID);
+    void onNotificationEvent(int notificationID, NotificationEventType event);
 }
