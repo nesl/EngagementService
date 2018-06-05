@@ -13,7 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import ucla.nesl.notificationpreference.R;
-import ucla.nesl.notificationpreference.storage.NotificationResponseRecord;
+import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 import ucla.nesl.notificationpreference.task.TaskFactory;
 import ucla.nesl.notificationpreference.utils.Utils;

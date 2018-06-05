@@ -4,8 +4,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.google.android.gms.location.ActivityRecognitionResult;
+
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.sensing.MotionActivityDataCollector;
 import ucla.nesl.notificationpreference.task.scheduler.PeriodicTaskScheduler;
 import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
@@ -24,15 +27,22 @@ public class TaskSchedulingService extends Service {
 
     private TaskSchedulerBase taskScheduler;
 
+    private MotionActivityDataCollector motionActivityDataCollector;
+
+
     @Override
     public void onCreate() {
         taskScheduler = new PeriodicTaskScheduler(1 * 60);  // 10 minutes
 
         notificationHelper = new NotificationHelper(this, true);
 
+        motionActivityDataCollector = new MotionActivityDataCollector(this, motionActivityCallback);
+
         AlarmEventManager alarmEventManager = new AlarmEventManager(this);
         alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
         alarmEventManager.registerWorker(new TaskPlanningWorker(taskScheduler));
+
+        motionActivityDataCollector.start();
     }
 
     @Override
@@ -50,4 +60,12 @@ public class TaskSchedulingService extends Service {
     //        return TaskSchedulingService.this;
     //    }
     //}
+
+    private MotionActivityDataCollector.Callback motionActivityCallback
+            = new MotionActivityDataCollector.Callback() {
+        @Override
+        public void onMotionActivityResult(ActivityRecognitionResult result) {
+
+        }
+    };
 }

@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.storage;
+package ucla.nesl.notificationpreference.storage.loggers;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -22,7 +22,7 @@ import java.util.Locale;
 
 public class NotificationInteractionEventLogger {
 
-    private static final String TAG = "NotiEventLogger";
+    private static final String TAG = "NotificationEventLogger";
 
     private static final File DEFAULT_FILE = new File(
             Environment.getExternalStorageDirectory(), "notification_interaction.event.txt");

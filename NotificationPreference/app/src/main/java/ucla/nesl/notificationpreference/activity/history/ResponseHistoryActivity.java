@@ -13,7 +13,7 @@ import ucla.nesl.notificationpreference.activity.TaskActivity;
 import ucla.nesl.notificationpreference.notification.INotificationEventListener;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
-import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
+import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecordDatabase;
 
 public class ResponseHistoryActivity extends AppCompatActivity
         implements INotificationEventListener {

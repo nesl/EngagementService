@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.storage;
+package ucla.nesl.notificationpreference.storage.database;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;

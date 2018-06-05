@@ -2,7 +2,7 @@ package ucla.nesl.notificationpreference.task;
 
 import android.util.Log;
 
-import ucla.nesl.notificationpreference.storage.NotificationResponseRecord;
+import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.task.tasks.AvailabilityTask;
 import ucla.nesl.notificationpreference.task.tasks.MoodTask;
 import ucla.nesl.notificationpreference.task.tasks.HowLoudTask;

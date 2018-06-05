@@ -10,7 +10,7 @@ import android.widget.Button;
 import java.io.File;
 
 import ucla.nesl.notificationpreference.R;
-import ucla.nesl.notificationpreference.storage.NotificationResponseRecordDatabase;
+import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecordDatabase;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
 
 public class DebugActivity extends AppCompatActivity {
