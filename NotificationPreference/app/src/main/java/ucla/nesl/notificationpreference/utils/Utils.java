@@ -37,4 +37,7 @@ public class Utils {
         return DateFormat.format(format, new Date(timestamp)).toString();
     }
     //endregion
+
+    // enforce using static methods
+    private Utils() {}
 }

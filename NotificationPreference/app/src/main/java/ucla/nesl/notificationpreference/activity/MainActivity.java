@@ -1,16 +1,18 @@
 package ucla.nesl.notificationpreference.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.history.ResponseHistoryActivity;
@@ -19,11 +21,10 @@ import ucla.nesl.notificationpreference.utils.ToastShortcut;
 
 public class MainActivity extends AppCompatActivity {
 
-    // permissions
-    private static final int ACTIVITY_EDITOR_RESULT_REQUEST_CODE = 0;
-
     private static final int PERMISSIONS_REQUEST_CODE = 1;
+    private static final int PLACE_PICKER_REQUEST = 2;
 
+    // permissions
     private static final String[] requiredPermissions = {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -52,10 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
         button = findViewById(R.id.button2);
         button.setOnClickListener(cancelNotificationEvent);
-
-        //AlarmEventManager alarmEventManager = new AlarmEventManager(this);
-        //alarmEventManager.registerWorker(new TestAlarmWorker("B", 3000L, 5000L));
-        //alarmEventManager.registerWorker(new TestAlarmWorker("A", 5000L, 10000L));
 
         Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
         startService(serviceIntent);
@@ -93,8 +90,27 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             //notificationHandler.sendEmptyMessageDelayed(0, 5000L);
-            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.vibrate(300);
+            //Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            //vibrator.vibrate(300);
+
+            /*
+            LatLngBounds bound = LatLngBounds.builder()
+                    //.include(new LatLng(34.069627, -118.454081))
+                    .include(new LatLng(34.071627, -118.454081))
+                    .include(new LatLng(34.067627, -118.454081))
+                    .build();
+
+            PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+            builder.setLatLngBounds(bound);
+
+            try {
+                startActivityForResult(builder.build(MainActivity.this), PLACE_PICKER_REQUEST);
+            } catch (Exception e) {
+                Log.i("MainActivity", "Get exception", e);
+            }*/
+
+            startActivity(ConfigurePlaceActivity.getIntentForStartActivity(
+                    MainActivity.this, ConfigurePlaceActivity.MODE_INITIALIZE));
         }
     };
 
@@ -107,4 +123,15 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(this, data);
+
+                String toastMsg = String.format("Place: %s %s", place.getName(), place.getLatLng());
+                Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 }

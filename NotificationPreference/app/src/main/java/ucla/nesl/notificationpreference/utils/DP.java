@@ -17,4 +17,7 @@ public class DP {
     public static int toPX(int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
+
+    // enforce using static methods
+    private DP() {}
 }
