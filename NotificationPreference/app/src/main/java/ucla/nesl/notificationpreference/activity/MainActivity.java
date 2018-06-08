@@ -9,10 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlacePicker;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.history.ResponseHistoryActivity;
@@ -22,7 +18,6 @@ import ucla.nesl.notificationpreference.utils.ToastShortcut;
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSIONS_REQUEST_CODE = 1;
-    private static final int PLACE_PICKER_REQUEST = 2;
 
     // permissions
     private static final String[] requiredPermissions = {
@@ -45,15 +40,19 @@ public class MainActivity extends AppCompatActivity {
 
         ActivityCompat.requestPermissions(this, requiredPermissions, PERMISSIONS_REQUEST_CODE);
 
+        toastHelper = new ToastShortcut(this);
+
         // UI
-        Button button;
+        Button buttonTaskList = findViewById(R.id.buttonTaskList);
+        buttonTaskList.setOnClickListener(startTaskListEvent);
 
-        button = findViewById(R.id.button1);
-        button.setOnClickListener(sendNotificationEvent);
+        Button buttonInputPlaces = findViewById(R.id.buttonInputPlace);
+        buttonInputPlaces.setOnClickListener(enterPlacesEvent);
 
-        button = findViewById(R.id.button2);
-        button.setOnClickListener(cancelNotificationEvent);
+        Button buttonDataCollectionStatus = findViewById(R.id.buttonSensingSwitch);
+        buttonDataCollectionStatus.setOnClickListener(toggleDataCollectionStatusEvent);
 
+        // start service
         Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
         startService(serviceIntent);
     }
@@ -86,52 +85,28 @@ public class MainActivity extends AppCompatActivity {
     }
     //endregion
 
-    View.OnClickListener sendNotificationEvent = new View.OnClickListener() {
+
+    View.OnClickListener startTaskListEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //notificationHandler.sendEmptyMessageDelayed(0, 5000L);
-            //Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            //vibrator.vibrate(300);
-
-            /*
-            LatLngBounds bound = LatLngBounds.builder()
-                    //.include(new LatLng(34.069627, -118.454081))
-                    .include(new LatLng(34.071627, -118.454081))
-                    .include(new LatLng(34.067627, -118.454081))
-                    .build();
-
-            PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-            builder.setLatLngBounds(bound);
-
-            try {
-                startActivityForResult(builder.build(MainActivity.this), PLACE_PICKER_REQUEST);
-            } catch (Exception e) {
-                Log.i("MainActivity", "Get exception", e);
-            }*/
-
-            startActivity(ConfigurePlaceActivity.getIntentForStartActivity(
-                    MainActivity.this, ConfigurePlaceActivity.MODE_INITIALIZE));
-        }
-    };
-
-    View.OnClickListener cancelNotificationEvent = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            //notificationHelper.cancelNotification(NotificationHelper.Type.LOCATION_CHANGED);
             Intent intent = new Intent(getApplicationContext(), ResponseHistoryActivity.class);
             startActivity(intent);
         }
     };
 
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_PICKER_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlacePicker.getPlace(this, data);
-
-                String toastMsg = String.format("Place: %s %s", place.getName(), place.getLatLng());
-                Toast.makeText(this, toastMsg, Toast.LENGTH_LONG).show();
-            }
+    View.OnClickListener enterPlacesEvent = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            startActivity(ConfigurePlaceActivity.getIntentForStartActivity(
+                    MainActivity.this, ConfigurePlaceActivity.MODE_INITIALIZE));
         }
-    }
+    };
+
+    View.OnClickListener toggleDataCollectionStatusEvent = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            toastHelper.showShort("Under development. Not supported yet");
+        }
+    };
+
 }

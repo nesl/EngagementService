@@ -39,7 +39,7 @@ public class TaskDispatchWorker extends AlarmWorker {
         }
 
         // check if we need to fire a task every 30 seconds, but another 30 seconds tolerance
-        //return new NextTrigger(30000L, 30000L);
-        return new NextTrigger(5000L, 5000L);
+        return new NextTrigger(30000L, 30000L);
+        //return new NextTrigger(5000L, 5000L);
     }
 }

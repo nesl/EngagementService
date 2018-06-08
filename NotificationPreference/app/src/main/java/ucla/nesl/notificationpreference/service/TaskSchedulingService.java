@@ -32,7 +32,7 @@ public class TaskSchedulingService extends Service {
 
     @Override
     public void onCreate() {
-        taskScheduler = new PeriodicTaskScheduler(1 * 60);  // 10 minutes
+        taskScheduler = new PeriodicTaskScheduler(30 * 60);  // 30 minutes
 
         notificationHelper = new NotificationHelper(this, true);
 
