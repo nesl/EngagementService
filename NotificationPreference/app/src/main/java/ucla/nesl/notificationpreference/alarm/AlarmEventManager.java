@@ -41,7 +41,11 @@ public class AlarmEventManager {
     private HashMap<AlarmWorker, Integer> workerToCode;
     private SparseArray<AlarmWorker> codeToWorker;
 
+    private SparseArray<PendingIntent> pendingIntentCache;
+
     private int nextWorkerCode = 0;
+
+    private boolean isActive;
 
 
     public AlarmEventManager(Context _context) {
@@ -50,13 +54,20 @@ public class AlarmEventManager {
 
         workerToCode = new HashMap<>();
         codeToWorker = new SparseArray<>();
+        pendingIntentCache = new SparseArray<>();
 
         IntentFilter intentFilter = new IntentFilter(INTENT_FORWARD_ALARM_EVENT_ACTION);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
         localBroadcastManager.registerReceiver(eventReceiver, intentFilter);
+
+        isActive = true;
     }
 
     public void registerWorker(AlarmWorker worker) {
+        if (!isActive) {
+            throw new IllegalStateException("The AlarmEventManager is terminated");
+        }
+
         workerToCode.put(worker, nextWorkerCode);
         codeToWorker.put(nextWorkerCode, worker);
 
@@ -66,20 +77,44 @@ public class AlarmEventManager {
         nextWorkerCode++;
     }
 
+    public void terminate() {
+        if (!isActive) {
+            throw new IllegalStateException("The AlarmEventManager is terminated");
+        }
+
+        isActive = false;
+
+        int size = pendingIntentCache.size();
+        for (int i = 0; i < size; i++) {
+            PendingIntent pendingIntent = pendingIntentCache.valueAt(i);
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
     private void scheduleWorker(AlarmWorker worker, NextTrigger trigger) {
+        if (!isActive) {
+            return;
+        }
+
         Intent intent = new Intent(context, AlarmProxyReceiver.class);
         int workerCode = workerToCode.get(worker);
         intent.putExtra(WORKER_CODE, workerCode);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, workerCode, intent, 0);
         long firedTime = SystemClock.elapsedRealtime() + trigger.timeIntervalMs;
-        //alarmManager.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-        //        firedTime, trigger.toleranceMs, pendingIntent);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, firedTime    , pendingIntent);
+        alarmManager.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                firedTime, trigger.toleranceMs, pendingIntent);
+        //alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, firedTime, pendingIntent);
+
+        pendingIntentCache.put(workerCode, pendingIntent);
     }
 
     private final BroadcastReceiver eventReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (!isActive) {
+                return;
+            }
+
             int workerCode = intent.getIntExtra(WORKER_CODE, -1);
             AlarmWorker worker = codeToWorker.get(workerCode, null);
             if (worker == null) {

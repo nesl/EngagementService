@@ -1,10 +1,15 @@
 package ucla.nesl.notificationpreference.activity;
 
 import android.Manifest;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +18,7 @@ import android.widget.Button;
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.history.ResponseHistoryActivity;
 import ucla.nesl.notificationpreference.service.TaskSchedulingService;
+import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,11 +33,14 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
     };
 
+    // service
+    private TaskSchedulingService taskService;
+
     // notification related
     private ToastShortcut toastHelper;
 
-
-
+    // key-value store
+    private SharedPreferenceHelper keyValueStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
         toastHelper = new ToastShortcut(this);
 
-        // UI
+        keyValueStore = new SharedPreferenceHelper(this);
+
+        // event listeners
         Button buttonTaskList = findViewById(R.id.buttonTaskList);
         buttonTaskList.setOnClickListener(startTaskListEvent);
 
@@ -52,15 +63,32 @@ public class MainActivity extends AppCompatActivity {
         Button buttonDataCollectionStatus = findViewById(R.id.buttonSensingSwitch);
         buttonDataCollectionStatus.setOnClickListener(toggleDataCollectionStatusEvent);
 
+        // --**** FOR DEBUG PURPOSE ****--
+        keyValueStore.setAppStatus(SharedPreferenceHelper.APP_STATUS_ACTIVE);
+
         // start service
         Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
         startService(serviceIntent);
+
+
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
+        bindService(serviceIntent, taskServiceConnection, Context.BIND_AUTO_CREATE);
+        Log.i("MainActivity", "onStart()");
 
+        refreshDataCollectionButtonText();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(taskServiceConnection);
+        Log.i("MainActivity", "onStop()");
     }
 
     //region Section: UI Option menu
@@ -105,8 +133,47 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener toggleDataCollectionStatusEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            toastHelper.showShort("Under development. Not supported yet");
+            if (taskService == null) {
+                toastHelper.showShort(
+                        "Something goes wrong. Please kill the app and restart again.");
+                return;
+            }
+
+            taskService.toggleOperationStatus();
+            refreshDataCollectionButtonText();
         }
     };
 
+    private ServiceConnection taskServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            taskService = null;
+            Log.i("MainActivity", "shouldn't be disconnected");
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            TaskSchedulingService.LocalBinder myBinder =
+                    (TaskSchedulingService.LocalBinder) service;
+            taskService = myBinder.getService();
+
+            Log.i("MainActivity", "get timestamp " + taskService.getCreatedTimestamp());
+        }
+    };
+
+    private void refreshDataCollectionButtonText() {
+        Button button = findViewById(R.id.buttonSensingSwitch);
+        switch (keyValueStore.getAppStatus()) {
+            case SharedPreferenceHelper.APP_STATUS_ACTIVE:
+                button.setText("Stop Data Collection");
+                break;
+            case SharedPreferenceHelper.APP_STATUS_INACTIVE:
+                button.setText("Start Data Collection");
+                break;
+            default:
+                button.setText("O____o");
+        }
+
+    }
 }
