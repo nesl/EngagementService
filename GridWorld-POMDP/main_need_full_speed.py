@@ -112,6 +112,17 @@ def try_process_grid_world(*args, **kwargs):
 
 
 # main function
+process_grid_world(
+    sequence_root_dir='sequence',
+    pomdp_setup_root_dir='pomdp_setup',
+    scenario_name='eight_0_0',
+    max_em_iterations=50,
+    min_num_states=2,
+    max_num_states=25,
+    model_retries=6,
+)
+exit()
+
 try_process_grid_world(
     sequence_root_dir='sequence',
     pomdp_setup_root_dir='pomdp_setup',
