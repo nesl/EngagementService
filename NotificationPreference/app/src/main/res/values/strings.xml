@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Notification Preference</string>
+    <string name="title_activity_debug">Debug Panel</string>
+</resources>
