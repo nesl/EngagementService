@@ -2,9 +2,9 @@ package ucla.nesl.notificationpreference.task.scheduler;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.PriorityQueue;
 
 import ucla.nesl.notificationpreference.utils.ArrayUtils;
+import ucla.nesl.notificationpreference.utils.PriorityQueueUsingHeap;
 
 /**
  * Created by timestring on 5/17/18.
@@ -21,7 +21,7 @@ import ucla.nesl.notificationpreference.utils.ArrayUtils;
 public abstract class TaskSchedulerBase {
 
     private int decisionIntervalSec = 0;
-    private PriorityQueue<Long> eventTimestamps;
+    private PriorityQueueUsingHeap<Long> eventTimestamps;
 
     private static Comparator<Long> comparator = new Comparator<Long>() {
         @Override
@@ -31,7 +31,7 @@ public abstract class TaskSchedulerBase {
     };
 
     public TaskSchedulerBase() {
-        eventTimestamps = new PriorityQueue<>(comparator);
+        eventTimestamps = new PriorityQueueUsingHeap<>(comparator);
     }
 
     protected abstract int getInitialDecisionIntervalSec();

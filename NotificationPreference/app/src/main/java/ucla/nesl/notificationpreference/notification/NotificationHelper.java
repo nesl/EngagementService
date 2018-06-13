@@ -224,13 +224,7 @@ public class NotificationHelper {
         @Override
         public void onReceive(Context context, Intent intent) {
             int notificationID = interpretIntentGetNotificationID(intent);
-
-            if (loggingEnabled) {
-                responseDatabase.recordDismissedNotification(notificationID);
-                interactionLogger.logDismissNotification(notificationID);
-            }
-
-            notifyEventListener(notificationID, NotificationEventType.DISMISSED);
+            notifyEventListener(notificationID, NotificationEventType.CREATED);
         }
     };
 
@@ -238,7 +232,13 @@ public class NotificationHelper {
         @Override
         public void onReceive(Context context, Intent intent) {
             int notificationID = interpretIntentGetNotificationID(intent);
-            notifyEventListener(notificationID, NotificationEventType.CREATED);
+
+            if (loggingEnabled) {
+                responseDatabase.recordDismissedNotification(notificationID);
+                interactionLogger.logDismissNotification(notificationID);
+            }
+
+            notifyEventListener(notificationID, NotificationEventType.DISMISSED);
         }
     };
 
