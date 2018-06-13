@@ -1,0 +1,13 @@
+# local database, files, etc
+local_data/
+
+# site secret
+mh2/config.py
+
+# Compiled objects
+*.o
+*.pyc
+__pycache__
+
+#Production static files
+/static/
