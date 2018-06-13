@@ -2,10 +2,13 @@ import os
 
 from django.db import models
 
+from notification import settings
 
 class AppUser(models.Model):
     code = models.CharField(max_length=25)
 
+    def __str__(self):
+        return self.code
 
 class FileLog(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
@@ -14,9 +17,10 @@ class FileLog(models.Model):
 
     def get_path(self):
         return os.path.join(
-                str(user),
-                str(type),
-                "%s.txt" % uploaded_time.strftime('%Y%m%d-%H%M%S.txt'),
+                settings.LOG_FILE_ROOT,
+                str(self.user),
+                str(self.type),
+                self.uploaded_time.strftime('%Y%m%d-%H%M%S.txt'),
         )
 
 class ActionLog(models.Model):
