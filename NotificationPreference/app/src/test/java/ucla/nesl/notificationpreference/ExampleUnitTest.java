@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.notificationpreference;
+package ucla.nesl.notificationpreference;
 
 import org.junit.Test;
 

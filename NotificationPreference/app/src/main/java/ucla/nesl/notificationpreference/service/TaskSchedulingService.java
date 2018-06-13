@@ -96,7 +96,7 @@ public class TaskSchedulingService extends Service {
             return;
         }
 
-        TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(1 * 60);  // 30 minutes
+        TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(30 * 60);  // 30 minutes
 
         alarmEventManager = new AlarmEventManager(this);
         alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
