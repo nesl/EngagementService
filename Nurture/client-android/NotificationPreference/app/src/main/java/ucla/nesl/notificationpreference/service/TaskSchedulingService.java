@@ -10,6 +10,8 @@ import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 
+import java.util.concurrent.TimeUnit;
+
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.sensing.MotionActivityDataCollector;
@@ -104,13 +106,16 @@ public class TaskSchedulingService extends Service {
             return;
         }
 
-        TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(30 * 60);  // 30 minutes
+        TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(
+                (int) TimeUnit.MINUTES.toSeconds(30));
 
         alarmEventManager = new AlarmEventManager(this);
         alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
         alarmEventManager.registerWorker(new TaskPlanningWorker(taskScheduler));
         alarmEventManager.registerWorker(new FileUploadWorker(
-                connectivityManager, "notification-interaction",
+                connectivityManager,
+                keyValueStore,
+                "notification-interaction",
                 NotificationInteractionEventLogger.getInstance()
         ));
 

@@ -3,6 +3,7 @@ package ucla.nesl.notificationpreference.storage;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 
 /**
  * Created by timestring on 6/5/18.
@@ -17,6 +18,7 @@ public class SharedPreferenceHelper {
     public static final int APP_STATUS_INACTIVE = 2;
 
     private static final String KEY_APP_STATUS = "key.app.status";
+    private static final String KEY_USER_CODE = "key.user.code";
     private static final String KEY_USER_HOME_PLACE_DESCRIPTION = "key.user.home.place.description";
     private static final String KEY_USER_HOME_LATITUDE = "key.user.home.latitude";
     private static final String KEY_USER_HOME_LONGITUDE = "key.user.home.longitude";
@@ -38,6 +40,14 @@ public class SharedPreferenceHelper {
 
     public void setAppStatus(int value) {
         mSharedPreferences.edit().putInt(KEY_APP_STATUS, value).apply();
+    }
+
+    public String getUserCode() {
+        return mSharedPreferences.getString(KEY_USER_CODE, null);
+    }
+
+    public void setUserCode(@NonNull String value) {
+        mSharedPreferences.edit().putString(KEY_USER_CODE, value).apply();
     }
 
     public String getUserHomePlaceDescription() {

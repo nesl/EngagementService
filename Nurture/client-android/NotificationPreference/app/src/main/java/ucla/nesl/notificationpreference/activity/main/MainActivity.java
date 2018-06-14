@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.activity;
+package ucla.nesl.notificationpreference.activity.main;
 
 import android.Manifest;
 import android.content.ComponentName;
@@ -14,8 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import ucla.nesl.notificationpreference.R;
+import ucla.nesl.notificationpreference.activity.ConfigurePlaceActivity;
+import ucla.nesl.notificationpreference.activity.DebugActivity;
 import ucla.nesl.notificationpreference.activity.history.ResponseHistoryActivity;
 import ucla.nesl.notificationpreference.network.HttpsPostRequest;
 import ucla.nesl.notificationpreference.service.TaskSchedulingService;
@@ -71,7 +74,18 @@ public class MainActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
         startService(serviceIntent);
 
+        // get user code if not set yet
+        TextView textCode = MainActivity.this.findViewById(R.id.textUserCode);
+        textCode.setOnLongClickListener(userCodeLongClickListener);
+        if (keyValueStore.getUserCode() != null) {
+            textCode.setText(keyValueStore.getUserCode());
+        } else {
+            new HttpsPostRequest()
+                    .setDestinationPage("mobile/get-user-code")
+                    .setCallback(getUserCodeCallback)
+                    .execute();
 
+        }
 
     }
 
@@ -134,16 +148,14 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener toggleDataCollectionStatusEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            /*if (taskService == null) {
+            if (taskService == null) {
                 toastHelper.showShort(
                         "Something goes wrong. Please kill the app and restart again.");
                 return;
             }
 
             taskService.toggleOperationStatus();
-            refreshDataCollectionButtonText();*/
-
-            testHttpsPost();
+            refreshDataCollectionButtonText();
         }
     };
 
@@ -179,18 +191,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void testHttpsPost() {
-        new HttpsPostRequest()
-                .setDestinationPage("get-user-code")
-                .setCallback(getCodeCallback)
-                .execute();
-        Log.i("MainActivity", "testHttpsPost()");
+    void tryUpdateUserCode(String code) {
+        if (code != null && code.matches("[0-9]+")) {
+            TextView textCode = MainActivity.this.findViewById(R.id.textUserCode);
+            keyValueStore.setUserCode(code);
+            textCode.setText(code);
+        } else {
+            toastHelper.showLong("The user code is invalid");
+        }
     }
 
-    private HttpsPostRequest.Callback getCodeCallback = new HttpsPostRequest.Callback() {
+    private HttpsPostRequest.Callback getUserCodeCallback = new HttpsPostRequest.Callback() {
         @Override
         public void onResult(String result) {
             Log.i("MainActivity", "Get code: " + result);
+            tryUpdateUserCode(result);
+        }
+    };
+
+    private View.OnLongClickListener userCodeLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View view) {
+            ChangeUserCodeDialogHelper.createAndShowDialog(MainActivity.this);
+            return true;
         }
     };
 }

@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import ucla.nesl.notificationpreference.alarm.AlarmWorker;
 import ucla.nesl.notificationpreference.alarm.NextTrigger;
 import ucla.nesl.notificationpreference.network.HttpsPostRequest;
+import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.storage.loggers.ILogger;
 
 /**
@@ -27,11 +28,18 @@ public class FileUploadWorker extends AlarmWorker {
 
     private File file;
     private ConnectivityManager connectivityManager;
+    private SharedPreferenceHelper keyValueStore;
     private String logType;
     private long uploadDeadline;
 
-    public FileUploadWorker(ConnectivityManager _connectivityManager, String type, ILogger logger) {
+    public FileUploadWorker(
+            ConnectivityManager _connectivityManager,
+            SharedPreferenceHelper _keyValueStore,
+            String type,
+            ILogger logger
+    ) {
         connectivityManager = _connectivityManager;
+        keyValueStore = _keyValueStore;
         file = logger.getFile();
         logType = type;
         uploadDeadline = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
@@ -44,7 +52,7 @@ public class FileUploadWorker extends AlarmWorker {
             if (isOnWifi()) {
                 new HttpsPostRequest()
                         .setDestinationPage("mobile/upload-log-file")
-                        .setParam("code", "49940")  //TODO
+                        .setParam("code", keyValueStore.getUserCode())
                         .setParam("type", logType)
                         .setParamWithFile("content", file)
                         .setCallback(fileUploadedCallback)
