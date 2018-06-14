@@ -10,8 +10,6 @@ import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 
-import java.util.concurrent.TimeUnit;
-
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.sensing.MotionActivityDataCollector;
@@ -20,7 +18,7 @@ import ucla.nesl.notificationpreference.service.workers.TaskDispatchWorker;
 import ucla.nesl.notificationpreference.service.workers.TaskPlanningWorker;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
-import ucla.nesl.notificationpreference.task.scheduler.PeriodicTaskScheduler;
+import ucla.nesl.notificationpreference.task.scheduler.RLTaskScheduler;
 import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
 /**
@@ -106,8 +104,9 @@ public class TaskSchedulingService extends Service {
             return;
         }
 
-        TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(
-                (int) TimeUnit.MINUTES.toSeconds(30));
+        //TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(
+        //        (int) TimeUnit.MINUTES.toSeconds(30));
+        TaskSchedulerBase taskScheduler = new RLTaskScheduler(keyValueStore);
 
         alarmEventManager = new AlarmEventManager(this);
         alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));

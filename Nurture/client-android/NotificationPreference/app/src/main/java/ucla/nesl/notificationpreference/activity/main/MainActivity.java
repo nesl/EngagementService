@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
                     .setDestinationPage("mobile/get-user-code")
                     .setCallback(getUserCodeCallback)
                     .execute();
-
         }
 
     }

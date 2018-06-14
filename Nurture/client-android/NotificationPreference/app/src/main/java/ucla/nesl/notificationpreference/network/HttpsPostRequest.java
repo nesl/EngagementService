@@ -91,7 +91,7 @@ public class HttpsPostRequest extends AsyncTask<String, Void, String> {
             conn.getOutputStream().write(postDataBytes);
 
             int responseCode = conn.getResponseCode();
-            Log.i("MainActivity", "response code = " + responseCode);
+            Log.i(TAG, "response code = " + responseCode);
 
             return ReadAll.from(conn.getInputStream());
 
