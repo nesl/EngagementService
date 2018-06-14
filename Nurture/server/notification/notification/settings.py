@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'nurture.apps.NurtureConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -117,3 +118,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+## Convenience related settings
+APPEND_SLASH = True
+
+# Redirect HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# Site specific
+LOG_FILE_ROOT = os.path.join(BASE_DIR, config.log_file_root)

@@ -2,7 +2,7 @@
 local_data/
 
 # site secret
-mh2/config.py
+notification/config.py
 
 # Compiled objects
 *.o
