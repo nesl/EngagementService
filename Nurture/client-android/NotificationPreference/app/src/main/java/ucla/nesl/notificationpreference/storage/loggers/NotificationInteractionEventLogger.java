@@ -20,7 +20,7 @@ import java.util.Locale;
  * location.
  */
 
-public class NotificationInteractionEventLogger {
+public class NotificationInteractionEventLogger implements ILogger {
 
     private static final String TAG = "NotificationEventLogger";
 
@@ -47,12 +47,13 @@ public class NotificationInteractionEventLogger {
 
     private File file;
 
-    public NotificationInteractionEventLogger() {
-        file = DEFAULT_FILE;
+    private NotificationInteractionEventLogger(@NonNull File _file) {
+        file = _file;
     }
 
-    public NotificationInteractionEventLogger(@NonNull File _file) {
-        file = _file;
+    @Override
+    public File getFile() {
+        return file;
     }
 
     public void logRegisterNotification(int notificationID) {

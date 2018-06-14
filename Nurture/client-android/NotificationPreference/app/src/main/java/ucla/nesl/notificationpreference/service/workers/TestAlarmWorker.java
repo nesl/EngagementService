@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.service;
+package ucla.nesl.notificationpreference.service.workers;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;

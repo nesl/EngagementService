@@ -1,7 +1,9 @@
 package ucla.nesl.notificationpreference.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -11,7 +13,11 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.sensing.MotionActivityDataCollector;
+import ucla.nesl.notificationpreference.service.workers.FileUploadWorker;
+import ucla.nesl.notificationpreference.service.workers.TaskDispatchWorker;
+import ucla.nesl.notificationpreference.service.workers.TaskPlanningWorker;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
+import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.task.scheduler.PeriodicTaskScheduler;
 import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
@@ -28,6 +34,7 @@ public class TaskSchedulingService extends Service {
     // Binder
     private final IBinder binder = new LocalBinder();
 
+    private ConnectivityManager connectivityManager;
     private NotificationHelper notificationHelper;
 
     private AlarmEventManager alarmEventManager;
@@ -41,6 +48,7 @@ public class TaskSchedulingService extends Service {
     @Override
     public void onCreate() {
 
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         notificationHelper = new NotificationHelper(this, true);
 
         motionActivityDataCollector = new MotionActivityDataCollector(this, motionActivityCallback);
@@ -101,6 +109,10 @@ public class TaskSchedulingService extends Service {
         alarmEventManager = new AlarmEventManager(this);
         alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
         alarmEventManager.registerWorker(new TaskPlanningWorker(taskScheduler));
+        alarmEventManager.registerWorker(new FileUploadWorker(
+                connectivityManager, "notification-interaction",
+                NotificationInteractionEventLogger.getInstance()
+        ));
 
         motionActivityDataCollector.start();
     }

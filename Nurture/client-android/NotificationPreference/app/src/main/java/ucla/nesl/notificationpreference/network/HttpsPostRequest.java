@@ -70,10 +70,7 @@ public class HttpsPostRequest extends AsyncTask<String, Void, String> {
         checkStatusOrThrowException();
 
         try {
-            URL url = new URL(Secret.getServerURLWithPage("debug_dump_page"));
-
-
-            params.put("email", "fishie@seamail.example.com");
+            URL url = new URL(Secret.getServerURLWithPage(destinationPage));
 
             StringBuilder postData = new StringBuilder();
             for (Map.Entry<String, Object> param : params.entrySet()) {
@@ -119,6 +116,7 @@ public class HttpsPostRequest extends AsyncTask<String, Void, String> {
         if (hasBeenExecuted) {
             throw new IllegalStateException("The task has been executed");
         }
+        hasBeenExecuted = true;
 
         if (destinationPage == null) {
             throw new IllegalArgumentException("destination page is not set");

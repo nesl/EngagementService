@@ -23,7 +23,7 @@ import java.util.Locale;
  * location.
  */
 
-public class MotionActivityLogger {
+public class MotionActivityLogger implements ILogger {
 
     private static final String TAG = "MotionActivityLogger";
 
@@ -50,12 +50,13 @@ public class MotionActivityLogger {
 
     private File file;
 
-    public MotionActivityLogger() {
-        file = DEFAULT_FILE;
+    private MotionActivityLogger(@NonNull File _file) {
+        file = _file;
     }
 
-    public MotionActivityLogger(@NonNull File _file) {
-        file = _file;
+    @Override
+    public File getFile() {
+        return file;
     }
 
     public void log(@NonNull ActivityRecognitionResult result) {

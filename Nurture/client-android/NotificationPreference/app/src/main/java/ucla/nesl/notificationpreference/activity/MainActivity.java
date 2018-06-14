@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
@@ -16,25 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.X509TrustManager;
-
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.history.ResponseHistoryActivity;
+import ucla.nesl.notificationpreference.network.HttpsPostRequest;
 import ucla.nesl.notificationpreference.service.TaskSchedulingService;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
@@ -197,74 +180,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testHttpsPost() {
-        new PostRequestTask().execute();
+        new HttpsPostRequest()
+                .setDestinationPage("get-user-code")
+                .setCallback(getCodeCallback)
+                .execute();
         Log.i("MainActivity", "testHttpsPost()");
     }
 
-    class PostRequestTask extends AsyncTask<String, Void, String> {
-
-        protected String doInBackground(String... urls) {
-            Log.i("MainActivity", "doInBackground()");
-            try {
-                URL url = new URL("https://dijkstra.nesl.ucla.edu:12345/debug-dump-post/");
-                Map<String, Object> params = new LinkedHashMap<>();
-                params.put("name", "Freddie the Fish");
-                params.put("email", "fishie@seamail.example.com");
-
-                StringBuilder postData = new StringBuilder();
-                for (Map.Entry<String, Object> param : params.entrySet()) {
-                    if (postData.length() != 0)
-                        postData.append('&');
-                    postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
-                    postData.append('=');
-                    postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
-                }
-                byte[] postDataBytes = postData.toString().getBytes("UTF-8");
-
-                HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
-                });
-                SSLContext context = SSLContext.getInstance("TLS");
-                context.init(null, new X509TrustManager[]{new X509TrustManager(){
-                    public void checkClientTrusted(X509Certificate[] chain,
-                                                   String authType) throws CertificateException {}
-                    public void checkServerTrusted(X509Certificate[] chain,
-                                                   String authType) throws CertificateException {}
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }}}, new SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(
-                        context.getSocketFactory());
-
-                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-                conn.setDoOutput(true);
-                conn.getOutputStream().write(postDataBytes);
-
-                int responseCode = conn.getResponseCode();
-                Log.i("MainActivity", "response code = " + responseCode);
-
-                Reader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-
-                for (int c; (c = in.read()) >= 0; )
-                    System.out.print((char) c);
-            } catch (Exception e) {
-                Log.i("MainActivity", "get exception", e);
-            }
-
-            return "good";
+    private HttpsPostRequest.Callback getCodeCallback = new HttpsPostRequest.Callback() {
+        @Override
+        public void onResult(String result) {
+            Log.i("MainActivity", "Get code: " + result);
         }
-
-        protected void onPostExecute(String status) {
-            // TODO: check this.exception
-            // TODO: do something with the feed
-
-
-        }
-    }
+    };
 }
