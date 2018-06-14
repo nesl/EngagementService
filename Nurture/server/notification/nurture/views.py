@@ -75,3 +75,37 @@ def upload_log_file(request):
     record.save()
 
     return HttpResponse("Ok", status=200)
+
+
+@csrf_exempt
+def get_action(request):
+    
+    # extract user
+    if 'code' not in request.POST:
+        return HttpResponse("Bad", status=404)
+
+    try:
+        user = AppUser.objects.get(code=request.POST['code'])
+    except AppUser.DoesNotExist:
+        return HttpResponse("Bad", status=404)
+
+    # extract reward-state message
+    if 'observation' not in request.POST:
+        return HttpResponse("Bad", status=404)
+    raw_reward_state_message = request.POST['observation']
+
+    # query time
+    now = timezone.now().astimezone(pytz.timezone('US/Pacific'))
+
+    # compute action
+    #TODO: now I'm going to return no-notification action
+    action_message = '0'
+
+    ActionLog.objects.create(
+            user=user,
+            query_time=now,
+            reward_state_message=raw_reward_state_message,
+            action_message=action_message,
+    )
+
+    return HttpResponse(action_message, status=200)
