@@ -16,5 +16,4 @@ class FileLogTestCase(TestCase):
                 uploaded_time=datetime.datetime(2018, 6, 13, 18, 3, 10),
         )
 
-        print(file_log.get_path())
         self.assertTrue(file_log.get_path().endswith("/36279/motion/20180613-180310.txt"))
