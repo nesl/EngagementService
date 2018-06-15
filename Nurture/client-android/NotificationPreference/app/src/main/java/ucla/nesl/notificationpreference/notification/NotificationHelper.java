@@ -204,8 +204,7 @@ public class NotificationHelper {
         Notification notification = builder.build();
         notificationManager.notify(notificationID, notification);
 
-        Intent creatingEventIntent = new Intent(
-                NotificationHelper.INTENT_CREATE_NOTIFICATION);
+        Intent creatingEventIntent = new Intent(NotificationHelper.INTENT_CREATE_NOTIFICATION);
         creatingEventIntent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
         localBroadcastManager.sendBroadcast(creatingEventIntent);
