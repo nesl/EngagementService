@@ -8,16 +8,17 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.google.android.gms.location.ActivityRecognitionResult;
-
 import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
+import ucla.nesl.notificationpreference.notification.INotificationEventListener;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
-import ucla.nesl.notificationpreference.sensing.MotionActivityDataCollector;
+import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
 import ucla.nesl.notificationpreference.service.workers.FileUploadWorker;
 import ucla.nesl.notificationpreference.service.workers.TaskDispatchWorker;
 import ucla.nesl.notificationpreference.service.workers.TaskPlanningWorker;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
+import ucla.nesl.notificationpreference.storage.loggers.MotionActivityLogger;
 import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
+import ucla.nesl.notificationpreference.storage.loggers.RingerModeLogger;
 import ucla.nesl.notificationpreference.task.scheduler.RLTaskScheduler;
 import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
@@ -27,7 +28,7 @@ import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
  * `TaskSchedulingService` is the backbone background service for sending notifications, sensor
  * data collection, and all the other peripheral features.
  */
-public class TaskSchedulingService extends Service {
+public class TaskSchedulingService extends Service implements INotificationEventListener {
 
     private final String TAG = TaskSchedulingService.class.getSimpleName();
 
@@ -37,11 +38,13 @@ public class TaskSchedulingService extends Service {
     private ConnectivityManager connectivityManager;
     private NotificationHelper notificationHelper;
 
+    private SensorMaster sensorMaster;
+    private RewardMaster rewardMaster;
+
     private AlarmEventManager alarmEventManager;
 
-    private MotionActivityDataCollector motionActivityDataCollector;
-
     private SharedPreferenceHelper keyValueStore;
+
 
     private long serviceCreatedTimestamp;
 
@@ -49,9 +52,10 @@ public class TaskSchedulingService extends Service {
     public void onCreate() {
 
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        notificationHelper = new NotificationHelper(this, true);
+        notificationHelper = new NotificationHelper(this, true, this);
 
-        motionActivityDataCollector = new MotionActivityDataCollector(this, motionActivityCallback);
+        sensorMaster = new SensorMaster(this);
+        rewardMaster = new RewardMaster();
 
         keyValueStore = new SharedPreferenceHelper(this);
 
@@ -106,7 +110,7 @@ public class TaskSchedulingService extends Service {
 
         //TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(
         //        (int) TimeUnit.MINUTES.toSeconds(30));
-        TaskSchedulerBase taskScheduler = new RLTaskScheduler(keyValueStore);
+        TaskSchedulerBase taskScheduler = new RLTaskScheduler(keyValueStore, sensorMaster, rewardMaster);
 
         alarmEventManager = new AlarmEventManager(this);
         alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
@@ -117,8 +121,21 @@ public class TaskSchedulingService extends Service {
                 "notification-interaction",
                 NotificationInteractionEventLogger.getInstance()
         ));
+        alarmEventManager.registerWorker(new FileUploadWorker(
+                connectivityManager,
+                keyValueStore,
+                "motion",
+                MotionActivityLogger.getInstance()
+        ));
 
-        motionActivityDataCollector.start();
+        alarmEventManager.registerWorker(new FileUploadWorker(
+                connectivityManager,
+                keyValueStore,
+                "ringer-mode",
+                RingerModeLogger.getInstance()
+        ));
+
+        sensorMaster.start();
     }
 
     private void stopSchedulingAndSensing() {
@@ -130,14 +147,11 @@ public class TaskSchedulingService extends Service {
         alarmEventManager.terminate();
         alarmEventManager = null;
 
-        motionActivityDataCollector.stop();
+        sensorMaster.stop();
     }
 
-    private MotionActivityDataCollector.Callback motionActivityCallback
-            = new MotionActivityDataCollector.Callback() {
-        @Override
-        public void onMotionActivityResult(ActivityRecognitionResult result) {
-
-        }
-    };
+    @Override
+    public void onNotificationEvent(int notificationID, NotificationEventType event) {
+        rewardMaster.feed(event);
+    }
 }

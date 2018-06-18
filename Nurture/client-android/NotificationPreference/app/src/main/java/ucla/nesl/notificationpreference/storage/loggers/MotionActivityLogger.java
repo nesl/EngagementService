@@ -25,7 +25,7 @@ import java.util.Locale;
 
 public class MotionActivityLogger implements ILogger {
 
-    private static final String TAG = "MotionActivityLogger";
+    private static final String TAG = MotionActivityLogger.class.getSimpleName();
 
     private static final File DEFAULT_FILE = new File(
             Environment.getExternalStorageDirectory(), "motion_activity.event.txt");

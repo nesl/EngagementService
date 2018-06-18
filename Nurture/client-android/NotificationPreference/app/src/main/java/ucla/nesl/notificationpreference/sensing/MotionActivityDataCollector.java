@@ -11,6 +11,8 @@ import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.ActivityRecognitionResult;
 
+import java.util.concurrent.TimeUnit;
+
 import ucla.nesl.notificationpreference.storage.loggers.MotionActivityLogger;
 
 /**
@@ -25,9 +27,9 @@ import ucla.nesl.notificationpreference.storage.loggers.MotionActivityLogger;
 
 public class MotionActivityDataCollector {
 
-    private static final long MOTION_ACTIVITY_FETCH_FREQUENCY_MS = 10 * 1000L;  // 10 seconds
+    private static final long MOTION_ACTIVITY_FETCH_FREQUENCY_MS = TimeUnit.SECONDS.toMillis(10);
 
-    public static final String INTENT_FORWARD_ACTIVITY_RESULT = "intent.forward.activity.result";
+    public static final String INTENT_FORWARD_MOTION_ACTIVITY_RESULT = "intent.forward.motion.activity.result";
     public static final String INTENT_EXTRA_NAME_ACTIVITY_RESULT = "activityResult";
     private static final int PENDING_INTENT_REQUEST_CODE = 0;
 
@@ -52,7 +54,7 @@ public class MotionActivityDataCollector {
                 context, PENDING_INTENT_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         LocalBroadcastManager.getInstance(context).registerReceiver(motionActivityReceiver,
-                new IntentFilter(INTENT_FORWARD_ACTIVITY_RESULT));
+                new IntentFilter(INTENT_FORWARD_MOTION_ACTIVITY_RESULT));
     }
 
     public void start() {

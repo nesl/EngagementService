@@ -28,7 +28,7 @@ public class MotionActivityProxyIntentService extends IntentService {
         Log.i(TAG, "activities detected: " + result.getMostProbableActivity().toString());
 
         Intent forwardedIntent = new Intent(
-                MotionActivityDataCollector.INTENT_FORWARD_ACTIVITY_RESULT);
+                MotionActivityDataCollector.INTENT_FORWARD_MOTION_ACTIVITY_RESULT);
         forwardedIntent.putExtra(
                 MotionActivityDataCollector.INTENT_EXTRA_NAME_ACTIVITY_RESULT, result);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(forwardedIntent);
