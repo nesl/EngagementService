@@ -8,6 +8,7 @@ import com.google.android.gms.location.DetectedActivity;
 
 import ucla.nesl.notificationpreference.sensing.MotionActivityDataCollector;
 import ucla.nesl.notificationpreference.sensing.RingerModeDataCollector;
+import ucla.nesl.notificationpreference.sensing.ScreenStatusDataCollector;
 import ucla.nesl.notificationpreference.task.scheduler.PeriodicTaskScheduler;
 import ucla.nesl.notificationpreference.utils.HashUtils;
 import ucla.nesl.notificationpreference.utils.Utils;
@@ -22,6 +23,7 @@ public class SensorMaster {
 
     private MotionActivityDataCollector motionActivityDataCollector;
     private RingerModeDataCollector ringerModeDataCollector;
+    private ScreenStatusDataCollector screenDataCollector;
 
     // motion activity related
     private static final int[] MOTION_ACTIVITY_OF_INTEREST = {
@@ -39,6 +41,7 @@ public class SensorMaster {
         motionActivityDataCollector = new MotionActivityDataCollector(
                 service, motionActivityCallback);
         ringerModeDataCollector = new RingerModeDataCollector(service);
+        screenDataCollector = new ScreenStatusDataCollector(service);
     }
 
     public void start() {
@@ -52,10 +55,11 @@ public class SensorMaster {
     public String getStateMessageAndReset() {
         String motionActivity = determineMotionTypeWithinCurrentWindow();
         String ringerMode = ringerModeDataCollector.query();
+        String screenStatus = screenDataCollector.query();
 
         resetMotionScore();
 
-        return Utils.stringJoin(",", motionActivity, ringerMode);
+        return Utils.stringJoin(",", motionActivity, ringerMode, screenStatus);
     }
 
     private MotionActivityDataCollector.Callback motionActivityCallback

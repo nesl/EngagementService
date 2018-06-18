@@ -7,6 +7,8 @@ import ucla.nesl.notificationpreference.storage.loggers.RingerModeLogger;
 
 /**
  * Created by timestring on 6/14/18.
+ *
+ * Collect ringer mode status.
  */
 
 public class RingerModeDataCollector {
