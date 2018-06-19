@@ -30,13 +30,17 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.TaskActivity" />
         <activity android:name=".activity.history.ResponseHistoryActivity" />
+        <activity android:name=".activity.ConfigurePlaceActivity" />
 
         <service
             android:name=".service.TaskSchedulingService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".sensing.MotionActivityProxyIntentService"
+            android:name=".sensing.motion.MotionActivityProxyIntentService"
+            android:exported="false" />
+        <service
+            android:name=".sensing.location.LocationProxyIntentService"
             android:exported="false" />
 
         <receiver
@@ -56,7 +60,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAJWkNHdCCaf0OsHUBJPdPzCLOvOSZG090" />
 
-        <activity android:name=".activity.ConfigurePlaceActivity"></activity>
     </application>
 
 </manifest>

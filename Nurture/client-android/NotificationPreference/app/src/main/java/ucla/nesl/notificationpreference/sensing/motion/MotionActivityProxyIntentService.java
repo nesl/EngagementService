@@ -1,4 +1,4 @@
-package ucla.nesl.notificationpreference.sensing;
+package ucla.nesl.notificationpreference.sensing.motion;
 
 import android.app.IntentService;
 import android.content.Intent;

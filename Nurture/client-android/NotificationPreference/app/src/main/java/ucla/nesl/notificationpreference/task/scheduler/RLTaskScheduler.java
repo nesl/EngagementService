@@ -97,16 +97,18 @@ public class RLTaskScheduler extends TaskSchedulerBase {
     private HttpsPostRequest.Callback getActionCallback = new HttpsPostRequest.Callback() {
         @Override
         public void onResult(String result) {
-            if (result.startsWith("action-")) {
-                // process the action
-                String action = result.substring(7);
-                if (action.equals("1")) {
-                    sendTaskRightAway();
-                }
-
-                // reset the state-reward holder
-                resetStateRewardHolder();
+            if (result == null || !result.startsWith("action-")) {
+                return;
             }
+
+            // process the action
+            String action = result.substring(7);
+            if (action.equals("1")) {
+                sendTaskRightAway();
+            }
+
+            // reset the state-reward holder
+            resetStateRewardHolder();
         }
     };
 

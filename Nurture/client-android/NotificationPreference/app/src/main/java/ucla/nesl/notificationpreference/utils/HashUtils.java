@@ -3,6 +3,8 @@ package ucla.nesl.notificationpreference.utils;
 import android.support.annotation.NonNull;
 import android.util.SparseIntArray;
 
+import java.util.Map;
+
 /**
  * Created by timestring on 6/14/18.
  *
@@ -14,7 +16,7 @@ import android.util.SparseIntArray;
 
 public class HashUtils {
 
-    public static void addAssign(@NonNull  SparseIntArray array, int key, int delta) {
+    public static void addAssign(@NonNull SparseIntArray array, int key, int delta) {
         int newValue = array.get(key, 0) + delta;
         array.put(key, newValue);
     }
@@ -31,6 +33,23 @@ public class HashUtils {
             if (tv > maxVal) {
                 maxVal = tv;
                 maxKey = array.keyAt(i);
+            }
+        }
+        return maxKey;
+    }
+
+    public static <K> K argMax(@NonNull Map<K, Long> map) {
+        long maxVal = 0L;  // keep compiler happy
+        K maxKey = null;
+        for (Map.Entry<K, Long> entry : map.entrySet()) {
+            if (entry.getValue() == null) {
+                continue;
+            }
+
+            long tmpVal = entry.getValue();
+            if (maxKey == null || tmpVal > maxVal) {
+                maxKey = entry.getKey();
+                maxVal = tmpVal;
             }
         }
         return maxKey;

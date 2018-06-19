@@ -19,7 +19,7 @@ import java.util.Locale;
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.utils.If;
-import ucla.nesl.notificationpreference.utils.In;
+import ucla.nesl.notificationpreference.utils.Utils;
 
 public class ConfigurePlaceActivity extends AppCompatActivity {
 
@@ -48,7 +48,7 @@ public class ConfigurePlaceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_configure_place);
 
         mode = getIntent().getIntExtra(INTENT_EXTRA_NAME_MODE, 0);
-        if (!In.ints(mode, MODE_INITIALIZE, MODE_UPDATE)) {
+        if (!Utils.in(mode, MODE_INITIALIZE, MODE_UPDATE)) {
             throw new IllegalArgumentException(
                     String.format(Locale.getDefault(), "Unrecognized mode (Got %d)", mode));
         }
