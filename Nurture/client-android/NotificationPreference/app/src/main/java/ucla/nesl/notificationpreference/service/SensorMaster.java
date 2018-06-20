@@ -7,8 +7,15 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.Geofence;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
+import ucla.nesl.notificationpreference.notification.INotificationEventListener;
+import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
 import ucla.nesl.notificationpreference.sensing.RingerModeDataCollector;
 import ucla.nesl.notificationpreference.sensing.ScreenStatusDataCollector;
 import ucla.nesl.notificationpreference.sensing.location.LocationDataCollector;
@@ -20,6 +27,11 @@ import ucla.nesl.notificationpreference.utils.Utils;
 
 /**
  * Created by timestring on 6/14/18.
+ *
+ * `SensorMaster` has a pool of data collectors and focus on sensor data handling, especially some
+ * data collectors are push-based (a callback is required) while others are pull-based.
+ * `SensorMaster` provides a nice interface to `TaskSchedulingService` to summarize what the current
+ * state is.
  */
 
 public class SensorMaster {
@@ -46,6 +58,10 @@ public class SensorMaster {
     // location geofence related
     private HashMap<String, Long> geofenceEnteredTimestamp = new HashMap<>();
 
+    // notification status related
+    private NotificationHelper notificationHelper;
+    private long lastNotificationTime;
+
     //region Section: Master-level control
     // =============================================================================================
     public SensorMaster(TaskSchedulingService service) {
@@ -54,6 +70,10 @@ public class SensorMaster {
         locationDataCollector = new LocationDataCollector(service, geofenceCallback);
         ringerModeDataCollector = new RingerModeDataCollector(service);
         screenDataCollector = new ScreenStatusDataCollector(service);
+
+        // initialize notification status related
+        notificationHelper = new NotificationHelper(service, false, notificationEventListener);
+        lastNotificationTime = 0L;
     }
 
     public void start() {
@@ -70,14 +90,18 @@ public class SensorMaster {
     }
 
     public String getStateMessageAndReset() {
+        String percentageOfDay = String.valueOf(getPercentageOfTheDay());
+        String percentageOfWeek = String.valueOf(getPercentageOfTheWeek());
         String motionActivity = determineMotionTypeWithinCurrentWindow();
         String location = determineCurrentPlace();
+        String notificationTimeElapsed = String.valueOf(getLastNotificationElapsedTimeInMinute());
         String ringerMode = ringerModeDataCollector.query();
         String screenStatus = screenDataCollector.query();
 
         resetMotionScore();
 
-        return Utils.stringJoin(",", motionActivity, location, ringerMode, screenStatus);
+        return Utils.stringJoin(",", percentageOfDay, percentageOfWeek, motionActivity,
+                location, notificationTimeElapsed, ringerMode, screenStatus);
     }
     //endregion
 
@@ -108,6 +132,34 @@ public class SensorMaster {
             }
         }
     };
+
+    private INotificationEventListener notificationEventListener
+            = new INotificationEventListener() {
+        @Override
+        public void onNotificationEvent(int notificationID, NotificationEventType event) {
+            if (event == NotificationEventType.CREATED) {
+                lastNotificationTime = System.currentTimeMillis();
+            }
+        }
+    };
+    //endregion
+
+    //region Section: Time/day computation
+    // =============================================================================================
+    private double getPercentageOfTheDay() {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(new Date());
+        return ((double) calendar.get(Calendar.DAY_OF_WEEK) + getPercentageOfTheWeek()) / 7.0;
+    }
+
+    private double getPercentageOfTheWeek() {
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(new Date());
+        long secondsOfTheDay = TimeUnit.HOURS.toSeconds(calendar.get(Calendar.HOUR_OF_DAY))
+                + TimeUnit.MINUTES.toSeconds(calendar.get(Calendar.MINUTE))
+                + calendar.get(Calendar.SECOND);
+        return (double) secondsOfTheDay / TimeUnit.DAYS.toSeconds(1);
+    }
     //endregion
 
     //region Section: Motion activity computation
@@ -146,7 +198,7 @@ public class SensorMaster {
     }
     //endregion
 
-    //region Section: Motion activity computation
+    //region Section: Geofence status computation
     // =============================================================================================
     private void resetGeofenceStatus() {
         geofenceEnteredTimestamp.put(LocationDataCollector.PLACE_LABEL_HOME, null);
@@ -155,6 +207,15 @@ public class SensorMaster {
 
     private String determineCurrentPlace() {
         return If.nullThen(HashUtils.argMax(geofenceEnteredTimestamp), "others");
+    }
+    //endregion
+
+    //region Section: Notification elapsed time
+    // =============================================================================================
+    private double getLastNotificationElapsedTimeInMinute() {
+        double timeElapsed = (double) TimeUnit.MILLISECONDS.toMinutes(
+                System.currentTimeMillis() - lastNotificationTime);
+        return Math.min(Math.max(timeElapsed, 0.0), (double) TimeUnit.DAYS.toMinutes(1));
     }
     //endregion
 }
