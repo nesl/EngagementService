@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Notification Preference</string>
     <string name="title_activity_debug">Debug Panel</string>
+    <string name="title_activity_opening">OpeningActivity</string>
 </resources>

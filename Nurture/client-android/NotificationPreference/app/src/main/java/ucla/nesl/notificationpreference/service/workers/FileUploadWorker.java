@@ -12,7 +12,7 @@ import ucla.nesl.notificationpreference.alarm.AlarmWorker;
 import ucla.nesl.notificationpreference.alarm.NextTrigger;
 import ucla.nesl.notificationpreference.network.HttpsPostRequest;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
-import ucla.nesl.notificationpreference.storage.loggers.ILogger;
+import ucla.nesl.notificationpreference.storage.loggers.LocalLogger;
 
 /**
  * Created by timestring on 6/13/18.
@@ -36,7 +36,7 @@ public class FileUploadWorker extends AlarmWorker {
             ConnectivityManager _connectivityManager,
             SharedPreferenceHelper _keyValueStore,
             String type,
-            ILogger logger
+            LocalLogger logger
     ) {
         connectivityManager = _connectivityManager;
         keyValueStore = _keyValueStore;

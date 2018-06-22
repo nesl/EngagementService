@@ -1,13 +1,12 @@
 package ucla.nesl.notificationpreference.activity.main;
 
-import android.Manifest;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -19,26 +18,22 @@ import android.widget.TextView;
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.ConfigurePlaceActivity;
 import ucla.nesl.notificationpreference.activity.DebugActivity;
+import ucla.nesl.notificationpreference.activity.OpeningActivity;
 import ucla.nesl.notificationpreference.activity.history.ResponseHistoryActivity;
-import ucla.nesl.notificationpreference.network.HttpsPostRequest;
 import ucla.nesl.notificationpreference.service.TaskSchedulingService;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
+import ucla.nesl.notificationpreference.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSIONS_REQUEST_CODE = 1;
+    private static final int REQUEST_CODE_LAUNCH_OPENING_ACTIVITY = 1;
 
-    // permissions
-    private static final String[] requiredPermissions = {
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-    };
+
 
     // service
     private TaskSchedulingService taskService;
+    private boolean isTaskServiceBound = false;
 
     // notification related
     private ToastShortcut toastHelper;
@@ -46,64 +41,63 @@ public class MainActivity extends AppCompatActivity {
     // key-value store
     private SharedPreferenceHelper keyValueStore;
 
+
+    //region Section: Activity life cycle
+    // =============================================================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ActivityCompat.requestPermissions(this, requiredPermissions, PERMISSIONS_REQUEST_CODE);
 
         toastHelper = new ToastShortcut(this);
 
         keyValueStore = new SharedPreferenceHelper(this);
 
-        // event listeners
-        Button buttonTaskList = findViewById(R.id.buttonTaskList);
-        buttonTaskList.setOnClickListener(startTaskListEvent);
-
-        Button buttonInputPlaces = findViewById(R.id.buttonInputPlace);
-        buttonInputPlaces.setOnClickListener(enterPlacesEvent);
-
-        Button buttonDataCollectionStatus = findViewById(R.id.buttonSensingSwitch);
-        buttonDataCollectionStatus.setOnClickListener(toggleDataCollectionStatusEvent);
-
         // --**** FOR DEBUG PURPOSE ****--
-        keyValueStore.setAppStatus(SharedPreferenceHelper.APP_STATUS_ACTIVE);
+        keyValueStore.setAppStatus(SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED);
 
-        // start service
-        Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
-        startService(serviceIntent);
-
-        // get user code if not set yet
-        TextView textCode = MainActivity.this.findViewById(R.id.textUserCode);
-        textCode.setOnLongClickListener(userCodeLongClickListener);
-        if (keyValueStore.getUserCode() != null) {
-            textCode.setText(keyValueStore.getUserCode());
+        if (keyValueStore.getAppStatus() == SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED) {
+            Intent intent = new Intent(this, OpeningActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_LAUNCH_OPENING_ACTIVITY);
         } else {
-            new HttpsPostRequest()
-                    .setDestinationPage("mobile/get-user-code")
-                    .setCallback(getUserCodeCallback)
-                    .execute();
+            startFullOperations();
         }
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
-        bindService(serviceIntent, taskServiceConnection, Context.BIND_AUTO_CREATE);
-        Log.i("MainActivity", "onStart()");
-
+        if (keyValueStore.getAppStatus() != SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED) {
+            tryBindTaskService();
+        }
         refreshDataCollectionButtonText();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        unbindService(taskServiceConnection);
-        Log.i("MainActivity", "onStop()");
+        tryUnbindTaskService();
     }
+    //endregion
+
+    //region Section: Activity transition - result returned
+    // =============================================================================================
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE_LAUNCH_OPENING_ACTIVITY:
+                if (resultCode == Activity.RESULT_OK) {
+                    keyValueStore.setAppStatus(SharedPreferenceHelper.APP_STATUS_ACTIVE);
+                    startFullOperations();
+                    refreshDataCollectionButtonText();
+                    return;
+                }
+                break;
+        }
+        finish();
+    }
+    //endregion
 
     //region Section: UI Option menu
     // =============================================================================================
@@ -127,8 +121,9 @@ public class MainActivity extends AppCompatActivity {
     }
     //endregion
 
-
-    View.OnClickListener startTaskListEvent = new View.OnClickListener() {
+    //region Section: UI event listeners
+    // =============================================================================================
+    private View.OnClickListener startTaskListEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(getApplicationContext(), ResponseHistoryActivity.class);
@@ -136,15 +131,15 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    View.OnClickListener enterPlacesEvent = new View.OnClickListener() {
+    private View.OnClickListener enterPlacesEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            startActivity(ConfigurePlaceActivity.getIntentForStartActivity(
-                    MainActivity.this, ConfigurePlaceActivity.MODE_INITIALIZE));
+            Intent intent = new Intent(MainActivity.this, ConfigurePlaceActivity.class);
+            startActivity(intent);
         }
     };
 
-    View.OnClickListener toggleDataCollectionStatusEvent = new View.OnClickListener() {
+    private View.OnClickListener toggleDataCollectionStatusEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (taskService == null) {
@@ -158,6 +153,17 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private View.OnLongClickListener userCodeLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View view) {
+            ChangeUserCodeDialogHelper.createAndShowDialog(MainActivity.this);
+            return true;
+        }
+    };
+    //endregion
+
+    //region Section: Service connection
+    // =============================================================================================
     private ServiceConnection taskServiceConnection = new ServiceConnection() {
 
         @Override
@@ -176,6 +182,24 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private void tryBindTaskService() {
+        if (!isTaskServiceBound) {
+            Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
+            bindService(serviceIntent, taskServiceConnection, Context.BIND_AUTO_CREATE);
+            isTaskServiceBound = true;
+        }
+    }
+
+    private void tryUnbindTaskService() {
+        if (isTaskServiceBound) {
+            unbindService(taskServiceConnection);
+            isTaskServiceBound = false;
+        }
+    }
+    //endregion
+
+    //region Section: UI refresh helper
+    // =============================================================================================
     private void refreshDataCollectionButtonText() {
         Button button = findViewById(R.id.buttonSensingSwitch);
         switch (keyValueStore.getAppStatus()) {
@@ -189,30 +213,41 @@ public class MainActivity extends AppCompatActivity {
                 button.setText("O____o");
         }
     }
+    //endregion
 
+    //region Section: User code updating helpers
+    // =============================================================================================
     void tryUpdateUserCode(String code) {
-        if (code != null && code.matches("[0-9]+")) {
+        if (Utils.tryUpdateUserCode(code, keyValueStore)) {
             TextView textCode = MainActivity.this.findViewById(R.id.textUserCode);
-            keyValueStore.setUserCode(code);
             textCode.setText(code);
         } else {
             toastHelper.showLong("The user code is invalid");
         }
     }
+    //endregion
 
-    private HttpsPostRequest.Callback getUserCodeCallback = new HttpsPostRequest.Callback() {
-        @Override
-        public void onResult(String result) {
-            Log.i("MainActivity", "Get code: " + result);
-            tryUpdateUserCode(result);
-        }
-    };
+    //region Section: Main operation entrance
+    // =============================================================================================
+    private void startFullOperations() {
+        // event listeners
+        Button buttonTaskList = findViewById(R.id.buttonTaskList);
+        buttonTaskList.setOnClickListener(startTaskListEvent);
 
-    private View.OnLongClickListener userCodeLongClickListener = new View.OnLongClickListener() {
-        @Override
-        public boolean onLongClick(View view) {
-            ChangeUserCodeDialogHelper.createAndShowDialog(MainActivity.this);
-            return true;
-        }
-    };
+        Button buttonInputPlaces = findViewById(R.id.buttonInputPlace);
+        buttonInputPlaces.setOnClickListener(enterPlacesEvent);
+
+        Button buttonDataCollectionStatus = findViewById(R.id.buttonSensingSwitch);
+        buttonDataCollectionStatus.setOnClickListener(toggleDataCollectionStatusEvent);
+
+        // start service
+        Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
+        startService(serviceIntent);
+
+        // get user code if not set yet
+        TextView textCode = MainActivity.this.findViewById(R.id.textUserCode);
+        textCode.setOnLongClickListener(userCodeLongClickListener);
+        textCode.setText(keyValueStore.getUserCode());
+    }
+    //endregion
 }
