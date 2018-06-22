@@ -2,11 +2,8 @@ package ucla.nesl.notificationpreference.storage.loggers;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.Locale;
 
 /**
@@ -19,9 +16,7 @@ import java.util.Locale;
  * location.
  */
 
-public class ScreenStatusLogger implements ILogger {
-
-    private static final String TAG = ScreenStatusLogger.class.getSimpleName();
+public class ScreenStatusLogger extends LocalLogger {
 
     private static final File DEFAULT_FILE = new File(
             Environment.getExternalStorageDirectory(), "screen_status.event.txt");
@@ -44,29 +39,16 @@ public class ScreenStatusLogger implements ILogger {
     }
 
 
-    private File file;
-
-    private ScreenStatusLogger(@NonNull File _file) {
-        file = _file;
-    }
-
-    @Override
-    public File getFile() {
-        return file;
+    private ScreenStatusLogger(@NonNull File file) {
+        super(file);
     }
 
     public void log(@NonNull String status) {
-        try {
-            PrintWriter out = new PrintWriter(new FileOutputStream(file, true));
-            out.println(String.format(
-                    Locale.getDefault(),
-                    "%d,%s",
-                    System.currentTimeMillis(),
-                    status
-            ));
-            out.close();
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
+        appendLine(String.format(
+                Locale.getDefault(),
+                "%d,%s",
+                System.currentTimeMillis(),
+                status
+        ));
     }
 }

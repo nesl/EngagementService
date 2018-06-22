@@ -5,8 +5,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.Locale;
 
 /**
@@ -20,7 +18,7 @@ import java.util.Locale;
  * location.
  */
 
-public class NotificationInteractionEventLogger implements ILogger {
+public class NotificationInteractionEventLogger extends LocalLogger {
 
     private static final String TAG = "NotificationEventLogger";
 
@@ -45,15 +43,8 @@ public class NotificationInteractionEventLogger implements ILogger {
     }
 
 
-    private File file;
-
-    private NotificationInteractionEventLogger(@NonNull File _file) {
-        file = _file;
-    }
-
-    @Override
-    public File getFile() {
-        return file;
+    private NotificationInteractionEventLogger(@NonNull File file) {
+        super(file);
     }
 
     public void logRegisterNotification(int notificationID) {
@@ -77,19 +68,13 @@ public class NotificationInteractionEventLogger implements ILogger {
     }
 
     private void log(@NonNull String event, int notificationID, @NonNull String meta) {
-        try {
-            // to ease the effort of data analysis, we make sure `meta` does not span across
-            // multiple lines
-            meta = meta.replace("\n", " ").replace("\r", " ");
+        // to ease the effort of data analysis, we make sure `meta` does not span across
+        // multiple lines
+        meta = meta.replace("\n", " ").replace("\r", " ");
 
-            PrintWriter out = new PrintWriter(new FileOutputStream(file, true));
-            String message = String.format(Locale.getDefault(), "%d,%s,%d,%s",
-                    System.currentTimeMillis(), event, notificationID, meta);
-            Log.i(TAG, "going to log message: " + message);
-            out.println(message);
-            out.close();
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
+        String message = String.format(Locale.getDefault(), "%d,%s,%d,%s",
+                System.currentTimeMillis(), event, notificationID, meta);
+        Log.i(TAG, "going to log message: " + message);
+        appendLine(message);
     }
 }

@@ -2,11 +2,8 @@ package ucla.nesl.notificationpreference.storage.loggers;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.Locale;
 
 /**
@@ -19,9 +16,7 @@ import java.util.Locale;
  * location.
  */
 
-public class RingerModeLogger implements ILogger {
-
-    private static final String TAG = RingerModeLogger.class.getSimpleName();
+public class RingerModeLogger extends LocalLogger {
 
     private static final File DEFAULT_FILE = new File(
             Environment.getExternalStorageDirectory(), "ringer_mode.event.txt");
@@ -44,29 +39,16 @@ public class RingerModeLogger implements ILogger {
     }
 
 
-    private File file;
-
-    private RingerModeLogger(@NonNull File _file) {
-        file = _file;
-    }
-
-    @Override
-    public File getFile() {
-        return file;
+    private RingerModeLogger(@NonNull File file) {
+        super(file);
     }
 
     public void log(@NonNull String mode) {
-        try {
-            PrintWriter out = new PrintWriter(new FileOutputStream(file, true));
-            out.println(String.format(
-                    Locale.getDefault(),
-                    "%d,%s",
-                    System.currentTimeMillis(),
-                    mode
-            ));
-            out.close();
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
+        appendLine(String.format(
+                Locale.getDefault(),
+                "%d,%s",
+                System.currentTimeMillis(),
+                mode
+        ));
     }
 }

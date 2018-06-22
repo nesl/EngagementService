@@ -2,13 +2,10 @@ package ucla.nesl.notificationpreference.storage.loggers;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.Locale;
 
 /**
@@ -21,9 +18,7 @@ import java.util.Locale;
  * location.
  */
 
-public class LocationLogger implements ILogger {
-
-    private static final String TAG = LocationLogger.class.getSimpleName();
+public class LocationLogger extends LocalLogger {
 
     private static final File DEFAULT_FILE = new File(
             Environment.getExternalStorageDirectory(), "location.event.txt");
@@ -46,31 +41,18 @@ public class LocationLogger implements ILogger {
     }
 
 
-    private File file;
-
-    private LocationLogger(@NonNull File _file) {
-        file = _file;
-    }
-
-    @Override
-    public File getFile() {
-        return file;
+    private LocationLogger(@NonNull File file) {
+        super(file);
     }
 
     public void log(int geofenceTransitionType, @NonNull String geofenceCompoundPlaceLabels) {
-        try {
-            PrintWriter out = new PrintWriter(new FileOutputStream(file, true));
-            out.println(String.format(
-                    Locale.getDefault(),
-                    "%d,%s,%s",
-                    System.currentTimeMillis(),
-                    getGeofenceTransitionTypeName(geofenceTransitionType),
-                    geofenceCompoundPlaceLabels
-            ));
-            out.close();
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
+        appendLine(String.format(
+                Locale.getDefault(),
+                "%d,%s,%s",
+                System.currentTimeMillis(),
+                getGeofenceTransitionTypeName(geofenceTransitionType),
+                geofenceCompoundPlaceLabels
+        ));
     }
 
     private String getGeofenceTransitionTypeName(int geofenceTransitionType) {
