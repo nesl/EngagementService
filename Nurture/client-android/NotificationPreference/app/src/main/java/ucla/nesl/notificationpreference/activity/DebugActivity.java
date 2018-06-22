@@ -3,7 +3,6 @@ package ucla.nesl.notificationpreference.activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
@@ -21,8 +20,6 @@ public class DebugActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         Button dumpDBButton = findViewById(R.id.buttonDBDump);
         dumpDBButton.setOnClickListener(dumpDBEvent);
@@ -30,7 +27,7 @@ public class DebugActivity extends AppCompatActivity {
         toastHelper = new ToastShortcut(this);
     }
 
-    View.OnClickListener dumpDBEvent = new View.OnClickListener() {
+    private View.OnClickListener dumpDBEvent = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             NotificationResponseRecordDatabase database =

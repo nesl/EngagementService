@@ -11,26 +11,35 @@
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Nurture Portal"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".activity.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.OpeningActivity"
+            android:label="Nurture - Welcome!" />
+        <activity
+            android:name=".activity.ConfigurePlaceActivity"
+            android:label="Place Update" />
+        <activity
+            android:name=".activity.history.ResponseHistoryActivity"
+            android:label="Task List" />
+        <activity
+            android:name=".activity.TaskActivity"
+            android:label="Short Question" />
         <activity
             android:name=".activity.DebugActivity"
-            android:label="@string/title_activity_debug"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activity.TaskActivity" />
-        <activity android:name=".activity.history.ResponseHistoryActivity" />
-        <activity android:name=".activity.ConfigurePlaceActivity" />
+            android:label="Debug Panel" />
 
         <service
             android:name=".service.TaskSchedulingService"
@@ -60,10 +69,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAJWkNHdCCaf0OsHUBJPdPzCLOvOSZG090" />
 
-        <activity
-            android:name=".activity.OpeningActivity"
-            android:label="@string/title_activity_opening"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+
     </application>
 
 </manifest>

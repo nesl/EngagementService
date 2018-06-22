@@ -79,13 +79,18 @@ public class LayoutConfigurePlaceSuite {
     }
 
     public void onResume() {
+        String homePlaceDescription = keyValueStore.getUserHomePlaceDescription();
+        String workPlaceDescription = keyValueStore.getUserWorkPlaceDescription();
+
         TextView homePlaceText = activity.findViewById(R.id.textHomeAnswer);
-        homePlaceText.setText(
-                If.nullThen(keyValueStore.getUserHomePlaceDescription(), "(Not set yet)"));
+        homePlaceText.setText(If.nullThen(homePlaceDescription, "(Not set yet)"));
 
         TextView workPlaceText = activity.findViewById(R.id.textWorkAnswer);
-        workPlaceText.setText(
-                If.nullThen(keyValueStore.getUserWorkPlaceDescription(), "(Not set yet)"));
+        workPlaceText.setText(If.nullThen(workPlaceDescription, "(Not set yet)"));
+
+        boolean placesProperlySet = (homePlaceDescription != null && workPlaceDescription != null);
+        Button confirmButton = activity.findViewById(R.id.buttonConfirmPlaces);
+        confirmButton.setEnabled(placesProperlySet);
     }
     //endregion
 

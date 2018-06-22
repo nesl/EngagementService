@@ -30,15 +30,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_LAUNCH_OPENING_ACTIVITY = 1;
 
 
-
     // service
     private TaskSchedulingService taskService;
     private boolean isTaskServiceBound = false;
 
-    // notification related
+    // helpers
     private ToastShortcut toastHelper;
-
-    // key-value store
     private SharedPreferenceHelper keyValueStore;
 
 
@@ -49,18 +46,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         toastHelper = new ToastShortcut(this);
 
         keyValueStore = new SharedPreferenceHelper(this);
 
-        // --**** FOR DEBUG PURPOSE ****--
-        keyValueStore.setAppStatus(SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED);
+        Log.i("MainActivity", "app status = " + keyValueStore.getAppStatus());
 
         if (keyValueStore.getAppStatus() == SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED) {
+            Log.i("MainActivity", "start open activity");
             Intent intent = new Intent(this, OpeningActivity.class);
             startActivityForResult(intent, REQUEST_CODE_LAUNCH_OPENING_ACTIVITY);
         } else {
+            Log.i("MainActivity", "start full operations");
             startFullOperations();
         }
     }
@@ -69,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if (keyValueStore.getAppStatus() != SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED) {
+            Log.i("MainActivity", "try bind service");
             tryBindTaskService();
         }
         refreshDataCollectionButtonText();

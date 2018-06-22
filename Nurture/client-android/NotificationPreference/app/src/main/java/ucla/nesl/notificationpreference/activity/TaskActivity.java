@@ -15,9 +15,9 @@ import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.notification.INotificationEventListener;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
-import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecordDatabase;
+import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.task.TaskFactory;
 import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 

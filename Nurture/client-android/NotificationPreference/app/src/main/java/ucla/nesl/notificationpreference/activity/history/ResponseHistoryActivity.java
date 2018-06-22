@@ -19,10 +19,10 @@ public class ResponseHistoryActivity extends AppCompatActivity
         implements INotificationEventListener {
 
     // database
-    NotificationResponseRecordDatabase database;
+    private NotificationResponseRecordDatabase database;
 
     // notification helper to receive events
-    NotificationHelper notificationHelper;
+    private NotificationHelper notificationHelper;
 
     // UI Widgets
     private RecyclerView mRecyclerView;
@@ -36,6 +36,10 @@ public class ResponseHistoryActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_response_history);
+
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+        //getSupportActionBar().setTitle("Task List");
 
         database = NotificationResponseRecordDatabase.getAppDatabase(this);
 
