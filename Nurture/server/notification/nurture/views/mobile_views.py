@@ -11,14 +11,6 @@ from nurture.models import *
 
 
 @csrf_exempt
-def debug_dump_post(request):
-    if request.method == 'POST':
-        print(request.POST)
-
-    return HttpResponse("Recv", status=200)
-
-
-@csrf_exempt
 def get_user_code(request):
     code = None
     trials = 10
