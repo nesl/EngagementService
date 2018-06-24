@@ -10,6 +10,7 @@ class AppUser(models.Model):
     def __str__(self):
         return self.code
 
+
 class FileLog(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     type = models.CharField(max_length=25)
@@ -22,6 +23,7 @@ class FileLog(models.Model):
                 str(self.type),
                 self.uploaded_time.strftime('%Y%m%d-%H%M%S.txt'),
         )
+
 
 class ActionLog(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
