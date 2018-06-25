@@ -5,7 +5,20 @@ from django.db import models
 from notification import settings
 
 class AppUser(models.Model):
+    STATUS_ACTIVE = 1
+    STATUS_EXPERIMENT_DONE = 0
+    STATUS_HIDDEN = -1
+            
+    STATUS_TYPES = (
+            (STATUS_ACTIVE, 'Active'),
+            (STATUS_EXPERIMENT_DONE, 'Finish experiment'),
+            (STATUS_HIDDEN, 'Hide this user'),
+    )
+
     code = models.CharField(max_length=25)
+    name = models.CharField(max_length=256)
+    status = models.IntegerField(choices=STATUS_TYPES)
+    created_time = models.DateTimeField()
 
     def __str__(self):
         return self.code

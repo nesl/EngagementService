@@ -65,14 +65,14 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{% url 'homepage' %}">Nurture</a>
+            <a class="navbar-brand" href="{% url 'dashboard-list-users' %}">Nurture</a>
           </div>
 
           <a href="{% url 'logout' %}" class="navbar-brand pull-right">
             <span class="glyphicon glyphicon-log-out"></span> Logout
           </a>
           <span class="navbar-brand pull-right username" style="font-size:14px; color:white">
-            <a href="{% url 'user-account' %}">Hi, {{ myuser.username }}</a>
+            Hi, {{ myuser.username }}
           </span>
 
         </div>
@@ -84,8 +84,10 @@
       </nav>
     {% endblock %}
     <!-- Page Content -->
-    {% block content %}
-    {% endblock %}
+    <div style="margin-top:50px">
+      {% block content %}
+      {% endblock %}
+    </div>
 
   </body>
 </html>
