@@ -1,0 +1,48 @@
+{% extends 'nurture/base.html' %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+{% block content %}
+  <div class="main-content">
+
+    <h2 class="page-header">User list</h2>
+
+    <form action="." method="post" class="form">
+      <div class="table-responsive">
+        {% csrf_token %}
+        <input type="hidden" name="user-list" value="{{user_list}}">
+        <table class="table table-striped table-hover table-sm">
+          <tr>
+            <thead class="thead-default">
+              <th>Code</th>
+              <th>Join Date</th>
+              <th>User Name</th>
+              <th>Status</th>
+            <thead>
+          </tr>
+          {% for user in users %}
+            <tr>
+              <td>{{user.code}}</td>
+              <td>{{user.created_time}}</td>
+              <td><input type="text" name="{{user.code}}-name" value="{{user.name}}"></td>
+              <td>
+                <select name="{{user.code}}-status">
+                  {% for option_value, option_text in status_options %}
+                    <option value="{{option_value}}" {% if user.status == option_value %}selected{% endif %}>
+                      {{option_text}}
+                    </option>
+                  {% endfor %}
+                </select>
+                {{entry.user.get_status_display}}
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <hr/>
+      <input class="btn btn-primary" type="submit" value="Confirm Changes" />
+    </form>
+
+  </div>
+{% endblock %}

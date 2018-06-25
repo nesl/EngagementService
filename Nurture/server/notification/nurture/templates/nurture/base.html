@@ -35,7 +35,7 @@
     <!-- Bootstrap Core JavaScript -->
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 
-    <link href="{% static "serapis/base.css" %}" rel="stylesheet">
+    <link href="{% static "nurture/base.css" %}" rel="stylesheet">
 
     <!-- CSS specific to Embed Autograder page-->
     {% block css %}
@@ -84,10 +84,8 @@
       </nav>
     {% endblock %}
     <!-- Page Content -->
-    <div style="margin-top:50px">
-      {% block content %}
-      {% endblock %}
-    </div>
+    {% block content %}
+    {% endblock %}
 
   </body>
 </html>

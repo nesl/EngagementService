@@ -20,6 +20,7 @@ urlpatterns = [
         ## Dashboard
         url(r'^$', dashboard_views.list_users),
         url(r'^dashboard/list-users/$', dashboard_views.list_users, name='dashboard-list-users'),
+        url(r'^dashboard/organize-users/$', dashboard_views.organize_users, name='dashboard-organize-users'),
 
         ## debugging purpose
         url(r'^debug/dump-post/$', debug_views.debug_dump_post, name='debug-dump-post'),
