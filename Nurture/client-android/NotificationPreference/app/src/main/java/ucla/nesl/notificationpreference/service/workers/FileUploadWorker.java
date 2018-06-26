@@ -12,7 +12,6 @@ import ucla.nesl.notificationpreference.alarm.AlarmWorker;
 import ucla.nesl.notificationpreference.alarm.NextTrigger;
 import ucla.nesl.notificationpreference.network.HttpsPostRequest;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
-import ucla.nesl.notificationpreference.storage.loggers.LocalLogger;
 
 /**
  * Created by timestring on 6/13/18.
@@ -36,12 +35,12 @@ public class FileUploadWorker extends AlarmWorker {
             ConnectivityManager _connectivityManager,
             SharedPreferenceHelper _keyValueStore,
             String type,
-            LocalLogger logger
+            File _file
     ) {
         connectivityManager = _connectivityManager;
         keyValueStore = _keyValueStore;
-        file = logger.getFile();
         logType = type;
+        file = _file;
         uploadDeadline = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
     }
 
@@ -89,7 +88,7 @@ public class FileUploadWorker extends AlarmWorker {
     private HttpsPostRequest.Callback fileUploadedCallback = new HttpsPostRequest.Callback() {
         @Override
         public void onResult(String result) {
-            Log.i("FileUploadWorker", "get result: " + result);
+            Log.i(TAG, "get result: " + result);
             if (result != null && result.equals("Ok")) {
                 uploadDeadline = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(20);
             }

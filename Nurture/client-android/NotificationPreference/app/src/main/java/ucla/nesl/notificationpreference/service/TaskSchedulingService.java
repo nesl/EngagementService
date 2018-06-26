@@ -12,13 +12,17 @@ import ucla.nesl.notificationpreference.alarm.AlarmEventManager;
 import ucla.nesl.notificationpreference.notification.INotificationEventListener;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
 import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
+import ucla.nesl.notificationpreference.service.workers.DatabaseUploadWorker;
 import ucla.nesl.notificationpreference.service.workers.FileUploadWorker;
 import ucla.nesl.notificationpreference.service.workers.TaskDispatchWorker;
 import ucla.nesl.notificationpreference.service.workers.TaskPlanningWorker;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
+import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecordDatabase;
+import ucla.nesl.notificationpreference.storage.loggers.LocationLogger;
 import ucla.nesl.notificationpreference.storage.loggers.MotionActivityLogger;
 import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.storage.loggers.RingerModeLogger;
+import ucla.nesl.notificationpreference.storage.loggers.ScreenStatusLogger;
 import ucla.nesl.notificationpreference.task.scheduler.RLTaskScheduler;
 import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
@@ -119,21 +123,39 @@ public class TaskSchedulingService extends Service implements INotificationEvent
                 connectivityManager,
                 keyValueStore,
                 "notification-interaction",
-                NotificationInteractionEventLogger.getInstance()
+                NotificationInteractionEventLogger.getInstance().getFile()
         ));
         alarmEventManager.registerWorker(new FileUploadWorker(
                 connectivityManager,
                 keyValueStore,
                 "motion",
-                MotionActivityLogger.getInstance()
+                MotionActivityLogger.getInstance().getFile()
         ));
-
+        alarmEventManager.registerWorker(new FileUploadWorker(
+                connectivityManager,
+                keyValueStore,
+                "location",
+                LocationLogger.getInstance().getFile()
+        ));
         alarmEventManager.registerWorker(new FileUploadWorker(
                 connectivityManager,
                 keyValueStore,
                 "ringer-mode",
-                RingerModeLogger.getInstance()
+                RingerModeLogger.getInstance().getFile()
         ));
+        alarmEventManager.registerWorker(new FileUploadWorker(
+                connectivityManager,
+                keyValueStore,
+                "screen-status",
+                ScreenStatusLogger.getInstance().getFile()
+        ));
+        alarmEventManager.registerWorker(new DatabaseUploadWorker(
+                connectivityManager,
+                keyValueStore,
+                "task-response",
+                NotificationResponseRecordDatabase.getAppDatabase(this)
+        ));
+
 
         sensorMaster.start();
     }
