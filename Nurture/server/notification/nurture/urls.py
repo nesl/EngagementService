@@ -1,14 +1,27 @@
 from django.conf.urls import url
+from django.contrib.auth import views as auth_views
 
 from nurture.views import *
 
-urlpatterns = [
 
+urlpatterns = [
         ## mobile request
-        url('^mobile/get-user-code/$', mobile_views.get_user_code, name='mobile-get-user-code'),
-        url('^mobile/upload-log-file/$', mobile_views.upload_log_file, name='mobile-upload-log-file'),
-        url('^mobile/get-action/$', mobile_views.get_action, name='mobile-get-action'),
-        
+        url(r'^mobile/get-user-code/$', mobile_views.get_user_code, name='mobile-get-user-code'),
+        url(r'^mobile/upload-log-file/$', mobile_views.upload_log_file, name='mobile-upload-log-file'),
+        url(r'^mobile/get-action/$', mobile_views.get_action, name='mobile-get-action'),
+       
+        ## apk download
+        url(r'^apk/download/$', apk_views.download, name='apk-download'),
+
+        ## Log in / log out
+        url(r'^login/$', auth_views.login, {'template_name': 'nurture/login.html'}, name= 'login'),
+        url(r'^logout/$', auth_views.logout, {'next_page': '/login/'}, name='logout'),
+
+        ## Dashboard
+        url(r'^$', dashboard_views.list_users),
+        url(r'^dashboard/list-users/$', dashboard_views.list_users, name='dashboard-list-users'),
+        url(r'^dashboard/organize-users/$', dashboard_views.organize_users, name='dashboard-organize-users'),
+
         ## debugging purpose
-        url('^debug/dump-post/$', mobile_views.debug_dump_post, name='debug-dump-post'),
+        url(r'^debug/dump-post/$', debug_views.debug_dump_post, name='debug-dump-post'),
 ]

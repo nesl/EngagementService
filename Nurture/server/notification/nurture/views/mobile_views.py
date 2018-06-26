@@ -11,14 +11,6 @@ from nurture.models import *
 
 
 @csrf_exempt
-def debug_dump_post(request):
-    if request.method == 'POST':
-        print(request.POST)
-
-    return HttpResponse("Recv", status=200)
-
-
-@csrf_exempt
 def get_user_code(request):
     code = None
     trials = 10
@@ -31,7 +23,12 @@ def get_user_code(request):
     if code is None:
         return HttpResponse("Bad", status=404)
     
-    AppUser.objects.create(code=code)
+    AppUser.objects.create(
+            code=code,
+            name="",
+            status=AppUser.STATUS_ACTIVE,
+            created_time=timezone.now().astimezone(pytz.timezone('US/Pacific')),
+    )
     return HttpResponse(code, status=200)
 
 
@@ -99,7 +96,8 @@ def get_action(request):
 
     # compute action
     #TODO: now I'm going to return no-notification action
-    action_message = '0'
+    action = 1 if random.randint(0, 29) == 0 else 0
+    action_message = "action-%d" % action
 
     ActionLog.objects.create(
             user=user,

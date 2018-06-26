@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sslserver',
+    'bootstrap3',
 ]
 
 MIDDLEWARE = [
@@ -105,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
 
 USE_I18N = True
 
@@ -127,3 +128,4 @@ SECURE_SSL_REDIRECT = True
 
 # Site specific
 LOG_FILE_ROOT = os.path.join(BASE_DIR, config.log_file_root)
+APK_ROOT = os.path.join(BASE_DIR, config.apk_download_root)
