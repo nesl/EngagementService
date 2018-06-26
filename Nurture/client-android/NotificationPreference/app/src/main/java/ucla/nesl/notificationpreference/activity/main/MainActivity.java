@@ -27,8 +27,9 @@ import ucla.nesl.notificationpreference.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE_LAUNCH_OPENING_ACTIVITY = 1;
+    private static final String APP_VERSION = "v0.8.1";
 
+    private static final int REQUEST_CODE_LAUNCH_OPENING_ACTIVITY = 1;
 
     // service
     private TaskSchedulingService taskService;
@@ -238,14 +239,16 @@ public class MainActivity extends AppCompatActivity {
         Button buttonDataCollectionStatus = findViewById(R.id.buttonSensingSwitch);
         buttonDataCollectionStatus.setOnClickListener(toggleDataCollectionStatusEvent);
 
+        TextView textCode = findViewById(R.id.textUserCode);
+        textCode.setOnLongClickListener(userCodeLongClickListener);
+        textCode.setText(keyValueStore.getUserCode());
+
+        TextView textVersion = findViewById(R.id.textAppVersion);
+        textVersion.setText(APP_VERSION);
+
         // start service
         Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
         startService(serviceIntent);
-
-        // get user code if not set yet
-        TextView textCode = MainActivity.this.findViewById(R.id.textUserCode);
-        textCode.setOnLongClickListener(userCodeLongClickListener);
-        textCode.setText(keyValueStore.getUserCode());
     }
     //endregion
 }
