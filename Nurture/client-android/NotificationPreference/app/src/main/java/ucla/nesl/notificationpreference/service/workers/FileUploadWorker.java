@@ -42,32 +42,35 @@ public class FileUploadWorker extends AlarmWorker {
         keyValueStore = _keyValueStore;
         file = logger.getFile();
         logType = type;
-        uploadDeadline = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
+        uploadDeadline = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
     }
 
     @NonNull
     @Override
     protected NextTrigger onPlan() {
+        long now = System.currentTimeMillis();
+
+        if (now > uploadDeadline && isOnWifi()) {
+            tryUploadFile();
+        }
+
+        long waitTime = Math.max(uploadDeadline - now, TimeUnit.MINUTES.toMillis(30));
+
+        return new NextTrigger(waitTime, TimeUnit.MINUTES.toMillis(15));
+    }
+
+    private void tryUploadFile() {
         try {
-            if (isOnWifi()) {
-                new HttpsPostRequest()
-                        .setDestinationPage("mobile/upload-log-file")
-                        .setParam("code", keyValueStore.getUserCode())
-                        .setParam("type", logType)
-                        .setParamWithFile("content", file)
-                        .setCallback(fileUploadedCallback)
-                        .execute();
-            }
+            new HttpsPostRequest()
+                    .setDestinationPage("mobile/upload-log-file")
+                    .setParam("code", keyValueStore.getUserCode())
+                    .setParam("type", logType)
+                    .setParamWithFile("content", file)
+                    .setCallback(fileUploadedCallback)
+                    .execute();
         } catch (Exception e) {
             Log.e(TAG, "Got exception", e);
         }
-
-        long waitTime = Math.max(
-                uploadDeadline - System.currentTimeMillis(),
-                TimeUnit.MINUTES.toMillis(30)
-        );
-
-        return new NextTrigger(waitTime, TimeUnit.MINUTES.toMillis(15));
     }
 
     private boolean isOnWifi() {
