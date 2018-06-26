@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ViewAnimator;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
@@ -25,25 +26,25 @@ public class ResponseHistoryActivity extends AppCompatActivity
     private NotificationHelper notificationHelper;
 
     // UI Widgets
+    private ViewAnimator layoutContainer;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     // state
     private boolean firstTimeSetAdapter = true;
+    private boolean isInListView = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_response_history);
 
-        //Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-        //getSupportActionBar().setTitle("Task List");
-
         database = NotificationResponseRecordDatabase.getAppDatabase(this);
 
         notificationHelper = new NotificationHelper(this, false, this);
+
+        layoutContainer = findViewById(R.id.container);
 
         mRecyclerView = findViewById(R.id.listViewResponses);
         //mRecyclerView.setHasFixedSize(true);
@@ -66,7 +67,18 @@ public class ResponseHistoryActivity extends AppCompatActivity
             mRecyclerView.swapAdapter(mAdapter, false);
         }
 
+        if (mAdapter.getItemCount() > 0) {
+            trySwitchToListView();
+        }
         firstTimeSetAdapter = false;
+    }
+
+    private void trySwitchToListView() {
+        if (isInListView) {
+            return;
+        }
+        layoutContainer.showNext();
+        isInListView = true;
     }
 
     public View.OnClickListener getOnClickEventListenerToCompleteTask(final int notificationID) {
