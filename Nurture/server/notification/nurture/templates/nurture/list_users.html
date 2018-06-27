@@ -27,7 +27,7 @@
             <td>Coming soon</td>
             <td>
               <a href="#" class="btn btn-primary">Response</a>
-              <a href="#" class="btn btn-primary">Upload files</a>
+              <a href="{% url 'dashboard-latest-upload-simplified' entry.user.code %}" class="btn btn-primary">Upload files</a>
             </td>
           </tr>
         {% endfor %}

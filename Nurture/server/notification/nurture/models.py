@@ -1,8 +1,10 @@
 import os
+import pytz
 
 from django.db import models
 
 from notification import settings
+
 
 class AppUser(models.Model):
     STATUS_ACTIVE = 1
@@ -30,11 +32,12 @@ class FileLog(models.Model):
     uploaded_time = models.DateTimeField()
 
     def get_path(self):
+        uploaded_time = self.uploaded_time.astimezone(pytz.timezone('US/Pacific'))
         return os.path.join(
                 settings.LOG_FILE_ROOT,
                 str(self.user),
                 str(self.type),
-                self.uploaded_time.strftime('%Y%m%d-%H%M%S.txt'),
+                uploaded_time.strftime('%Y%m%d-%H%M%S.txt'),
         )
 
 
