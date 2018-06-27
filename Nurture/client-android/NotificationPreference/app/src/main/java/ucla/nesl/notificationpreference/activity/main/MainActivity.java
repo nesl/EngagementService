@@ -247,8 +247,7 @@ public class MainActivity extends AppCompatActivity {
         textVersion.setText(APP_VERSION);
 
         // start service
-        Intent serviceIntent = new Intent(this, TaskSchedulingService.class);
-        startService(serviceIntent);
+        Utils.startTaskSchedulingService(this);
     }
     //endregion
 }

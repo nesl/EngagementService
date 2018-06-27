@@ -65,6 +65,8 @@ public class TaskSchedulingService extends Service implements INotificationEvent
 
         if (keyValueStore.getAppStatus() == SharedPreferenceHelper.APP_STATUS_ACTIVE) {
             startSchedulingAndSensing();
+        } else {
+            notificationHelper.registerAsForegroundService(this, "Off");
         }
 
         serviceCreatedTimestamp = System.currentTimeMillis();
@@ -156,8 +158,9 @@ public class TaskSchedulingService extends Service implements INotificationEvent
                 NotificationResponseRecordDatabase.getAppDatabase(this)
         ));
 
-
         sensorMaster.start();
+
+        notificationHelper.registerAsForegroundService(this, "On");
     }
 
     private void stopSchedulingAndSensing() {
@@ -170,6 +173,8 @@ public class TaskSchedulingService extends Service implements INotificationEvent
         alarmEventManager = null;
 
         sensorMaster.stop();
+
+        notificationHelper.registerAsForegroundService(this, "Off");
     }
 
     @Override

@@ -16,7 +16,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.util.SparseArray;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
@@ -24,8 +23,9 @@ import ucla.nesl.notificationpreference.notification.enums.NotificationEventType
 import ucla.nesl.notificationpreference.notification.receiver.NotificationButtonActionProxyReceiver;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationDismissedProxyReceiver;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationInlineTextProxyReceiver;
-import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
+import ucla.nesl.notificationpreference.service.TaskSchedulingService;
 import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecordDatabase;
+import ucla.nesl.notificationpreference.storage.loggers.NotificationInteractionEventLogger;
 import ucla.nesl.notificationpreference.task.TaskFactory;
 import ucla.nesl.notificationpreference.task.TaskTypeSampler;
 import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
@@ -72,13 +72,13 @@ public class NotificationHelper {
     private static final String CHANNEL_GROUP_ID = "group_0";
     private static final String CHANNEL_GROUP_NAME = "group_0_name";
 
+    private static final int NOTIFICATION_ID_FOREGROUND_TASK_SCHEDULING_SERVICE = -10;
+
     private Context context;
     private boolean loggingEnabled;
     private INotificationEventListener eventListener;
 
     private NotificationManager notificationManager;
-
-    private SparseArray<Notification> cache = new SparseArray<>();
 
     private NotificationResponseRecordDatabase responseDatabase;
     private NotificationInteractionEventLogger interactionLogger;
@@ -123,13 +123,13 @@ public class NotificationHelper {
             // can see the heads-up style notifications (only if the priority of the notifications
             // are also configured to be the highest possible)
             CharSequence name = context.getString(R.string.app_name);
-            NotificationChannel mChannel = new NotificationChannel(
+            NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);
-            mChannel.enableLights(true);
-            mChannel.enableVibration(true);
-            mChannel.setLightColor(Color.GREEN);
-            notificationManager.createNotificationChannel(mChannel);
-            //mChannel.setGroup(CHANNEL_GROUP_ID);
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            channel.setLightColor(Color.GREEN);
+            notificationManager.createNotificationChannel(channel);
+            //channel.setGroup(CHANNEL_GROUP_ID);
         }
 
         // register local broadcast receiver for notification creating event and response callback
@@ -214,6 +214,19 @@ public class NotificationHelper {
 
     public void cancelNotification(int notificationID) {
         notificationManager.cancel(notificationID);
+    }
+    //endregion
+
+    //region Section: Secondary operations (notifications for foreground service)
+    // =============================================================================================
+    public void registerAsForegroundService(TaskSchedulingService service, String studyStatus) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification notification = new NotificationCompat.Builder(service, CHANNEL_ID)
+                    .setContentTitle("Nurture study")
+                    .setContentText("App operations are " + studyStatus).build();
+            service.startForeground(
+                    NOTIFICATION_ID_FOREGROUND_TASK_SCHEDULING_SERVICE, notification);
+        }
     }
     //endregion
 
