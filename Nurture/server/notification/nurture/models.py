@@ -5,6 +5,8 @@ from django.db import models
 
 from notification import settings
 
+from nurture import utils
+
 
 class AppUser(models.Model):
     STATUS_ACTIVE = 1
@@ -17,7 +19,7 @@ class AppUser(models.Model):
             (STATUS_HIDDEN, 'Hide this user'),
     )
 
-    code = models.CharField(max_length=25)
+    code = models.CharField(max_length=25, unique=True)
     name = models.CharField(max_length=256)
     status = models.IntegerField(choices=STATUS_TYPES)
     created_time = models.DateTimeField()
@@ -27,17 +29,19 @@ class AppUser(models.Model):
 
 
 class FileLog(models.Model):
+    class Meta:
+        unique_together = ('user', 'type', 'filename')
+
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     type = models.CharField(max_length=25)
-    uploaded_time = models.DateTimeField()
+    filename = models.CharField(max_length=25)  # uploaded time, YYYYMMDD-HHMMSS.txt
 
     def get_path(self):
-        uploaded_time = self.uploaded_time.astimezone(pytz.timezone('US/Pacific'))
         return os.path.join(
                 settings.LOG_FILE_ROOT,
                 str(self.user),
-                str(self.type),
-                uploaded_time.strftime('%Y%m%d-%H%M%S.txt'),
+                self.type,
+                self.filename,
         )
 
 
