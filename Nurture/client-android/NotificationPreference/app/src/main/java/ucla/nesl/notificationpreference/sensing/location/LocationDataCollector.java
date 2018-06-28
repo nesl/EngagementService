@@ -18,6 +18,7 @@ import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 
+import ucla.nesl.notificationpreference.activity.ConfigurePlaceActivity;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.storage.loggers.LocationLogger;
 import ucla.nesl.notificationpreference.utils.ToastShortcut;
@@ -59,6 +60,8 @@ public class LocationDataCollector {
     private GeofencingClient geofencingClient;
     private SharedPreferenceHelper keyValueStore;
 
+    private boolean isActive = false;
+
     private LocationLogger logger;
 
     // for geofence request intermediate data
@@ -79,6 +82,8 @@ public class LocationDataCollector {
 
         LocalBroadcastManager.getInstance(context).registerReceiver(locationResponseReceiver,
                 new IntentFilter(INTENT_FORWARD_LOCATION_RESULT));
+        LocalBroadcastManager.getInstance(context).registerReceiver(placeUpdatedReceiver,
+                new IntentFilter(ConfigurePlaceActivity.INTENT_PLACE_CHANGED_SIGNAL));
 
         if (!checkPermission()) {
             throw new IllegalStateException("No location permission");
@@ -87,6 +92,10 @@ public class LocationDataCollector {
 
     public void start() {
         // we treat place code as request code of `PendingIndent` and they are unique.
+        if (isActive) {
+            return;
+        }
+
         pendingIntentHome = registerOneGeofence(
                 PLACE_LABEL_HOME,
                 keyValueStore.getUserHomeLatitude(),
@@ -99,9 +108,14 @@ public class LocationDataCollector {
                 keyValueStore.getUserWorkLongitude(),
                 PENDING_INTENT_REQUEST_CODE_WORK
         );
+        isActive = true;
     }
 
     public void stop() {
+        if (!isActive) {
+            return;
+        }
+
         if (pendingIntentHome != null) {
             geofencingClient.removeGeofences(pendingIntentHome);
             pendingIntentHome = null;
@@ -110,6 +124,7 @@ public class LocationDataCollector {
             geofencingClient.removeGeofences(pendingIntentWork);
             pendingIntentWork = null;
         }
+        isActive = false;
     }
 
     private PendingIntent registerOneGeofence(
@@ -171,6 +186,16 @@ public class LocationDataCollector {
                 if (Utils.in(geofenceLabel, PLACE_LABEL_HOME, PLACE_LABEL_WORK)) {
                     callback.onGeofenceResult(geoTransition, geofenceLabel);
                 }
+            }
+        }
+    };
+
+    private final BroadcastReceiver placeUpdatedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isActive) {
+                stop();
+                start();
             }
         }
     };

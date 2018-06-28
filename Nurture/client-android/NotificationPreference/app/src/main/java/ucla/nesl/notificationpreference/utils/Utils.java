@@ -1,11 +1,15 @@
 package ucla.nesl.notificationpreference.utils;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 
 import java.util.ArrayList;
 import java.util.Date;
 
+import ucla.nesl.notificationpreference.service.TaskSchedulingService;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
 import ucla.nesl.notificationpreference.storage.loggers.LocalLogger;
 import ucla.nesl.notificationpreference.storage.loggers.LocationLogger;
@@ -59,6 +63,18 @@ public class Utils {
     public static void backupAllStaleLogFiles() {
         for (LocalLogger logger : getAllLoggers()) {
             logger.moveToBackup();
+        }
+    }
+    //endregion
+
+    //region Section: String utilities
+    // =============================================================================================
+    public static void startTaskSchedulingService(Context context) {
+        Intent serviceIntent = new Intent(context, TaskSchedulingService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent);
+        } else {
+            context.startService(serviceIntent);
         }
     }
     //endregion

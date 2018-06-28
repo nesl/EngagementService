@@ -1,7 +1,6 @@
 package ucla.nesl.notificationpreference.service.workers;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,18 +27,17 @@ public class TaskDispatchWorker extends AlarmWorker {
                               NotificationHelper _notificationHelper) {
         taskScheduler = _taskScheduler;
         notificationHelper = _notificationHelper;
+
+        taskScheduler.feedImmediateTaskHandler(immediateTaskHandler);
     }
 
     @NonNull
     @Override
     protected NextTrigger onPlan() {
-        Long nextEvent = taskScheduler.getFirstTask();
-        Log.i("TaskDispatchWorker", "check event queue " + nextEvent + "/" + System.currentTimeMillis());
-        if (nextEvent != null && System.currentTimeMillis() >= nextEvent) {
+        long now = System.currentTimeMillis();
+        while (taskScheduler.hasTasks() && now > taskScheduler.getFirstTask()) {
             taskScheduler.removeFirstTask();
-            notificationHelper.cancelNotification(previousNotificationID);
-            previousNotificationID = notificationHelper.createAndSendTaskNotification();
-            Log.i("TaskDispatchWorker", "hey we just fired a task!!");
+            clearPreviousAndSendNewNotification();
         }
 
         // check if we need to fire a task every 30 seconds, but another 30 seconds tolerance
@@ -49,4 +47,16 @@ public class TaskDispatchWorker extends AlarmWorker {
         );
         //return new NextTrigger(5000L, 5000L);
     }
+
+    private void clearPreviousAndSendNewNotification() {
+        notificationHelper.cancelNotification(previousNotificationID);
+        previousNotificationID = notificationHelper.createAndSendTaskNotification();
+    }
+
+    private TaskSchedulerBase.ImmediateTaskHandler immediateTaskHandler
+            = new TaskSchedulerBase.ImmediateTaskHandler() {
+        public void handleImmediateTask() {
+            clearPreviousAndSendNewNotification();
+        }
+    };
 }

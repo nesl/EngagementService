@@ -12,7 +12,6 @@ import ucla.nesl.notificationpreference.alarm.AlarmWorker;
 import ucla.nesl.notificationpreference.alarm.NextTrigger;
 import ucla.nesl.notificationpreference.network.HttpsPostRequest;
 import ucla.nesl.notificationpreference.storage.SharedPreferenceHelper;
-import ucla.nesl.notificationpreference.storage.loggers.LocalLogger;
 
 /**
  * Created by timestring on 6/13/18.
@@ -36,38 +35,41 @@ public class FileUploadWorker extends AlarmWorker {
             ConnectivityManager _connectivityManager,
             SharedPreferenceHelper _keyValueStore,
             String type,
-            LocalLogger logger
+            File _file
     ) {
         connectivityManager = _connectivityManager;
         keyValueStore = _keyValueStore;
-        file = logger.getFile();
         logType = type;
-        uploadDeadline = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
+        file = _file;
+        uploadDeadline = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
     }
 
     @NonNull
     @Override
     protected NextTrigger onPlan() {
+        long now = System.currentTimeMillis();
+
+        if (now > uploadDeadline && isOnWifi()) {
+            tryUploadFile();
+        }
+
+        long waitTime = Math.max(uploadDeadline - now, TimeUnit.MINUTES.toMillis(30));
+
+        return new NextTrigger(waitTime, TimeUnit.MINUTES.toMillis(15));
+    }
+
+    private void tryUploadFile() {
         try {
-            if (isOnWifi()) {
-                new HttpsPostRequest()
-                        .setDestinationPage("mobile/upload-log-file")
-                        .setParam("code", keyValueStore.getUserCode())
-                        .setParam("type", logType)
-                        .setParamWithFile("content", file)
-                        .setCallback(fileUploadedCallback)
-                        .execute();
-            }
+            new HttpsPostRequest()
+                    .setDestinationPage("mobile/upload-log-file")
+                    .setParam("code", keyValueStore.getUserCode())
+                    .setParam("type", logType)
+                    .setParamWithFile("content", file)
+                    .setCallback(fileUploadedCallback)
+                    .execute();
         } catch (Exception e) {
             Log.e(TAG, "Got exception", e);
         }
-
-        long waitTime = Math.max(
-                uploadDeadline - System.currentTimeMillis(),
-                TimeUnit.MINUTES.toMillis(30)
-        );
-
-        return new NextTrigger(waitTime, TimeUnit.MINUTES.toMillis(15));
     }
 
     private boolean isOnWifi() {
@@ -86,7 +88,7 @@ public class FileUploadWorker extends AlarmWorker {
     private HttpsPostRequest.Callback fileUploadedCallback = new HttpsPostRequest.Callback() {
         @Override
         public void onResult(String result) {
-            Log.i("FileUploadWorker", "get result: " + result);
+            Log.i(TAG, "get result: " + result);
             if (result != null && result.equals("Ok")) {
                 uploadDeadline = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(20);
             }

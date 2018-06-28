@@ -23,12 +23,16 @@ public abstract class TaskSchedulerBase {
     private int decisionIntervalSec = 0;
     private PriorityQueueUsingHeap<Long> eventTimestamps;
 
+    private ImmediateTaskHandler immediateTaskHandler;
+
+
     private static Comparator<Long> comparator = new Comparator<Long>() {
         @Override
         public int compare(Long a, Long b) {
             return Long.compare(a, b);
         }
     };
+
 
     public TaskSchedulerBase() {
         eventTimestamps = new PriorityQueueUsingHeap<>(comparator);
@@ -66,7 +70,11 @@ public abstract class TaskSchedulerBase {
     public abstract void onPlan();
 
     protected void sendTaskRightAway() {
-        sendTaskDelayedSec(0);
+        if (immediateTaskHandler != null) {
+            immediateTaskHandler.handleImmediateTask();
+        } else {
+            sendTaskDelayedSec(0);
+        }
     }
 
     protected void sendTaskDelayedSec(int seconds) {
@@ -85,11 +93,28 @@ public abstract class TaskSchedulerBase {
         return result;
     }
 
+    public int getNumTasks() {
+        return eventTimestamps.size();
+    }
+
+    public boolean hasTasks() {
+        return eventTimestamps.size() > 0;
+    }
+
     public Long getFirstTask() {
         return eventTimestamps.peek();
     }
 
     public Long removeFirstTask() {
         return eventTimestamps.poll();
+    }
+
+    public void feedImmediateTaskHandler(ImmediateTaskHandler _immediateTaskHandler) {
+        immediateTaskHandler = _immediateTaskHandler;
+    }
+
+
+    public interface ImmediateTaskHandler {
+        void handleImmediateTask();
     }
 }

@@ -4,6 +4,7 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -24,6 +25,10 @@ import java.util.ArrayList;
 public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
 
     private static final String TAG = "NotiResponseDB";
+
+    public static final File DEFAULT_FILE = new File(
+            Environment.getExternalStorageDirectory(), "notification_response.dump.csv");
+
 
     private static NotificationResponseRecordDatabase INSTANCE;
 
