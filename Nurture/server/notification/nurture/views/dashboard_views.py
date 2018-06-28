@@ -76,7 +76,14 @@ def organize_users(request):
 
 
 def _get_valid_file_types():
-    return ['motion', 'notification-interaction', 'ringer-mode']
+    return [
+            'notification-interaction',
+            'motion',
+            'locatoin',
+            'ringer-mode',
+            'screen-status',
+            'task-response',
+    ]
 
 @login_required(login_url='/login/')
 def show_latest_upload(request, user_code, file_type=None):
@@ -99,19 +106,12 @@ def show_latest_upload(request, user_code, file_type=None):
     file_logs = FileLog.objects.filter(user=app_user, type=file_type).order_by('-uploaded_time')
     file_log = file_logs[0] if len(file_logs) > 0 else None
 
-    if file_log is None:
-        file_content = None
-    else:
-        with open(file_log.get_path(), 'r') as f:
-            file_content = f.read()
-
     template_context = {
             'myuser': web_user,
             'valid_file_types': valid_file_types,
             'user': app_user,
             'file_type': file_type,
             'file_log': file_log,
-            'file_content': file_content,
     }
 
     return render(request, 'nurture/show_latest_upload.html', template_context)
