@@ -23,8 +23,11 @@ def _make_app_user_bundle(user):
     Returns:
       A `dict`
     """
+    last_file_log = FileLog.objects.filter(user=user).last()
+    last_uploading_time = last_file_log.uploaded_time if last_file_log is not None else None
     return {
             'user': user,
+            'last_uploading_time': last_uploading_time,
     }
 
 @login_required(login_url='/login/')
@@ -77,7 +80,6 @@ def organize_users(request):
     }
 
     return render(request, 'nurture/organize_users.html', template_context)
-
 
 
 def _get_valid_file_types():

@@ -23,7 +23,7 @@
             <td>{{entry.user.code}}<br />{{entry.user.name}}</td>
             <td>{{entry.user.get_status_display}}</td>
             <td>{{entry.user.created_time}}</td>
-            <td>Coming soon</td>
+            <td>{{entry.last_uploading_time|default_if_none:"No file uploaded yet"}}</td>
             <td>Coming soon</td>
             <td>
               <a href="#" class="btn btn-primary">Response</a>
