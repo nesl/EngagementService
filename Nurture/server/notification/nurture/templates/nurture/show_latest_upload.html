@@ -1,5 +1,6 @@
 {% extends 'nurture/base_sidebar.html' %}
 {% load staticfiles %}
+{% load filelog_tags %}
 
 {% block profile-usertitle-name %}
   File inspection
@@ -41,7 +42,8 @@
       <p><span style="font-weight:bold">Last uploaded time: </span>{{file_log.uploaded_time}}</p>
 
       <hr/>
-      <p style="white-space:pre; font-size:13px; font-family:monospace">{{file_content}}</p>
+
+      {% show_content_with_datetime file_log %}
       
       <a class="btn btn-primary" href="{# url 'modify-assignment' assignment.id #}">
         <span class="glyphicon glyphicon-edit"></span>&nbsp;Check History</a>
