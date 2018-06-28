@@ -64,7 +64,12 @@ def upload_log_file(request):
     filename = utils.convert_to_local_timezone(timezone.now()).strftime('%Y%m%d-%H%M%S.txt')
 
     # write file
-    record = FileLog(user=user, type=type, filename=filename)
+    try:
+        record = FileLog.objects.get(user=user, type=type, filename=filename)
+    except FileLog.DoesNotExist:
+        record = FileLog(user=user, type=type, filename=filename)
+    record.uploaded_time = now
+
     path = record.get_path()
     os.makedirs(os.path.dirname(path), exist_ok=True)
 

@@ -34,6 +34,7 @@ class FileLog(models.Model):
 
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     type = models.CharField(max_length=25)
+    uploaded_time = models.DateTimeField()
     filename = models.CharField(max_length=25)  # uploaded time, YYYYMMDD-HHMMSS.txt
 
     def get_path(self):
