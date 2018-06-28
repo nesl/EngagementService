@@ -1,12 +1,17 @@
+import datetime
+import pytz
+
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render
 
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 
 from django.db import transaction
+
+from notification import settings
 
 from nurture.models import *
 
@@ -103,7 +108,7 @@ def show_latest_upload(request, user_code, file_type=None):
     if file_type not in valid_file_types:
         return HttpResponse("Unrecognized file type \"%s\"" % file_type, status=404)
 
-    file_logs = FileLog.objects.filter(user=app_user, type=file_type).order_by('-uploaded_time')
+    file_logs = FileLog.objects.filter(user=app_user, type=file_type).order_by('-filename')
     file_log = file_logs[0] if len(file_logs) > 0 else None
 
     template_context = {
@@ -115,4 +120,39 @@ def show_latest_upload(request, user_code, file_type=None):
     }
 
     return render(request, 'nurture/show_latest_upload.html', template_context)
+
+
+@login_required(login_url='/login/')
+def show_upload_history(request, user_code, file_type, file_name):
+    web_user = User.objects.get(username=request.user)
+
+    # check user code
+    try:
+        app_user = AppUser.objects.get(code=user_code)
+    except AppUser.DoesNotExist:
+        return HttpResponse("Unrecognized user code \"%s\"" % user_code, status=404)
+
+    # check file type
+    valid_file_types = _get_valid_file_types()
+    if file_type not in valid_file_types:
+        return HttpResponse("Unrecognized file type \"%s\"" % file_type, status=404)
+
+    # retrieve target file log
+    try:
+        target_file_log = FileLog.objects.get(user=app_user, type=file_type, filename=file_name)
+    except FileLog.DoesNotExist:
+        return HttpResponse("Cannot retrieve file log", status=404)
+
+    file_log_list = (
+            FileLog.objects.filter(user=app_user, type=file_type).order_by('-filename'))
+
+    template_context = {
+            'myuser': web_user,
+            'user': app_user,
+            'file_type': file_type,
+            'target_file_log': target_file_log,
+            'file_log_list': file_log_list,
+    }
+
+    return render(request, 'nurture/show_upload_history.html', template_context)
 

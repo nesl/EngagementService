@@ -1,0 +1,52 @@
+{% extends 'nurture/base_sidebar.html' %}
+{% load staticfiles %}
+{% load filelog_tags %}
+
+{% block profile-usertitle-name %}
+  File history inspection
+{% endblock %}
+
+{% block profile-usertitle-job %}
+  {{file_type}} - {{target_file_log.filename}}
+{% endblock %}
+
+{% block sidebar-content %}
+  {% for file_log in file_log_list %}
+    <li>
+      <a href="{% url 'dashboard-upload-history' user.code file_type file_log.filename %}">
+        {{file_log.filename}}
+      </a>
+    </li>
+  {% endfor %}
+{% endblock %}
+
+{% block main-content %}
+  <div class="main-content">
+    <div class="top-buffer">
+      <ol class="breadcrumb">
+        <li><a href="{% url 'dashboard-latest-upload-simplified' user.code %}">User ({{user.code}})</a></li>
+        <li><a href="{% url 'dashboard-latest-upload' user.code file_type %}">{{file_type}}</a></li>
+        <li class="active">{{target_file_log.filename}}</li>
+      </ol>
+    </div>
+
+    <h2 class="page-header">History Inspection - {{target_file_log.filename}}</h2>
+
+    <p>
+      <span style="font-weight:bold">Owner: </span>
+      {% if user.name == "" %}
+        {{user.code}}
+      {% else %}
+        {{user.name}} ({{user.code}})
+      {% endif %}
+    </p>
+    <p><span style="font-weight:bold">File type: </span>{{file_type}}</p>
+    <p><span style="font-weight:bold">Uploaded time: </span>{{target_file_log.filename}}</p>
+
+    <hr/>
+
+    {% show_content_with_datetime target_file_log %}
+    
+    <a class="btn btn-primary" href="{% url 'dashboard-latest-upload' user.code target_file_log.type %}" style="width:100px; float:right">Back</a>
+  </div>
+{% endblock %}
