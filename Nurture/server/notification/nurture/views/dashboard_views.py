@@ -158,3 +158,25 @@ def show_upload_history(request, user_code, file_type, file_name):
 
     return render(request, 'nurture/show_upload_history.html', template_context)
 
+
+
+@login_required(login_url='/login/')
+def show_responses(request, user_code):
+    web_user = User.objects.get(username=request.user)
+
+    # check user code
+    try:
+        app_user = AppUser.objects.get(code=user_code)
+    except AppUser.DoesNotExist:
+        return HttpResponse("Unrecognized user code \"%s\"" % user_code, status=404)
+
+    # retrieve action logs
+    responses = ActionLog.objects.filter(user=app_user).order_by('-query_time')
+
+    template_context = {
+            'myuser': web_user,
+            'user': app_user,
+            'responses': responses,
+    }
+
+    return render(request, 'nurture/show_responses.html', template_context)
