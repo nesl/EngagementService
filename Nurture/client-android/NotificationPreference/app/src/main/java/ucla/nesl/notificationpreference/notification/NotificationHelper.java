@@ -19,6 +19,7 @@ import android.util.Log;
 
 import ucla.nesl.notificationpreference.R;
 import ucla.nesl.notificationpreference.activity.TaskActivity;
+import ucla.nesl.notificationpreference.activity.main.MainActivity;
 import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationButtonActionProxyReceiver;
 import ucla.nesl.notificationpreference.notification.receiver.NotificationDismissedProxyReceiver;
@@ -181,7 +182,7 @@ public class NotificationHelper {
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 //.setLargeIcon(R.mipmap.)
                 .setWhen(System.currentTimeMillis())
-                .setContentIntent(makeActivityPendingIndent(notificationID))
+                .setContentIntent(makeTaskActivityPendingIndent(notificationID))
                 .setDeleteIntent(makeDismissNotificationPendingIndent(notificationID))
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentTitle("Please answer short question")
@@ -221,11 +222,15 @@ public class NotificationHelper {
     // =============================================================================================
     public void registerAsForegroundService(TaskSchedulingService service, String studyStatus) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            final int notificationID = NOTIFICATION_ID_FOREGROUND_TASK_SCHEDULING_SERVICE;
             Notification notification = new NotificationCompat.Builder(service, CHANNEL_ID)
+                    .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle("Nurture study")
-                    .setContentText("App operations are " + studyStatus).build();
-            service.startForeground(
-                    NOTIFICATION_ID_FOREGROUND_TASK_SCHEDULING_SERVICE, notification);
+                    .setContentText("App operations are " + studyStatus)
+                    .setContentIntent(makeMainActivityPendingIndent(notificationID))
+                    .setWhen(System.currentTimeMillis())
+                    .build();
+            service.startForeground(notificationID, notification);
         }
     }
     //endregion
@@ -285,7 +290,13 @@ public class NotificationHelper {
         intent.putExtra(INTENT_EXTRA_NAME_RESPONSE, response);
     }
 
-    private PendingIntent makeActivityPendingIndent(int notificationID) {
+    private PendingIntent makeMainActivityPendingIndent(int notificationID) {
+        Intent intent = new Intent(context, MainActivity.class);
+        int requestCode = notificationID * OFFSET;
+        return PendingIntent.getActivity(context, requestCode, intent, 0);
+    }
+
+    private PendingIntent makeTaskActivityPendingIndent(int notificationID) {
         Intent intent = new Intent(context, TaskActivity.class);
         overloadInfoOnIntentForActivity(intent, notificationID);
         int requestCode = notificationID * OFFSET;

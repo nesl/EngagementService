@@ -58,6 +58,11 @@ public class FileUploadWorker extends AlarmWorker {
         return new NextTrigger(waitTime, TimeUnit.MINUTES.toMillis(15));
     }
 
+    @Override
+    protected boolean requireBackgroundExecution() {
+        return false;
+    }
+
     private void tryUploadFile() {
         try {
             new HttpsPostRequest()

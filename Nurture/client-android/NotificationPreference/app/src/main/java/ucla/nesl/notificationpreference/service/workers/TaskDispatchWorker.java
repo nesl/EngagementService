@@ -48,6 +48,11 @@ public class TaskDispatchWorker extends AlarmWorker {
         //return new NextTrigger(5000L, 5000L);
     }
 
+    @Override
+    protected boolean requireBackgroundExecution() {
+        return true;
+    }
+
     private void clearPreviousAndSendNewNotification() {
         notificationHelper.cancelNotification(previousNotificationID);
         previousNotificationID = notificationHelper.createAndSendTaskNotification();

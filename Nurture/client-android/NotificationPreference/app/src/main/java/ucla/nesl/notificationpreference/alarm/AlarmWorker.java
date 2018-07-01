@@ -24,4 +24,11 @@ public abstract class AlarmWorker {
      */
     @NonNull
     protected abstract NextTrigger onPlan();
+
+    /**
+     * Indicate the task of this `AlarmWorker` is time sensitive or not. Since Android pushes the
+     * phone to doze/idle mode after the screen is turned off, this method indicates the need of
+     * overriding the mode and force the task to be executed.
+     */
+    protected abstract boolean requireBackgroundExecution();
 }
