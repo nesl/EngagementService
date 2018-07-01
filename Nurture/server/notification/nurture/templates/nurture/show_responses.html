@@ -2,12 +2,27 @@
 {% load staticfiles %}
 {% load response_tags %}
 
+
+{% block css %}
+  <link href="{% static "nurture/response/response.css" %}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
   <div class="main-content">
 
-    <h2 class="page-header">Network Responses - {{user.code}}</h2>
+    <h2 class="page-header">Network Requests And User Responses - {{user.code}}</h2>
+
+    <h4>5-minute view</h4>
+    {% visualize_response_history_div responses 300 '%H:%M' %}
+
+    <h4>Hourly view</h4>
+    {% visualize_response_history_div responses 3600 '%b. %e, %l%P' %}
+
+    <h4>Daily view</h4>
+    {% visualize_response_history_div responses 86400 '%b. %e' %}
 
     <h3>Raw Data</h3>
+    <hr/>
     <p style="white-space:pre;font-size:12;font-family:monospace">{% show_response_raw_content responses %}</p>
 
     <hr/>

@@ -1,0 +1,11 @@
+{% load response_tags %}
+<div>
+  <div class="cell-bar-title">{{title}}</div>
+  {% for bundle in bundles %}
+    {% if bundle is None %}
+      <div class="cell-bar-value">&nbsp;</div>
+    {% else %}
+      <div class="cell-bar-value" style="background:{{bundle.bk_color|rgbhtml}}">{{bundle.text}}</div>
+    {% endif %}
+  {% endfor %}
+</div>

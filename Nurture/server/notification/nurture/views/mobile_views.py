@@ -103,7 +103,7 @@ def get_action(request):
 
     # compute action
     #TODO: now I'm going to return no-notification action
-    action = 1 if random.randint(0, 0) == 0 else 0
+    action = 1 if random.randint(0, 29) == 0 else 0
     action_message = "action-%d" % action
 
     ActionLog.objects.create(
