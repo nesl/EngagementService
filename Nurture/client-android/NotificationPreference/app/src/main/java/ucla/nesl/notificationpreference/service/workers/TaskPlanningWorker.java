@@ -30,4 +30,9 @@ public class TaskPlanningWorker extends AlarmWorker {
         int toleranceSec = Math.min(60, intervalSec);  // be no more than 1 minute
         return new NextTrigger(intervalSec * 1000L, toleranceSec * 1000L);
     }
+
+    @Override
+    protected boolean requireBackgroundExecution() {
+        return true;
+    }
 }

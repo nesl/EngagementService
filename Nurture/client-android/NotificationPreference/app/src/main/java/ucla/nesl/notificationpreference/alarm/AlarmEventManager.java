@@ -101,9 +101,15 @@ public class AlarmEventManager {
         intent.putExtra(WORKER_CODE, workerCode);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, workerCode, intent, 0);
         long firedTime = SystemClock.elapsedRealtime() + trigger.timeIntervalMs;
-        alarmManager.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                firedTime, trigger.toleranceMs, pendingIntent);
-        //alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, firedTime, pendingIntent);
+
+        if (worker.requireBackgroundExecution()) {
+            alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP, firedTime, pendingIntent);
+        } else {
+            alarmManager.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    firedTime, trigger.toleranceMs, pendingIntent);
+        }
+
 
         pendingIntentCache.put(workerCode, pendingIntent);
     }

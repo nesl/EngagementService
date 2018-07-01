@@ -62,4 +62,9 @@ public class TestAlarmWorker extends AlarmWorker {
 
         return new NextTrigger(timeIntervalMs, toleranceMs);
     }
+
+    @Override
+    protected boolean requireBackgroundExecution() {
+        return false;
+    }
 }
