@@ -1,5 +1,6 @@
 {% extends 'nurture/base.html' %}
 {% load staticfiles %}
+{% load time_tags %}
 
 {% block content %}
   <div class="main-content">
@@ -20,14 +21,27 @@
         </tr>
         {% for entry in user_bundles %}
           <tr>
-            <td>{{entry.user.code}}<br />{{entry.user.name}}</td>
+            <td>
+              <span style="font-size:18px;font-weight:bold">{{entry.user.code}}</span><br />
+              {{entry.user.name}}
+            </td>
             <td>{{entry.user.get_status_display}}</td>
-            <td>{{entry.user.created_time}}</td>
-            <td>Coming soon</td>
+            <td>
+              {{entry.user.created_time}}<br/>
+              {% time_since_flag_anomaly entry.user.created_time 10000000 %}
+            </td>
+            <td>
+              {% if entry.last_uploading_time is None %}
+                No file uploaded yet
+              {% else %}
+                {{entry.last_uploading_time}}<br/>
+                {% time_since_flag_anomaly entry.last_uploading_time 86400 %}
+              {% endif %}
+            </td>
             <td>Coming soon</td>
             <td>
-              <a href="#" class="btn btn-primary">Response</a>
-              <a href="#" class="btn btn-primary">Upload files</a>
+              <a href="{% url 'dashboard-responses' entry.user.code %}" class="btn btn-primary">Response</a>
+              <a href="{% url 'dashboard-latest-upload-simplified' entry.user.code %}" class="btn btn-primary">Upload files</a>
             </td>
           </tr>
         {% endfor %}

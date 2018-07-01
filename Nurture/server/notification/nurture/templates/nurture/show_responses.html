@@ -1,0 +1,16 @@
+{% extends 'nurture/base.html' %}
+{% load staticfiles %}
+{% load response_tags %}
+
+{% block content %}
+  <div class="main-content">
+
+    <h2 class="page-header">Network Responses - {{user.code}}</h2>
+
+    <h3>Raw Data</h3>
+    <p style="white-space:pre;font-size:12;font-family:monospace">{% show_response_raw_content responses %}</p>
+
+    <hr/>
+    <a class="btn btn-primary" href="{% url 'dashboard-homepage' %}" style="width:100px">Back</a>
+  </div>
+{% endblock %}
