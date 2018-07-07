@@ -45,9 +45,8 @@ def time_since_flag_anomaly(previous_time, tolerance):
     text = _figure_out_granularity(seconds_since)
 
     if seconds_since < 0 or seconds_since > tolerance:
-        extra_style = "color:red; font-weight:bold"
+        span_class = 'highlight-flag'
     else:
-        extra_style = 'color:#777'
+        span_class = 'highlight-okay'
 
-    return format_html(
-            "<span style='font-size:13px;font-style:italic;%s'>%s</span>" % (extra_style, text))
+    return format_html("<span class='%s'>%s</span>" % (span_class, text))

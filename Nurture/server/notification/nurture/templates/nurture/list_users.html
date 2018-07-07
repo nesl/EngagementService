@@ -1,6 +1,11 @@
 {% extends 'nurture/base.html' %}
 {% load staticfiles %}
 {% load time_tags %}
+{% load util_tags %}
+
+{% block css %}
+  <link href="{% static "nurture/anomaly.css" %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
   <div class="main-content">
@@ -15,14 +20,17 @@
             <th>Status</th>
             <th>Join Date</th>
             <th>Last Uploading Time</th>
-            <th>Response Date</th>
+            <th>
+              Action Request Time<br/>
+              <span style="font-weight:normal; font-style:italic; font-size:13px; color:#666">10m / 1h / 1d</span>
+            </th>
             <th>Actions</th>
           <thead>
         </tr>
         {% for entry in user_bundles %}
           <tr>
             <td>
-              <span style="font-size:18px;font-weight:bold">{{entry.user.code}}</span><br />
+              <span style="font-size:18px; font-weight:bold">{{entry.user.code}}</span><br />
               {{entry.user.name}}
             </td>
             <td>{{entry.user.get_status_display}}</td>
@@ -38,7 +46,18 @@
                 {% time_since_flag_anomaly entry.last_uploading_time 86400 %}
               {% endif %}
             </td>
-            <td>Coming soon</td>
+            <td>
+              {% if entry.last_action_request_time is None %}
+                No action request is made yet
+              {% else %}
+                {{entry.last_action_request_time}}<br/>
+                <span class="highlight-okay">
+                  {{entry.action_request_stat.ago_10m|flag_anomaly_if_value:0}} /
+                  {{entry.action_request_stat.ago_1h|flag_anomaly_if_value:0}} /
+                  {{entry.action_request_stat.ago_1d|flag_anomaly_if_value:0}}
+                </span>
+              {% endif %}
+            </td>
             <td>
               <a href="{% url 'dashboard-responses' entry.user.code %}" class="btn btn-primary">Response</a>
               <a href="{% url 'dashboard-latest-upload-simplified' entry.user.code %}" class="btn btn-primary">Upload files</a>

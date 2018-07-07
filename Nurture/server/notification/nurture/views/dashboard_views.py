@@ -8,8 +8,8 @@ from django.shortcuts import render
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-
 from django.db import transaction
+from django.utils import timezone
 
 from notification import settings
 
@@ -25,9 +25,24 @@ def _make_app_user_bundle(user):
     """
     last_file_log = FileLog.objects.filter(user=user).last()
     last_uploading_time = last_file_log.uploaded_time if last_file_log is not None else None
+
+    last_action = ActionLog.objects.filter(user=user).last()
+    last_action_time = last_action.query_time if last_action is not None else None
+
+    now = timezone.now()
+    ago_10m = now - datetime.timedelta(minutes=10)
+    ago_1h = now - datetime.timedelta(hours=1)
+    ago_1d = now - datetime.timedelta(days=1)
+
     return {
             'user': user,
             'last_uploading_time': last_uploading_time,
+            'last_action_request_time': last_action_time,
+            'action_request_stat': {
+                'ago_10m': ActionLog.objects.filter(user=user, query_time__gt=ago_10m).count(),
+                'ago_1h': ActionLog.objects.filter(user=user, query_time__gt=ago_1h).count(),
+                'ago_1d': ActionLog.objects.filter(user=user, query_time__gt=ago_1d).count(),
+            },
     }
 
 @login_required(login_url='/login/')
@@ -86,7 +101,7 @@ def _get_valid_file_types():
     return [
             'notification-interaction',
             'motion',
-            'locatoin',
+            'location',
             'ringer-mode',
             'screen-status',
             'task-response',
