@@ -1,6 +1,8 @@
 import pytz
 import random
 import base64
+import sys
+import traceback
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -99,18 +101,58 @@ def get_action(request):
     raw_reward_state_message = request.POST['observation']
 
     # query time
-    now = timezone.now().astimezone(pytz.timezone('US/Pacific'))
+    now = timezone.now()
 
-    # compute action
-    #TODO: now I'm going to return no-notification action
-    action = 1 if random.randint(0, 29) == 0 else 0
-    action_message = "action-%d" % action
-
-    ActionLog.objects.create(
+    log = ActionLog.objects.create(
             user=user,
             query_time=now,
             reward_state_message=raw_reward_state_message,
-            action_message=action_message,
+            action_message='?',
+            reward=0.,
+            processing_status=ActionLog.STATUS_REQUEST_RECEIVED,
     )
+
+    # the format of the request format can be found in this Google Doc:
+    # https://docs.google.com/document/d/1YUBMl02jqsc6ChYNuLhf8mVD3tM-GUGq_BIwp8bkx4A/edit
+
+    # get reward
+    try:
+        terms = raw_reward_state_message.split(';')
+        for term in terms:
+            assert term[0] == '[' and term[-1] == ']'
+        terms = [t[1:-1] for t in terms]
+        reward = float(terms[0])
+    except:
+        print(traceback.format_exception(*sys.exc_info()))
+        log.processing_status = ActionLog.STATUS_INVALID_REWARD
+        log.save()
+        return HttpResponse("Bad", status=404)
+
+    # extract states
+    try:
+        state1 = utils.convert_request_text_to_state(terms[1])
+        assert terms[2] in ['continue', 'discontinue']
+        state2 = (utils.convert_request_text_to_state(terms[3])
+                if terms[2] == 'discontinue' else None)
+    except:
+        print(traceback.format_exception(*sys.exc_info()))
+        log.processing_status = ActionLog.STATUS_INVALID_REWARD
+        log.save()
+        return HttpResponse("Bad", status=404)
+
+    # execute policy
+    try:
+        #TODO: now I'm going to return no-notification action
+        action = 1 if random.randint(0, 29) == 0 else 0
+        action_message = "action-%d" % action
+    except:
+        log.processing_status = ActionLog.STATUS_POLICY_EXECUTION_FAILURE
+        log.save()
+        return HttpResponse("Bad", status=404)
+
+    log.reward = reward
+    log.action_message = action_message
+    log.processing_status = ActionLog.STATUS_OKAY
+    log.save()
 
     return HttpResponse(action_message, status=200)

@@ -47,7 +47,25 @@ class FileLog(models.Model):
 
 
 class ActionLog(models.Model):
+    STATUS_REQUEST_RECEIVED = 0
+    STATUS_INVALID_REWARD = 1
+    STATUS_INVALID_STATE = 2
+    STATUS_POLICY_EXECUTION_FAILURE = 3
+    STATUS_OKAY = 4
+
+    PROCESSING_STATUS_TYPES = (
+            (STATUS_REQUEST_RECEIVED, 'Request received'),
+            (STATUS_INVALID_REWARD, 'Invalid reward'),
+            (STATUS_INVALID_STATE, 'Invalid state'),
+            (STATUS_POLICY_EXECUTION_FAILURE, 'Policy execution failure'),
+            (STATUS_OKAY, 'Okay'),
+    )
+
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     query_time = models.DateTimeField()
     reward_state_message = models.CharField(max_length=256)
     action_message = models.CharField(max_length=256)
+
+    # meta
+    reward = models.FloatField()
+    processing_status = models.IntegerField(choices=PROCESSING_STATUS_TYPES)
