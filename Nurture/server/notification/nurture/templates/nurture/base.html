@@ -60,14 +60,14 @@
           <!-- Brand and toggle get grouped for better mobile display -->
           <div class="navbar-header">
             <a class="navbar-brand" href="{% url 'dashboard-list-users' %}">Nurture</a>
-            <a class="navbar-brand" href="{% url 'dashboard-last-exception' %}">Exceptions</a>
+            <a class="navbar-brand" href="{% url 'dashboard-last-exception' %}">Exceptions ({{navbar.num_exceptions}})</a>
           </div>
 
           <a href="{% url 'logout' %}" class="navbar-brand pull-right">
             <span class="glyphicon glyphicon-log-out"></span> Logout
           </a>
           <span class="navbar-brand pull-right username" style="font-size:14px; color:white">
-            Hi, {{ myuser.username }}
+            Hi, {{ navbar.user.username }}
           </span>
 
         </div>

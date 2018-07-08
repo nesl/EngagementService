@@ -3,6 +3,7 @@ import pytz
 import sys
 import traceback
 
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.utils import timezone
@@ -14,6 +15,15 @@ from notification import settings
 from nurture.learning.state import State
 from nurture.models import *
 
+
+def generate_navbar_bundle(request):
+    web_user = User.objects.get(username=request.user)
+    num_exceptions = ExceptionLog.objects.all().count()
+    
+    return {
+            'user': web_user,
+            'num_exceptions': num_exceptions,
+    }
 
 def make_http_response_for_file_download(file_path):
     wrapper = FileWrapper(open(file_path, 'rb'))
