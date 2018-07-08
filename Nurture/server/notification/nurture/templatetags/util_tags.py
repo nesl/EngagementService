@@ -33,3 +33,11 @@ def flag_anomaly_if_gte(value, threshold):
 def flag_anomaly_if_lte(value, threshold):
     span_class = 'highlight-flag' if value <= theshold else 'highlight-okay'
     return format_html("<span class='%s'>%s</span>" % (span_class, str(value)))
+
+
+@register.simple_tag
+def format_user_name_code(app_user):
+    if app_user.name == '':
+        return format_html(app_user.code)
+    else:
+        return format_html('%s (%s)' % (app_user.name, app_user.code))

@@ -5,8 +5,6 @@ from django.db import models
 
 from notification import settings
 
-from nurture import utils
-
 
 class AppUser(models.Model):
     STATUS_ACTIVE = 1
@@ -69,3 +67,10 @@ class ActionLog(models.Model):
     # meta
     reward = models.FloatField()
     processing_status = models.IntegerField(choices=PROCESSING_STATUS_TYPES)
+
+
+class ExceptionLog(models.Model):
+    request_path = models.CharField(max_length=256)
+    user = models.ForeignKey(AppUser, on_delete=models.SET_NULL, null=True)
+    log_time = models.DateTimeField()
+    content = models.TextField()

@@ -195,3 +195,32 @@ def show_responses(request, user_code):
     }
 
     return render(request, 'nurture/show_responses.html', template_context)
+
+
+@login_required(login_url='/login/')
+def show_last_exception(request):
+    last_exception = ExceptionLog.objects.last()
+    return HttpResponseRedirect(reverse('dashboard-show-exception',
+        kwargs={'exception_id': last_exception.id}))
+
+
+@login_required(login_url='/login/')
+def show_exception(request, exception_id):
+    print(request)
+    print(request.path)
+    web_user = User.objects.get(username=request.user)
+
+    try:
+        target_exception = ExceptionLog.objects.get(id=exception_id)
+    except ExceptionLog.DoesNotExist:
+        return HttpResponse("Unrecognized exception ID \"%s\"" % exception_id, status=404)
+
+    all_exceptions = ExceptionLog.objects.all().order_by('-id')
+
+    template_context = {
+            'myuser': web_user,
+            'target_exception': target_exception,
+            'all_exceptions': all_exceptions,
+    }
+
+    return render(request, 'nurture/show_exception.html', template_context)

@@ -25,6 +25,8 @@ urlpatterns = [
         url(r'^dashboard/latest-upload/(?P<user_code>[0-9]+)/$', dashboard_views.show_latest_upload, name='dashboard-latest-upload-simplified'),
         url(r'^dashboard/latest-upload/(?P<user_code>[0-9]+)/(?P<file_type>[a-z\-]+)/$', dashboard_views.show_latest_upload, name='dashboard-latest-upload'),
         url(r'^dashboard/upload-history/(?P<user_code>[0-9]+)/(?P<file_type>[a-z\-]+)/(?P<file_name>\d{8}-\d{6}\.txt)/$', dashboard_views.show_upload_history, name='dashboard-upload-history'),
+        url(r'^dashboard/last-exception/$', dashboard_views.show_last_exception, name='dashboard-last-exception'),
+        url(r'^dashboard/show-exception/(?P<exception_id>[0-9]+)/$', dashboard_views.show_exception, name='dashboard-show-exception'),
 
         ## debugging purpose
         url(r'^debug/dump-post/$', debug_views.debug_dump_post, name='debug-dump-post'),

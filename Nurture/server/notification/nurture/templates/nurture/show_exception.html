@@ -1,0 +1,28 @@
+{% extends 'nurture/base.html' %}
+{% load staticfiles %}
+{% load util_tags %}
+
+{% block content %}
+  <div class="main-content">
+    <div class="top-buffer">
+      <ol class="breadcrumb">
+        <li><a href="{% url 'dashboard-last-exception' %}">Exception</a></li>
+        <li class="active">{{target_exception.id}}</li>
+      </ol>
+    </div>
+
+    <h2 class="page-header">Exception Log (ID: {{target_exception.id}})</h2>
+
+    <p><span style="font-weight:bold">Request path: </span>{{target_exception.request_path}}</p>
+    {% if target_exception.user is not None %}
+      <p><span style="font-weight:bold">User: </span>{% format_user_name_code target_exception.user %}</p>
+    {% endif %}
+    <p><span style="font-weight:bold">Time: </span>{{target_exception.log_time}}</p>
+
+    <hr/>
+    
+    <p style="white-space:pre; font-size:13px; font-family:monospace">{{target_exception.content}}</p>
+
+    <a class="btn btn-primary" href="{% url 'dashboard-homepage' %}" style="width:100px; float:right">Back</a>
+  </div>
+{% endblock %}

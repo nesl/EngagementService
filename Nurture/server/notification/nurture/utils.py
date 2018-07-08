@@ -1,14 +1,18 @@
 import os
 import pytz
+import sys
+import traceback
 
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
+from django.utils import timezone
 
 from wsgiref.util import FileWrapper
 
 from notification import settings
 
 from nurture.learning.state import State
+from nurture.models import *
 
 
 def make_http_response_for_file_download(file_path):
@@ -22,6 +26,15 @@ def make_http_response_for_file_download(file_path):
 
 def convert_to_local_timezone(datetime):
     return datetime.astimezone(pytz.timezone(settings.TIME_ZONE))
+
+
+def log_last_exception(request, user=None):
+    ExceptionLog.objects.create(
+            request_path=request.path,
+            user=user,
+            log_time=timezone.now(),
+            content=''.join(traceback.format_exception(*sys.exc_info())),
+    )
 
 
 def convert_request_text_to_state(text):

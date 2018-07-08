@@ -123,7 +123,7 @@ def get_action(request):
         terms = [t[1:-1] for t in terms]
         reward = float(terms[0])
     except:
-        print(traceback.format_exception(*sys.exc_info()))
+        utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_INVALID_REWARD
         log.save()
         return HttpResponse("Bad", status=404)
@@ -135,7 +135,7 @@ def get_action(request):
         state2 = (utils.convert_request_text_to_state(terms[3])
                 if terms[2] == 'discontinue' else None)
     except:
-        print(traceback.format_exception(*sys.exc_info()))
+        utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_INVALID_REWARD
         log.save()
         return HttpResponse("Bad", status=404)
@@ -146,6 +146,7 @@ def get_action(request):
         action = 1 if random.randint(0, 29) == 0 else 0
         action_message = "action-%d" % action
     except:
+        utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_POLICY_EXECUTION_FAILURE
         log.save()
         return HttpResponse("Bad", status=404)
