@@ -71,6 +71,9 @@ def _pick_color(c1, c2, r1, r2, v):
 def _assign_connection_background_color(v, threshold):
     if v is None:
         return None
+
+    if v > threshold:
+        return DARK_RED
     return _pick_color(LIGHT_GREEN, DARK_GREEN, 0, threshold, v)
 
 def _assign_reward_background_color(v, max_reward, min_reward):
