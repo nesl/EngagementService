@@ -2,6 +2,8 @@ import os
 import pytz
 import sys
 import traceback
+import dill
+import shutil
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -13,6 +15,7 @@ from wsgiref.util import FileWrapper
 from notification import settings
 
 from nurture.learning.state import State
+from nurture.learning.agents import *
 from nurture.models import *
 
 
@@ -84,3 +87,38 @@ def convert_request_text_to_state(text):
             ringerMode=ringerModeMap[terms[5]],
             screenStatus=screenStatusMap[terms[6]],
     )
+
+
+def get_learning_agent_class_for_user(app_user):
+    agents = {
+            AppUser.LEARNING_AGENT_RANDOM: RandomAgent,
+    }
+    return agents[app_user.learning_agent]
+
+
+def prepare_learning_agent(app_user):
+    LearningAgent = get_learning_agent_class_for_user(app_user)
+
+    # check model source (global v.s. user-dependent)
+    if LearningAgent.is_user_dependent():
+        model_path = os.path.join(settings.USER_MODEL_ROOT, app_user.code,
+                LearningAgent.get_policy_file_name())
+    else:
+        model_path = os.path.join(settings.GLOBAL_MODEL_ROOT,
+                LearningAgent.get_policy_file_name())
+
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    if not os.path.isfile(model_path):
+        initial_model_path = prepare_initial_model(LearningAgent)
+        shutil.copyfile(initial_model_path, model_path)
+
+    return model_path
+
+def prepare_initial_model(LearningAgentClass):
+    model_path = os.path.join(settings.INITIAL_MODEL_ROOT,
+            LearningAgentClass.get_policy_file_name())
+    if not os.path.isfile(model_path):
+        learning_agent = LearningAgentClass()
+        dill.dump(learning_agent, open(model_path, "wb"))
+
+    return model_path

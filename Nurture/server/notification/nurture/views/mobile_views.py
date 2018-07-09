@@ -1,8 +1,7 @@
 import pytz
 import random
 import base64
-import sys
-import traceback
+import dill
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -30,7 +29,8 @@ def get_user_code(request):
             code=code,
             name="",
             status=AppUser.STATUS_ACTIVE,
-            created_time=timezone.now().astimezone(pytz.timezone('US/Pacific')),
+            created_time=timezone.now(),
+            learning_agent=AppUser.LEARNING_AGENT_RANDOM,
     )
     return HttpResponse(code, status=200)
 
@@ -142,8 +142,18 @@ def get_action(request):
 
     # execute policy
     try:
-        #TODO: now I'm going to return no-notification action
-        action = 1 if random.randint(0, 29) == 0 else 0
+        model_path = utils.prepare_learning_agent(user)
+        agent = dill.load(open(model_path, 'rb'))
+
+        agent.feed_reward(reward)
+        send_notification = agent.get_action(state1)
+        if state2 is not None:
+            agent.restart_episode()
+            send_notification = agent.get_action(state2)
+
+        dill.dump(agent, open(model_path, 'wb'))
+
+        action = 1 if send_notification else 0
         action_message = "action-%d" % action
     except:
         utils.log_last_exception(request, user)

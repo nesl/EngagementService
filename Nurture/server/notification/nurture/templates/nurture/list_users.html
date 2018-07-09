@@ -18,6 +18,7 @@
           <thead class="thead-default">
             <th>User</th>
             <th>Status</th>
+            <th>Learning Policy</th>
             <th>Join Date</th>
             <th>Last Uploading Time</th>
             <th>
@@ -34,6 +35,7 @@
               {{entry.user.name}}
             </td>
             <td>{{entry.user.get_status_display}}</td>
+            <td>{{entry.user.get_learning_agent_display}}</td>
             <td>
               {{entry.user.created_time}}<br/>
               {% time_since_flag_anomaly entry.user.created_time 10000000 %}
