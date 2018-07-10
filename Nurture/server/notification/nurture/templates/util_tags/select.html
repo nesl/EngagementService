@@ -1,0 +1,7 @@
+<select name="{{name}}">
+  {% for option_value, option_text in options %}
+    <option value="{{option_value}}" {% if option_value == default_value %}selected{% endif %}>
+      {{option_text}}
+    </option>
+  {% endfor %}
+</select>

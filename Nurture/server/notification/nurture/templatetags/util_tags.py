@@ -41,3 +41,22 @@ def format_user_name_code(app_user):
         return format_html(app_user.code)
     else:
         return format_html('%s (%s)' % (app_user.name, app_user.code))
+
+
+@register.simple_tag
+def select_html_tag(tag_name, options, default_value):
+    template = get_template("util_tags/select.html")
+
+    context = Context({
+        'name': tag_name,
+        'options': options,
+        'default_value': default_value,
+    })
+
+    return template.render(context)
+
+
+@register.simple_tag
+def select_html_tag_user_specific(user, tag_name_suffix, options, default_value):
+    tag_name = "%s-%s" % (user.code, tag_name_suffix)
+    return select_html_tag(tag_name, options, default_value)

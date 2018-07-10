@@ -69,6 +69,7 @@ def _try_parse_organize_users_form(post):
 
                 user.name = post['%s-name' % code]
                 user.status = post['%s-status' % code]
+                user.learning_agent = post['%s-agent' % code]
                 user.save()
         return True
     except:
@@ -88,6 +89,7 @@ def organize_users(request):
             'user_list': user_list,
             'users': app_users,
             'status_options': AppUser.STATUS_TYPES,
+            'learning_agent_options': AppUser.LEARNING_AGENT_TYPES,
     }
 
     return render(request, 'nurture/organize_users.html', template_context)
