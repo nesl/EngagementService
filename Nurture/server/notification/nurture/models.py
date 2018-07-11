@@ -18,9 +18,11 @@ class AppUser(models.Model):
     )
 
     LEARNING_AGENT_RANDOM = 0
+    LEARNING_AGENT_ATTELIA2 = 1
 
     LEARNING_AGENT_TYPES = (
             (LEARNING_AGENT_RANDOM, 'Random'),
+            (LEARNING_AGENT_ATTELIA2, 'Attelia2')
     )
 
     code = models.CharField(max_length=25, unique=True)

@@ -92,6 +92,7 @@ def convert_request_text_to_state(text):
 def get_learning_agent_class_for_user(app_user):
     agents = {
             AppUser.LEARNING_AGENT_RANDOM: RandomAgent,
+            AppUser.LEARNING_AGENT_ATTELIA2: Attelia2Agent,
     }
     return agents[app_user.learning_agent]
 

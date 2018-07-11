@@ -86,7 +86,7 @@ class BaseAgent:
         Due to unexpected reason (e.g., network failure), the learning process can be discontinued
         and have to be restart. In that case, this function is called.
         """
-        self.stage = BaseAgent.STAGE_RESTART
+        self.stage = BaseAgent.STAGE_RESTARTED
         self._restart_episode()
 
     @abc.abstractmethod
