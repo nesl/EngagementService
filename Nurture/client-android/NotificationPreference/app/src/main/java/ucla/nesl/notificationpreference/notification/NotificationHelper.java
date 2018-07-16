@@ -291,6 +291,7 @@ public class NotificationHelper {
             Intent intent, int notificationID, @NonNull String response, int optionID) {
         intent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
         intent.putExtra(INTENT_EXTRA_NAME_RESPONSE, response);
+        intent.putExtra(INTENT_EXTRA_NAME_OPTION_ID, optionID);
     }
 
     private PendingIntent makeMainActivityPendingIndent(int notificationID) {
