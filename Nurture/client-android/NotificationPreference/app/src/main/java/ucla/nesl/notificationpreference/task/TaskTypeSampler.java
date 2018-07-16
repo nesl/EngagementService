@@ -8,6 +8,7 @@ import ucla.nesl.notificationpreference.storage.database.NotificationResponseRec
 import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecordDatabase;
 import ucla.nesl.notificationpreference.task.tasks.ArithmeticTask;
 import ucla.nesl.notificationpreference.task.tasks.AvailabilityTask;
+import ucla.nesl.notificationpreference.task.tasks.DietTask;
 import ucla.nesl.notificationpreference.task.tasks.DrinkingWaterTask;
 import ucla.nesl.notificationpreference.task.tasks.HowLoudTask;
 import ucla.nesl.notificationpreference.task.tasks.LocationTask;
@@ -29,7 +30,8 @@ public class TaskTypeSampler {
             NumberPeopleTask.TASK_ID,
             LocationTask.TASK_ID,
             DrinkingWaterTask.TASK_ID,
-            ArithmeticTask.TASK_ID
+            ArithmeticTask.TASK_ID,
+            DietTask.TASK_ID,
     };
 
     private NotificationResponseRecordDatabase database;
@@ -89,6 +91,8 @@ public class TaskTypeSampler {
                 return timeElapsed > DrinkingWaterTask.getCoolDownTime();
             case ArithmeticTask.TASK_ID:
                 return timeElapsed > ArithmeticTask.getCoolDownTime();
+            case DietTask.TASK_ID:
+                return timeElapsed > DietTask.getCoolDownTime();
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }
@@ -109,6 +113,9 @@ public class TaskTypeSampler {
                 return DrinkingWaterTask.sampleQuestionSeedIfCreatedNow();
             case ArithmeticTask.TASK_ID:
                 return ArithmeticTask.sampleQuestionSeedIfCreatedNow();
+            case DietTask.TASK_ID:
+                return DietTask.sampleQuestionSeedIfCreatedNow(
+                        database.getLastRecordByType(DietTask.TASK_ID));
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }

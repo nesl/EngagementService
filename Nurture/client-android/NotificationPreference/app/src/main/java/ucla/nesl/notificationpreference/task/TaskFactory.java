@@ -3,6 +3,7 @@ package ucla.nesl.notificationpreference.task;
 import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.task.tasks.ArithmeticTask;
 import ucla.nesl.notificationpreference.task.tasks.AvailabilityTask;
+import ucla.nesl.notificationpreference.task.tasks.DietTask;
 import ucla.nesl.notificationpreference.task.tasks.DrinkingWaterTask;
 import ucla.nesl.notificationpreference.task.tasks.HowLoudTask;
 import ucla.nesl.notificationpreference.task.tasks.LocationTask;
@@ -39,6 +40,8 @@ public class TaskFactory {
                 return new DrinkingWaterTask(notificationID);
             case ArithmeticTask.TASK_ID:
                 return new ArithmeticTask(notificationID, subQuestionType);
+            case DietTask.TASK_ID:
+                return new DietTask(notificationID, subQuestionType);
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }

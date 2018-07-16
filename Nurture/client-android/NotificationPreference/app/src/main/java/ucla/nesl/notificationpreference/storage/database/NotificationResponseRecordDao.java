@@ -31,6 +31,10 @@ public interface NotificationResponseRecordDao {
     @Query("SELECT * FROM notification_response_record ORDER BY ID DESC LIMIT 5")
     List<NotificationResponseRecord> getLastFiveRecords();
 
+    @Query("SELECT * FROM notification_response_record WHERE question_type = :questionType " +
+           "ORDER BY ID DESC LIMIT 1")
+    NotificationResponseRecord getLastRecordByType(int questionType);
+
     //@Query("SELECT * FROM user_activity WHERE end_time_ms = " + Utils.INVALID_TIME + " ORDER BY start_time_ms DESC")
     //List<UserActivity> getAllWithInvalidEndTimeStartTimeDesc();
 
