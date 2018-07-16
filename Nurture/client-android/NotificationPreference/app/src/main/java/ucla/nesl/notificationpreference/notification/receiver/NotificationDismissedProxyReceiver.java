@@ -20,7 +20,7 @@ public class NotificationDismissedProxyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent passedIntent) {
         Intent forwardedIntent = new Intent(
-                NotificationHelper.INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION);
+                NotificationHelper.INTENT_DISMISS_NOTIFICATION);
         forwardedIntent.putExtras(passedIntent);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
         localBroadcastManager.sendBroadcast(forwardedIntent);

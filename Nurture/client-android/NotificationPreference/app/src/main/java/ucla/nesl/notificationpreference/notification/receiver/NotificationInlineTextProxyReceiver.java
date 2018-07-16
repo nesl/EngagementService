@@ -40,7 +40,8 @@ public class NotificationInlineTextProxyReceiver extends BroadcastReceiver {
 
         Intent forwardedIntent = new Intent(
                 NotificationHelper.INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION);
-        NotificationHelper.overloadIDAndResponseOnIntent(forwardedIntent, notificationID, response);
+        NotificationHelper.overloadIDAndResponseOnIntent(
+                forwardedIntent, notificationID, response, 0);
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
         localBroadcastManager.sendBroadcast(forwardedIntent);
     }

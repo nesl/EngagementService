@@ -44,6 +44,9 @@ public class NotificationResponseRecord {
     @ColumnInfo(name = "answer")
     public @NonNull String answer = "";
 
+    @ColumnInfo(name = "option_id")
+    public int optionID;
+
     @ColumnInfo(name = "is_dismissed")
     public int is_dismissed = 0;
 

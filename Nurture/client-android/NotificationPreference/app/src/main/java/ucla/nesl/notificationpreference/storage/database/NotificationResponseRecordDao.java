@@ -38,10 +38,12 @@ public interface NotificationResponseRecordDao {
     int countAll();
 
     @Query("UPDATE notification_response_record " +
-           "SET answer_time = :answerTime, answer = :answer, " +
+           "SET answer_time = :answerTime, " +
+           "    answer = :answer, " +
+           "    option_id = :optionID, " +
            "    status = " + NotificationResponseRecord.STATUS_RESPONDED + " " +
            "WHERE ID = :notificationID")
-    void updateAnswer(int notificationID, long answerTime, String answer);
+    void updateAnswer(int notificationID, long answerTime, String answer, int optionID);
 
     @Query("UPDATE notification_response_record " +
            "SET is_dismissed = 1 " +

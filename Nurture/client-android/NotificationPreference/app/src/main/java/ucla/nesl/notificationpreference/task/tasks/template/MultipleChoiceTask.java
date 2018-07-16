@@ -19,6 +19,9 @@ import ucla.nesl.notificationpreference.utils.DP;
  * `MultipleChoiceTask` provides templates for both the notification part and the view for
  * `TaskActivity`. It requires the subclass to provide the options in `getOptions` and it will
  * take care of the rest of the rendering jobs.
+ *
+ * Note button ID (or option ID) has to be 1-index to be compatible with
+ * `NotificationHelper.makeButtonActionPendingIndent()`.
  */
 
 public abstract class MultipleChoiceTask extends ShortQuestionTask {
@@ -37,7 +40,7 @@ public abstract class MultipleChoiceTask extends ShortQuestionTask {
         super.fillNotificationLayout(notificationHelper, builder);
 
         // primary problem statement
-        builder.setContentText("Please answer the following survey question")
+        builder.setContentText(getPrimaryQuestionStatement())
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(
                         getPrimaryQuestionStatement()));
 
@@ -67,12 +70,15 @@ public abstract class MultipleChoiceTask extends ShortQuestionTask {
                 DP.toPX(200), LinearLayout.LayoutParams.WRAP_CONTENT);
         buttonLayoutParams.gravity = Gravity.CENTER;
 
-        for (String option : getOptions()) {
+        String[] options = getOptions();
+        for (int i = 0; i < options.length; i++) {
+            String option = options[i];
+            int optionID = i + 1;  // optionID is 1-index to be compatible
             Button button = new Button(taskActivity);
             button.setText(option);
             button.setLayoutParams(buttonLayoutParams);
             button.setOnClickListener(taskActivity.getOnClickEventListenerForResponse(
-                    getNotificationID(), option));
+                    getNotificationID(), option, optionID));
             button.setGravity(Gravity.CENTER);
             layout.addView(button);
         }
