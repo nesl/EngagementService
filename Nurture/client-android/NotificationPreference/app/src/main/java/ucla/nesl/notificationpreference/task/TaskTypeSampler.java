@@ -76,23 +76,27 @@ public class TaskTypeSampler {
 
     private boolean needMoreTimeCoolDown(NotificationResponseRecord record) {
         long timeElapsed = System.currentTimeMillis() - record.createdTime;
-        switch (record.questionType) {
+        return timeElapsed < getTaskCoolDownTime(record.questionType);
+    }
+
+    private long getTaskCoolDownTime(int taskType) {
+        switch (taskType) {
             case AvailabilityTask.TASK_ID:
-                return timeElapsed > AvailabilityTask.getCoolDownTime();
+                return AvailabilityTask.getCoolDownTime();
             case MoodTask.TASK_ID:
-                return timeElapsed > MoodTask.getCoolDownTime();
+                return MoodTask.getCoolDownTime();
             case HowLoudTask.TASK_ID:
-                return timeElapsed > HowLoudTask.getCoolDownTime();
+                return HowLoudTask.getCoolDownTime();
             case NumberPeopleTask.TASK_ID:
-                return timeElapsed > NumberPeopleTask.getCoolDownTime();
+                return NumberPeopleTask.getCoolDownTime();
             case LocationTask.TASK_ID:
-                return timeElapsed > LocationTask.getCoolDownTime();
+                return LocationTask.getCoolDownTime();
             case DrinkingWaterTask.TASK_ID:
-                return timeElapsed > DrinkingWaterTask.getCoolDownTime();
+                return DrinkingWaterTask.getCoolDownTime();
             case ArithmeticTask.TASK_ID:
-                return timeElapsed > ArithmeticTask.getCoolDownTime();
+                return ArithmeticTask.getCoolDownTime();
             case DietTask.TASK_ID:
-                return timeElapsed > DietTask.getCoolDownTime();
+                return DietTask.getCoolDownTime();
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }
