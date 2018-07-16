@@ -21,13 +21,15 @@ public class HowLoudTask extends MultipleChoiceTask {
         return TASK_ID;
     }
 
+    @Override
     @NonNull
     public String getPrimaryQuestionStatement() {
         return "How loud is it at your location?";
     }
 
+    @Override
     @NonNull
     protected String[] getOptions() {
-        return new String[] {"Loud", "Noisy", "Quiet"};
+        return new String[] {"Loud", "Moderate", "Quiet"};
     }
 }

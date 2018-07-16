@@ -22,11 +22,13 @@ public class AvailabilityTask extends MultipleChoiceTask {
         return TASK_ID;
     }
 
+    @Override
     @NonNull
     public String getPrimaryQuestionStatement() {
         return "Is it a good time to reach out you via sending this notification?";
     }
 
+    @Override
     @NonNull
     protected String[] getOptions() {
         return new String[] {"Yes", "No"};
