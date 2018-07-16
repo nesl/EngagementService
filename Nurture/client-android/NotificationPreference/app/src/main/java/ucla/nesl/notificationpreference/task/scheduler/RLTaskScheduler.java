@@ -35,7 +35,7 @@ public class RLTaskScheduler extends TaskSchedulerBase {
     // the following variables keeps the state and reward where they left from the last request
     // failure attempt
     private String stateHolder = null;
-    private int rewardHolder = 0;
+    private String rewardListHolder = null;
     private long lastRequestFailureTimestamp = 0L;
 
     public RLTaskScheduler(SharedPreferenceHelper _keyValueStore, SensorMaster _sensorMaster,
@@ -56,16 +56,16 @@ public class RLTaskScheduler extends TaskSchedulerBase {
     @Override
     public void onPlan() {
         String currentState = sensorMaster.getStateMessageAndReset();
-        int currentReward = rewardMaster.getRewardAndReset();
+        String currentRewardList = rewardMaster.getRewardListAndReset();
         long now = System.currentTimeMillis();
 
         String observation;
         if (stateHolder == null) {
             // if the previous request is successful, then send reward1-state1-continue
             observation = String.format(Locale.getDefault(),
-                    "[%d];[%s];[continue]", currentReward, currentState);
+                    "[%s];[%s];[continue]", currentRewardList, currentState);
             stateHolder = currentState;
-            rewardHolder = currentReward;
+            rewardListHolder = currentRewardList;
             lastRequestFailureTimestamp = now;
         } else {
             long timeElapsed = now - lastRequestFailureTimestamp;
@@ -74,13 +74,13 @@ public class RLTaskScheduler extends TaskSchedulerBase {
                 // minutes), we consider it as a transit error. The message to be sent is
                 // reward1-stateN-continue.
                 observation = String.format(Locale.getDefault(),
-                        "[%d];[%s];[continue]", rewardHolder, currentState);
+                        "[%s];[%s];[continue]", rewardListHolder, currentState);
             } else {
                 // if the system keeps trying but the message cannot get out after a certain time
                 // threshold (i.e., longer than 5 minutes), we consider there's a network problem
                 // and inform the server to restart a new episode.
                 observation = String.format(Locale.getDefault(),
-                        "[%d];[%s];[discontinue];[%s]", rewardHolder, stateHolder, currentState);
+                        "[%s];[%s];[discontinue];[%s]", rewardListHolder, stateHolder, currentState);
             }
         }
 
@@ -114,7 +114,7 @@ public class RLTaskScheduler extends TaskSchedulerBase {
 
     private void resetStateRewardHolder() {
         stateHolder = null;
-        rewardHolder = 0;
+        rewardListHolder = null;
         lastRequestFailureTimestamp = 0L;
     }
 }
