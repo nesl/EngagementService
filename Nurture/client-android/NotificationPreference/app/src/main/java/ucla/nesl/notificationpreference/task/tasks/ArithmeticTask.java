@@ -70,6 +70,14 @@ public class ArithmeticTask extends MultipleChoiceTask {
         return TASK_ID;
     }
 
+    public static int sampleQuestionSeedIfCreatedNow() {
+        return new Random().nextInt(1000000);
+    }
+
+    public static long getCoolDownTime() {
+        return 0L;
+    }
+
     @NonNull
     @Override
     public String getPrimaryQuestionStatement() {

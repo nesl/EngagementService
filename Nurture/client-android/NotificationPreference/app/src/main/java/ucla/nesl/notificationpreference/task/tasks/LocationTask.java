@@ -2,6 +2,9 @@ package ucla.nesl.notificationpreference.task.tasks;
 
 import android.support.annotation.NonNull;
 
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import ucla.nesl.notificationpreference.task.tasks.template.MultipleChoiceTask;
 
 /**
@@ -14,8 +17,14 @@ public class LocationTask extends MultipleChoiceTask {
 
     public static final int TASK_ID = 4;
 
+    private static final String[] availableQuestionStatements = new String[] {
+            "Where were you before you came here?",
+            "Where are you now?",
+            "Where are you going after you leave here?"
+    };
 
     private int questionSeed;
+
 
     public LocationTask(int notificationID, int seed) {
         super(notificationID);
@@ -27,18 +36,18 @@ public class LocationTask extends MultipleChoiceTask {
         return TASK_ID;
     }
 
+    public static int sampleQuestionSeedIfCreatedNow() {
+        return new Random().nextInt(availableQuestionStatements.length);
+    }
+
+    public static long getCoolDownTime() {
+        return TimeUnit.HOURS.toMillis(6);
+    }
+
     @NonNull
     @Override
     public String getPrimaryQuestionStatement() {
-        switch (questionSeed % 3) {
-            case 0:
-                return "Where were you before you came here?";
-            case 1:
-                return "Where are you now?";
-            case 2:
-                return "Where are you going after you leave here?";
-        }
-        return "";  // make compiler happy
+        return availableQuestionStatements[questionSeed];
     }
 
     @NonNull

@@ -1,7 +1,5 @@
 package ucla.nesl.notificationpreference.task;
 
-import android.util.Log;
-
 import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.task.tasks.ArithmeticTask;
 import ucla.nesl.notificationpreference.task.tasks.AvailabilityTask;
@@ -26,7 +24,6 @@ public class TaskFactory {
 
     public static ShortQuestionTask getTask(
             int questionType, int subQuestionType, int notificationID) {
-        Log.i("TaskFactory", "Debug:" + questionType + " " + notificationID);
         switch (questionType) {
             case AvailabilityTask.TASK_ID:
                 return new AvailabilityTask(notificationID);

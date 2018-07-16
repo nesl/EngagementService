@@ -1,7 +1,9 @@
 package ucla.nesl.notificationpreference.task.tasks;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import ucla.nesl.notificationpreference.task.tasks.template.MultipleChoiceTask;
 
@@ -16,8 +18,19 @@ public class MoodTask extends MultipleChoiceTask {
 
     public static final int TASK_ID = 1;
 
+    private static final String[][] availableOptions = new String[][] {
+        {"Tense", "Neutral", "Calm"},
+        {"Calm", "Neutral", "Tense"},
+        {"Stressed", "Neutral", "Relaxed"},
+        {"Relaxed", "Neutral", "Stressed"},
+        {"Happy", "Neutral", "Sad"},
+        {"Sad", "Neutral", "Happy"},
+        {"Bored", "Neutral", "Excited"},
+        {"Excited", "Neutral", "Bored"}
+    };
 
     private int questionSeed;
+
 
     public MoodTask(int notificationID, int seed) {
         super(notificationID);
@@ -29,6 +42,14 @@ public class MoodTask extends MultipleChoiceTask {
         return TASK_ID;
     }
 
+    public static int sampleQuestionSeedIfCreatedNow() {
+        return new Random().nextInt(availableOptions.length);
+    }
+
+    public static long getCoolDownTime() {
+        return TimeUnit.HOURS.toMillis(3);
+    }
+
     @NonNull
     @Override
     public String getPrimaryQuestionStatement() {
@@ -38,25 +59,6 @@ public class MoodTask extends MultipleChoiceTask {
     @NonNull
     @Override
     protected String[] getOptions() {
-        Log.i("Mood", "seed=" + questionSeed);
-        switch (questionSeed % 8) {
-            case 0:
-                return new String[] {"Tense", "Neutral", "Calm"};
-            case 1:
-                return new String[] {"Calm", "Neutral", "Tense"};
-            case 2:
-                return new String[] {"Stressed", "Neutral", "Relaxed"};
-            case 3:
-                return new String[] {"Relaxed", "Neutral", "Stressed"};
-            case 4:
-                return new String[] {"Happy", "Neutral", "Sad"};
-            case 5:
-                return new String[] {"Sad", "Neutral", "Happy"};
-            case 6:
-                return new String[] {"Bored", "Neutral", "Excited"};
-            case 7:
-                return new String[] {"Excited", "Neutral", "Bored"};
-        }
-        return new String[0];  // make compiler happy
+        return availableOptions[questionSeed];
     }
 }

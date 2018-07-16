@@ -161,7 +161,7 @@ public class NotificationHelper {
         }
 
         // decide task type
-        TaskTypeSampler taskSampler = new TaskTypeSampler();
+        TaskTypeSampler taskSampler = new TaskTypeSampler(responseDatabase);
         taskSampler.sample();
         int questionType = taskSampler.getQuestionType();
         int subQuestionType = taskSampler.getSubQuestionType();

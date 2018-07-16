@@ -69,6 +69,10 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
         return new ArrayList<>(getDao().getAllRecordsReverseOrder());
     }
 
+    public ArrayList<NotificationResponseRecord> getLastFiveRecords() {
+        return new ArrayList<>(getDao().getLastFiveRecords());
+    }
+
     public void fillAnswer(int notificationID, @NonNull String answer, int optionID) {
         getDao().updateAnswer(notificationID, System.currentTimeMillis(), answer, optionID);
     }

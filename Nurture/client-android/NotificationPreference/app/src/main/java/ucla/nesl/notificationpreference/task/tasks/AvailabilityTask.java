@@ -2,6 +2,8 @@ package ucla.nesl.notificationpreference.task.tasks;
 
 import android.support.annotation.NonNull;
 
+import java.util.concurrent.TimeUnit;
+
 import ucla.nesl.notificationpreference.task.tasks.template.MultipleChoiceTask;
 
 /**
@@ -20,6 +22,14 @@ public class AvailabilityTask extends MultipleChoiceTask {
 
     public int getTypeID() {
         return TASK_ID;
+    }
+
+    public static int sampleQuestionSeedIfCreatedNow() {
+        return 0;
+    }
+
+    public static long getCoolDownTime() {
+        return TimeUnit.HOURS.toMillis(3);
     }
 
     @Override
