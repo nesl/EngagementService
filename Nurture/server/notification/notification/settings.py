@@ -129,3 +129,6 @@ SECURE_SSL_REDIRECT = True
 # Site specific
 LOG_FILE_ROOT = os.path.join(BASE_DIR, config.log_file_root)
 APK_ROOT = os.path.join(BASE_DIR, config.apk_download_root)
+INITIAL_MODEL_ROOT = os.path.join(BASE_DIR, config.initial_model_root)
+GLOBAL_MODEL_ROOT = os.path.join(BASE_DIR, config.global_model_root)
+USER_MODEL_ROOT = os.path.join(BASE_DIR, config.user_model_root)

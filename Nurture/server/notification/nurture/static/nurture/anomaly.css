@@ -1,0 +1,12 @@
+.highlight-okay {
+  font-size: 13px;
+  font-style: italic;
+  color: #777;
+}
+
+.highlight-flag {
+  font-size: 13px;
+  font-style: italic;
+  font-weight: bold;
+  color: red;
+}

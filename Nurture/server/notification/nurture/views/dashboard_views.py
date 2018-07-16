@@ -1,19 +1,19 @@
 import datetime
 import pytz
 
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-
 from django.db import transaction
+from django.utils import timezone
 
 from notification import settings
 
 from nurture.models import *
+from nurture import utils
 
 
 def _make_app_user_bundle(user):
@@ -25,20 +25,33 @@ def _make_app_user_bundle(user):
     """
     last_file_log = FileLog.objects.filter(user=user).last()
     last_uploading_time = last_file_log.uploaded_time if last_file_log is not None else None
+
+    last_action = ActionLog.objects.filter(user=user).last()
+    last_action_time = last_action.query_time if last_action is not None else None
+
+    now = timezone.now()
+    ago_10m = now - datetime.timedelta(minutes=10)
+    ago_1h = now - datetime.timedelta(hours=1)
+    ago_1d = now - datetime.timedelta(days=1)
+
     return {
             'user': user,
             'last_uploading_time': last_uploading_time,
+            'last_action_request_time': last_action_time,
+            'action_request_stat': {
+                'ago_10m': ActionLog.objects.filter(user=user, query_time__gt=ago_10m).count(),
+                'ago_1h': ActionLog.objects.filter(user=user, query_time__gt=ago_1h).count(),
+                'ago_1d': ActionLog.objects.filter(user=user, query_time__gt=ago_1d).count(),
+            },
     }
 
 @login_required(login_url='/login/')
 def list_users(request):
-    web_user = User.objects.get(username=request.user)
-
     app_users = AppUser.objects.all().order_by('-status', '-created_time')
     app_user_bundles = list(map(_make_app_user_bundle, app_users))
 
     template_context = {
-            'myuser': web_user,
+            'navbar': utils.generate_navbar_bundle(request),
             'user_bundles': app_user_bundles,
     }
 
@@ -56,6 +69,7 @@ def _try_parse_organize_users_form(post):
 
                 user.name = post['%s-name' % code]
                 user.status = post['%s-status' % code]
+                user.learning_agent = post['%s-agent' % code]
                 user.save()
         return True
     except:
@@ -63,8 +77,6 @@ def _try_parse_organize_users_form(post):
 
 @login_required(login_url='/login/')
 def organize_users(request):
-    web_user = User.objects.get(username=request.user)
-
     if request.method == 'POST':
         if _try_parse_organize_users_form(request.POST):
             return HttpResponseRedirect(reverse('dashboard-list-users'))
@@ -73,10 +85,11 @@ def organize_users(request):
     user_list = ",".join([u.code for u in app_users])
 
     template_context = {
-            'myuser': web_user,
+            'navbar': utils.generate_navbar_bundle(request),
             'user_list': user_list,
             'users': app_users,
             'status_options': AppUser.STATUS_TYPES,
+            'learning_agent_options': AppUser.LEARNING_AGENT_TYPES,
     }
 
     return render(request, 'nurture/organize_users.html', template_context)
@@ -86,7 +99,7 @@ def _get_valid_file_types():
     return [
             'notification-interaction',
             'motion',
-            'locatoin',
+            'location',
             'ringer-mode',
             'screen-status',
             'task-response',
@@ -94,8 +107,6 @@ def _get_valid_file_types():
 
 @login_required(login_url='/login/')
 def show_latest_upload(request, user_code, file_type=None):
-    web_user = User.objects.get(username=request.user)
-
     # check user code
     try:
         app_user = AppUser.objects.get(code=user_code)
@@ -114,7 +125,7 @@ def show_latest_upload(request, user_code, file_type=None):
     file_log = file_logs[0] if len(file_logs) > 0 else None
 
     template_context = {
-            'myuser': web_user,
+            'navbar': utils.generate_navbar_bundle(request),
             'valid_file_types': valid_file_types,
             'user': app_user,
             'file_type': file_type,
@@ -126,8 +137,6 @@ def show_latest_upload(request, user_code, file_type=None):
 
 @login_required(login_url='/login/')
 def show_upload_history(request, user_code, file_type, file_name):
-    web_user = User.objects.get(username=request.user)
-
     # check user code
     try:
         app_user = AppUser.objects.get(code=user_code)
@@ -149,7 +158,7 @@ def show_upload_history(request, user_code, file_type, file_name):
             FileLog.objects.filter(user=app_user, type=file_type).order_by('-filename'))
 
     template_context = {
-            'myuser': web_user,
+            'navbar': utils.generate_navbar_bundle(request),
             'user': app_user,
             'file_type': file_type,
             'target_file_log': target_file_log,
@@ -162,8 +171,6 @@ def show_upload_history(request, user_code, file_type, file_name):
 
 @login_required(login_url='/login/')
 def show_responses(request, user_code):
-    web_user = User.objects.get(username=request.user)
-
     # check user code
     try:
         app_user = AppUser.objects.get(code=user_code)
@@ -174,9 +181,34 @@ def show_responses(request, user_code):
     responses = ActionLog.objects.filter(user=app_user).order_by('-query_time')
 
     template_context = {
-            'myuser': web_user,
+            'navbar': utils.generate_navbar_bundle(request),
             'user': app_user,
             'responses': responses,
     }
 
     return render(request, 'nurture/show_responses.html', template_context)
+
+
+@login_required(login_url='/login/')
+def show_last_exception(request):
+    last_exception = ExceptionLog.objects.last()
+    return HttpResponseRedirect(reverse('dashboard-show-exception',
+        kwargs={'exception_id': last_exception.id}))
+
+
+@login_required(login_url='/login/')
+def show_exception(request, exception_id):
+    try:
+        target_exception = ExceptionLog.objects.get(id=exception_id)
+    except ExceptionLog.DoesNotExist:
+        return HttpResponse("Unrecognized exception ID \"%s\"" % exception_id, status=404)
+
+    all_exceptions = ExceptionLog.objects.all().order_by('-id')
+
+    template_context = {
+            'navbar': utils.generate_navbar_bundle(request),
+            'target_exception': target_exception,
+            'all_exceptions': all_exceptions,
+    }
+
+    return render(request, 'nurture/show_exception.html', template_context)

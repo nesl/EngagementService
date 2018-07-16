@@ -1,6 +1,7 @@
 {% extends 'nurture/base.html' %}
 {% load staticfiles %}
 {% load bootstrap3 %}
+{% load util_tags %}
 
 {% block content %}
   <div class="main-content">
@@ -18,6 +19,7 @@
               <th>Join Date</th>
               <th>User Name</th>
               <th>Status</th>
+              <th>Learning Agent</th>
             <thead>
           </tr>
           {% for user in users %}
@@ -25,16 +27,8 @@
               <td>{{user.code}}</td>
               <td>{{user.created_time}}</td>
               <td><input type="text" name="{{user.code}}-name" value="{{user.name}}"></td>
-              <td>
-                <select name="{{user.code}}-status">
-                  {% for option_value, option_text in status_options %}
-                    <option value="{{option_value}}" {% if user.status == option_value %}selected{% endif %}>
-                      {{option_text}}
-                    </option>
-                  {% endfor %}
-                </select>
-                {{entry.user.get_status_display}}
-              </td>
+              <td>{% select_html_tag_user_specific user 'status' status_options user.status %}</td>
+              <td>{% select_html_tag_user_specific user 'agent' learning_agent_options user.learning_agent %}</td>
             </tr>
           {% endfor %}
         </table>

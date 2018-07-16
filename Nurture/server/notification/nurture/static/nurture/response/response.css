@@ -1,0 +1,32 @@
+.cell-bar-div {
+  margin-bottom: 20px;
+}
+
+.cell-bar-title {
+  display: table-cell;
+  width: 145px;
+  height: 23px;
+  padding-right: 20px;
+  text-align: right;
+  font-style: italic;
+}
+
+.cell-bar-value {
+  display: table-cell;
+  width: 30px;
+  height: 23px;
+  text-align: center;
+  border-style: dotted;
+  border-width: 1px 0px 0px 1px;
+  border-color: #aaa;
+}
+
+.cell-bar-label {
+  display: table-cell;
+  width: 180px;
+  height: 23px;
+  text-align: left;
+  border-style: dotted;
+  border-width: 1px 0px 0px 0px;
+  border-color: #aaa;
+}
