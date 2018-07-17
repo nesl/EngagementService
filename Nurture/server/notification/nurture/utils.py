@@ -93,6 +93,8 @@ def get_learning_agent_class_for_user(app_user):
     agents = {
             AppUser.LEARNING_AGENT_RANDOM: RandomAgent,
             AppUser.LEARNING_AGENT_ATTELIA2: Attelia2Agent,
+            AppUser.LEARNING_AGENT_Q_LEARNING: QLearningAgent,
+            AppUser.LEARNING_AGENT_DEBUG: DebugAgent,
     }
     return agents[app_user.learning_agent]
 
@@ -115,6 +117,7 @@ def prepare_learning_agent(app_user):
 
     return model_path
 
+
 def prepare_initial_model(LearningAgentClass):
     model_path = os.path.join(settings.INITIAL_MODEL_ROOT,
             LearningAgentClass.get_policy_file_name())
@@ -123,3 +126,16 @@ def prepare_initial_model(LearningAgentClass):
         dill.dump(learning_agent, open(model_path, "wb"))
 
     return model_path
+
+
+def argmax_dict(d):
+    idx = None
+    val = -1e100
+    for k in d:
+        if d[k] > val:
+            idx, val = k, d[k]
+    return idx
+
+
+def max_dict_val(d):
+    return max([d[k] for k in d])
