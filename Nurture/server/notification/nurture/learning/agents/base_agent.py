@@ -18,6 +18,7 @@ class BaseAgent:
     def __init__(self):
         self.stage = BaseAgent.STAGE_RESTARTED
         self.generate_initial_model()
+        self.restart_episode()
 
     @classmethod
     @abc.abstractmethod

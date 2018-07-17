@@ -22,35 +22,12 @@ class State:
             notificationTimeElapsed, ringerMode, screenStatus):
 
         assert 0.0 <= timeOfDay and timeOfDay <= 1.0
-
         assert 0.0 <= dayOfWeek and dayOfWeek <= 1.0
-
-        assert motion in [
-            State.MOTION_STATIONARY,
-            State.MOTION_WALKING,
-            State.MOTION_RUNNING,
-            State.MOTION_DRIVING,
-            State.MOTION_BIKING,
-        ]
-
-        assert location in [
-            State.LOCATION_HOME,
-            State.LOCATION_WORK,
-            State.LOCATION_OTHER,
-        ]
-
+        assert motion in State.allMotionValues()
+        assert location in State.allLocationValues()
         assert 0.0 <= notificationTimeElapsed
-
-        assert ringerMode in [
-            State.RINGER_MODE_SILENT,
-            State.RINGER_MODE_VIBRATE,
-            State.RINGER_MODE_NORMAL,
-        ]
-
-        assert screenStatus in [
-            State.SCREEN_STATUS_ON,
-            State.SCREEN_STATUS_OFF,
-        ]
+        assert ringerMode in State.allRingerModeValues()
+        assert screenStatus in State.allScreenStatusValues()
 
         self.timeOfDay = timeOfDay
         self.dayOfWeek = dayOfWeek
@@ -59,3 +36,36 @@ class State:
         self.notificationTimeElapsed = notificationTimeElapsed
         self.ringerMode = ringerMode
         self.screenStatus = screenStatus
+
+    @staticmethod
+    def allMotionValues():
+        return [
+            State.MOTION_STATIONARY,
+            State.MOTION_WALKING,
+            State.MOTION_RUNNING,
+            State.MOTION_DRIVING,
+            State.MOTION_BIKING,
+        ]
+
+    @staticmethod
+    def allLocationValues():
+        return [
+            State.LOCATION_HOME,
+            State.LOCATION_WORK,
+            State.LOCATION_OTHER,
+        ]
+    
+    @staticmethod
+    def allRingerModeValues():
+        return [
+            State.RINGER_MODE_SILENT,
+            State.RINGER_MODE_VIBRATE,
+            State.RINGER_MODE_NORMAL,
+        ]
+
+    @staticmethod
+    def allScreenStatusValues():
+        return [
+            State.SCREEN_STATUS_ON,
+            State.SCREEN_STATUS_OFF,
+        ]
