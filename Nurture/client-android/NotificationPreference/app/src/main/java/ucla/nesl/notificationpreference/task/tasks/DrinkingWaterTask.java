@@ -7,27 +7,18 @@ import java.util.concurrent.TimeUnit;
 import ucla.nesl.notificationpreference.task.tasks.template.MultipleChoiceTask;
 
 /**
- * Created by timestring on 5/31/18.
+ * Created by timestring on 7/11/18.
  *
- * Ask how many people are there around the user.
+ * Ask when was the last time the user drank water.
  */
 
-public class NumberPeopleTask extends MultipleChoiceTask {
+public class DrinkingWaterTask extends MultipleChoiceTask {
 
-    public static final int TASK_ID = 3;
+    public static final int TASK_ID = 5;
 
 
-    /**
-     * Constructors for both creating and retrieving a task
-     */
-    public NumberPeopleTask(int notificationID) {
+    public DrinkingWaterTask(int notificationID) {
         super(notificationID);
-    }
-
-    @NonNull
-    @Override
-    protected String[] getOptions() {
-        return new String[] {"0~5", "6~20", ">20"};
     }
 
     @Override
@@ -40,12 +31,18 @@ public class NumberPeopleTask extends MultipleChoiceTask {
     }
 
     public static long getCoolDownTime() {
-        return TimeUnit.HOURS.toMillis(6);
+        return TimeUnit.HOURS.toMillis(1);
     }
 
     @NonNull
     @Override
     public String getPrimaryQuestionStatement() {
-        return "How many people are there around you?";
+        return "How long ago did you drink water? Within ______";
+    }
+
+    @NonNull
+    @Override
+    protected String[] getOptions() {
+        return new String[]{"1 hour", "2 hours", "Longer"};
     }
 }

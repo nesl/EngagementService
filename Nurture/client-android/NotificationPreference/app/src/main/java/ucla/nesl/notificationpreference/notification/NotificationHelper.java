@@ -59,13 +59,14 @@ public class NotificationHelper {
     private static final String TAG = NotificationHelper.class.getSimpleName();
 
     private static final String INTENT_CREATE_NOTIFICATION = "intent.create.notification";
-    private static final String INTENT_DISMISS_NOTIFICATION = "intent.dismiss.notification";
+    public static final String INTENT_DISMISS_NOTIFICATION = "intent.dismiss.notification";
     public static final String INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION = "intent.forward.notification.response.action";
 
     public static final int NOTIFICATION_ID_NOT_SET = -1;
 
     private static final String INTENT_EXTRA_NAME_NOTIFICATION_ID = "notificationID";
     private static final String INTENT_EXTRA_NAME_RESPONSE = "response";
+    private static final String INTENT_EXTRA_NAME_OPTION_ID = "optionID";
     private static final int OFFSET = 100000;
 
     private static final String CHANNEL_ID = "channel_0";
@@ -160,7 +161,7 @@ public class NotificationHelper {
         }
 
         // decide task type
-        TaskTypeSampler taskSampler = new TaskTypeSampler();
+        TaskTypeSampler taskSampler = new TaskTypeSampler(responseDatabase);
         taskSampler.sample();
         int questionType = taskSampler.getQuestionType();
         int subQuestionType = taskSampler.getSubQuestionType();
@@ -256,6 +257,7 @@ public class NotificationHelper {
             }
 
             notifyEventListener(notificationID, NotificationEventType.DISMISSED);
+            Log.i("NotificationHelper", "dismiss notification " + notificationID);
         }
     };
 
@@ -263,12 +265,13 @@ public class NotificationHelper {
         @Override
         public void onReceive(Context context, Intent intent) {
             int notificationID = interpretIntentGetNotificationID(intent);
-            String response = interpretIntentGetResponse(intent);
+            String response = interpretIntentGetResponseText(intent);
+            int optionID = interpretIntentGetOptionID(intent);
             Log.i("NotificationHelper", "Receive response:" + response);
 
             if (loggingEnabled) {
-                responseDatabase.fillAnswer(notificationID, response);
-                interactionLogger.logRespondInNotification(notificationID, response);
+                responseDatabase.fillAnswer(notificationID, response, optionID);
+                interactionLogger.logRespondInNotification(notificationID, response, optionID);
             }
 
             notifyEventListener(notificationID, NotificationEventType.RESPONDED);
@@ -285,9 +288,10 @@ public class NotificationHelper {
     }
 
     public static void overloadIDAndResponseOnIntent(
-            Intent intent, int notificationID, @NonNull String response) {
+            Intent intent, int notificationID, @NonNull String response, int optionID) {
         intent.putExtra(INTENT_EXTRA_NAME_NOTIFICATION_ID, notificationID);
         intent.putExtra(INTENT_EXTRA_NAME_RESPONSE, response);
+        intent.putExtra(INTENT_EXTRA_NAME_OPTION_ID, optionID);
     }
 
     private PendingIntent makeMainActivityPendingIndent(int notificationID) {
@@ -312,7 +316,7 @@ public class NotificationHelper {
 
         Intent intent = new Intent(context, NotificationButtonActionProxyReceiver.class);
         int requestCode = notificationID * OFFSET + buttonID;
-        overloadIDAndResponseOnIntent(intent, notificationID, response);
+        overloadIDAndResponseOnIntent(intent, notificationID, response, buttonID);
         return PendingIntent.getBroadcast(context, requestCode, intent, 0);
     }
 
@@ -335,11 +339,15 @@ public class NotificationHelper {
     }
 
     @NonNull
-    private String interpretIntentGetResponse(Intent intent) {
-        String response = intent.getStringExtra("response");
+    private String interpretIntentGetResponseText(Intent intent) {
+        String response = intent.getStringExtra(INTENT_EXTRA_NAME_RESPONSE);
         if (response == null)
             response = "**(undefined)**_";
         return response;
+    }
+
+    private int interpretIntentGetOptionID(Intent intent) {
+        return intent.getIntExtra(INTENT_EXTRA_NAME_OPTION_ID, -1);
     }
     //endregion
 

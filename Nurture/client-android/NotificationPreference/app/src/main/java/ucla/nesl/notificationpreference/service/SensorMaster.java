@@ -146,13 +146,14 @@ public class SensorMaster {
 
     //region Section: Time/day computation
     // =============================================================================================
-    private double getPercentageOfTheDay() {
+    private double getPercentageOfTheWeek() {
         Calendar calendar = GregorianCalendar.getInstance();
         calendar.setTime(new Date());
-        return ((double) calendar.get(Calendar.DAY_OF_WEEK) + getPercentageOfTheWeek()) / 7.0;
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY;
+        return ((double) dayOfWeek + getPercentageOfTheDay()) / 7.0;
     }
 
-    private double getPercentageOfTheWeek() {
+    private double getPercentageOfTheDay() {
         Calendar calendar = GregorianCalendar.getInstance();
         calendar.setTime(new Date());
         long secondsOfTheDay = TimeUnit.HOURS.toSeconds(calendar.get(Calendar.HOUR_OF_DAY))

@@ -1,6 +1,9 @@
 package ucla.nesl.notificationpreference.service;
 
+import java.util.ArrayList;
+
 import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
+import ucla.nesl.notificationpreference.utils.Utils;
 
 /**
  * Created by timestring on 6/17/18.
@@ -9,7 +12,7 @@ import ucla.nesl.notificationpreference.notification.enums.NotificationEventType
 public class RewardMaster {
 
     private boolean gotDismissed;
-    private int responseCount;
+    private ArrayList<Integer> responseHistory = new ArrayList<>();
 
     public RewardMaster() {
         reset();
@@ -19,18 +22,22 @@ public class RewardMaster {
         if (event == NotificationEventType.DISMISSED) {
             gotDismissed = true;
         } else if (event == NotificationEventType.RESPONDED) {
-            responseCount++;
+            responseHistory.add(1);
         }
     }
 
-    public int getRewardAndReset() {
-        int reward = responseCount + (gotDismissed ? -5 : 0);
+    public String getRewardListAndReset() {
+        ArrayList<Integer> rewards = new ArrayList<>();
+        if (gotDismissed) {
+            rewards.add(-5);
+        }
+        rewards.addAll(responseHistory);
         reset();
-        return reward;
+        return Utils.stringJoinInts(",", rewards);
     }
 
     private void reset() {
         gotDismissed = false;
-        responseCount = 0;
+        responseHistory.clear();;
     }
 }

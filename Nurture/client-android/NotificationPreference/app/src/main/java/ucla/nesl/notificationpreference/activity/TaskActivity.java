@@ -64,11 +64,11 @@ public class TaskActivity extends AppCompatActivity implements INotificationEven
     //region Section: UI component event callback factory
     // =============================================================================================
     public View.OnClickListener getOnClickEventListenerForResponse(
-            final int notificationID, final String responseValue) {
+            final int notificationID, final String responseValue, final int optionID) {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                logAndTerminate(notificationID, responseValue);
+                logAndTerminate(notificationID, responseValue, optionID);
             }
         };
     }
@@ -80,7 +80,7 @@ public class TaskActivity extends AppCompatActivity implements INotificationEven
             public boolean onEditorAction(TextView tv, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    logAndTerminate(notificationID, tv.getText().toString());
+                    logAndTerminate(notificationID, tv.getText().toString(), 0);
                     handled = true;
                 }
                 return handled;
@@ -93,7 +93,7 @@ public class TaskActivity extends AppCompatActivity implements INotificationEven
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                logAndTerminate(notificationID, editText.getText().toString());
+                logAndTerminate(notificationID, editText.getText().toString(), 0);
             }
         };
     }
@@ -101,9 +101,9 @@ public class TaskActivity extends AppCompatActivity implements INotificationEven
 
     //region Section: Log and terminate
     // =============================================================================================
-    private void logAndTerminate(int notificationID, @NonNull String responseValue) {
-        responseDatabase.fillAnswer(notificationID, responseValue);
-        interactionLogger.logRespondInApp(notificationID, responseValue);
+    private void logAndTerminate(int notificationID, @NonNull String responseValue, int optionID) {
+        responseDatabase.fillAnswer(notificationID, responseValue, optionID);
+        interactionLogger.logRespondInApp(notificationID, responseValue, optionID);
         notificationHelper.cancelNotification(notificationID);
         finish();
     }

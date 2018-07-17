@@ -65,6 +65,10 @@
             android:enabled="true"
             android:exported="false" />
         <receiver
+            android:name=".notification.receiver.NotificationDismissedProxyReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
             android:name=".boot.BootEventReceiver"
             android:enabled="true"
             android:exported="false">

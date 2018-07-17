@@ -55,12 +55,14 @@ public class NotificationInteractionEventLogger extends LocalLogger {
         log("CLICK", notificationID, "");
     }
 
-    public void logRespondInNotification(int notificationID, String response) {
-        log("RESPOND_IN_NOTIFICATION", notificationID, response);
+    public void logRespondInNotification(int notificationID, String response, int optionID) {
+        String meta = String.format(Locale.getDefault(), "%d:%s", optionID, response);
+        log("RESPOND_IN_NOTIFICATION", notificationID, meta);
     }
 
-    public void logRespondInApp(int notificationID, String response) {
-        log("RESPOND_IN_APP", notificationID, response);
+    public void logRespondInApp(int notificationID, String response, int optionID) {
+        String meta = String.format(Locale.getDefault(), "%d:%s", optionID, response);
+        log("RESPOND_IN_APP", notificationID, meta);
     }
 
     public void logDismissNotification(int notificationID) {

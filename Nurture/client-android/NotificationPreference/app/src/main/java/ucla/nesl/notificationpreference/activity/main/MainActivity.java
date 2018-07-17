@@ -27,7 +27,7 @@ import ucla.nesl.notificationpreference.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String APP_VERSION = "v0.9.0";
+    private static final String APP_VERSION = "v0.9.1";
 
     private static final int REQUEST_CODE_LAUNCH_OPENING_ACTIVITY = 1;
 
@@ -51,14 +51,10 @@ public class MainActivity extends AppCompatActivity {
 
         keyValueStore = new SharedPreferenceHelper(this);
 
-        Log.i("MainActivity", "app status = " + keyValueStore.getAppStatus());
-
         if (keyValueStore.getAppStatus() == SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED) {
-            Log.i("MainActivity", "start open activity");
             Intent intent = new Intent(this, OpeningActivity.class);
             startActivityForResult(intent, REQUEST_CODE_LAUNCH_OPENING_ACTIVITY);
         } else {
-            Log.i("MainActivity", "start full operations");
             startFullOperations();
         }
     }
@@ -67,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if (keyValueStore.getAppStatus() != SharedPreferenceHelper.APP_STATUS_NOT_INITIALIZED) {
-            Log.i("MainActivity", "try bind service");
             tryBindTaskService();
         }
         refreshDataCollectionButtonText();

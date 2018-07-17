@@ -69,8 +69,16 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
         return new ArrayList<>(getDao().getAllRecordsReverseOrder());
     }
 
-    public void fillAnswer(int notificationID, @NonNull String answer) {
-        getDao().updateAnswer(notificationID, System.currentTimeMillis(), answer);
+    public ArrayList<NotificationResponseRecord> getLastFiveRecords() {
+        return new ArrayList<>(getDao().getLastFiveRecords());
+    }
+
+    public NotificationResponseRecord getLastRecordByType(int questionType) {
+        return getDao().getLastRecordByType(questionType);
+    }
+
+    public void fillAnswer(int notificationID, @NonNull String answer, int optionID) {
+        getDao().updateAnswer(notificationID, System.currentTimeMillis(), answer, optionID);
     }
 
     public void recordDismissedNotification(int notificationID) {
@@ -90,6 +98,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                     "status",
                     "answer_time",
                     "answer",
+                    "option_ID",
                     "expired_time"
             });
 
@@ -103,6 +112,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                         String.valueOf(record.status),
                         String.valueOf(record.answerTime),
                         String.valueOf(record.answer),
+                        String.valueOf(record.optionID),
                         String.valueOf(record.expiredTime)
                 });
             }
