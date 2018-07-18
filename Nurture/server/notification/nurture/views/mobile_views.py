@@ -121,7 +121,7 @@ def get_action(request):
         for term in terms:
             assert term[0] == '[' and term[-1] == ']'
         terms = [t[1:-1] for t in terms]
-        reward = float(terms[0])
+        reward = sum(list(map(float, terms[0].split(',')))) if terms[0] != '' else 0.
     except:
         utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_INVALID_REWARD
