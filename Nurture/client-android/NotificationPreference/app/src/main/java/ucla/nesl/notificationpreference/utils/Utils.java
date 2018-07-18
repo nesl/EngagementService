@@ -2,10 +2,15 @@ package ucla.nesl.notificationpreference.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
+import android.util.Log;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +32,8 @@ import ucla.nesl.notificationpreference.storage.loggers.ScreenStatusLogger;
  */
 
 public class Utils {
+
+    private static final String TAG = Utils.class.getSimpleName();
 
     //region Section: User code
     // =============================================================================================
@@ -153,6 +160,33 @@ public class Utils {
             }
         }
         return false;
+    }
+    //endregion
+
+    //region Section: Retrieving image asset
+    // =============================================================================================
+    public static Bitmap getImageFromAsset(Context context, String path) {
+        try {
+            InputStream stream = context.getAssets().open(path);
+            Bitmap bitmap = BitmapFactory.decodeStream(stream);
+            stream.close();
+            return bitmap;
+        } catch (Exception e) {
+            Log.e(TAG, "Got an exception", e);
+        }
+
+        return null;
+    }
+
+    public static Bitmap addMarginForNotification(Bitmap srcBitmap) {
+        int height = srcBitmap.getHeight();
+        int newWidth = height * 3;
+        Bitmap dstBitmap = Bitmap.createBitmap(newWidth, height, srcBitmap.getConfig());
+        Canvas canvas = new Canvas(dstBitmap);
+        canvas.drawARGB(0, 255, 255, 255);
+        int xoffset = (newWidth - srcBitmap.getWidth()) / 2;
+        canvas.drawBitmap(srcBitmap, xoffset, 0, null);
+        return dstBitmap;
     }
     //endregion
 

@@ -48,10 +48,6 @@ public abstract class ShortQuestionTask {
 
     public abstract ViewGroup getViewLayoutInActivity(TaskActivity taskActivity);
 
-    protected final void setNotificationHelper(NotificationHelper _notificationHelper) {
-        notificationHelper = _notificationHelper;
-    }
-
     @NonNull
     public abstract String getPrimaryQuestionStatement();
 

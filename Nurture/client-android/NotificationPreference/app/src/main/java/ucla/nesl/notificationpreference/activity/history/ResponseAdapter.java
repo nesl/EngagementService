@@ -62,7 +62,7 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
         Log.i("ResponseAdapter", "Get view in position " + position);
         View rowView = holder.view;
         final NotificationResponseRecord record = records.get(position);
-        ShortQuestionTask task = TaskFactory.retrieveExistingTask(record);
+        ShortQuestionTask task = TaskFactory.retrieveExistingTask(record, historyActivity);
 
         TextView questionText = rowView.findViewById(R.id.textQuestionStat);
         questionText.setText(task.getPrimaryQuestionStatement());

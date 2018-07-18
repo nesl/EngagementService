@@ -174,7 +174,8 @@ public class NotificationHelper {
         // fill task-specific content in the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
 
-        ShortQuestionTask task = TaskFactory.getTask(questionType, subQuestionType, notificationID);
+        ShortQuestionTask task = TaskFactory.getTask(
+                questionType, subQuestionType, notificationID, context);
 
         task.fillNotificationLayout(this, builder);
 

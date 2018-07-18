@@ -46,7 +46,7 @@ public class TaskActivity extends AppCompatActivity implements INotificationEven
         notificationHelper = new NotificationHelper(this, false, this);
 
         NotificationResponseRecord record = responseDatabase.getRecordByID(notificationID);
-        ShortQuestionTask task = TaskFactory.retrieveExistingTask(record);
+        ShortQuestionTask task = TaskFactory.retrieveExistingTask(record, this);
 
         // render the question
         TextView primaryQuestionText = findViewById(R.id.textQuestion);

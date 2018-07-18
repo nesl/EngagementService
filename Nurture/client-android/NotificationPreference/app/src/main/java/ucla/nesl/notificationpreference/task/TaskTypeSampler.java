@@ -11,6 +11,7 @@ import ucla.nesl.notificationpreference.task.tasks.AvailabilityTask;
 import ucla.nesl.notificationpreference.task.tasks.DietTask;
 import ucla.nesl.notificationpreference.task.tasks.DrinkingWaterTask;
 import ucla.nesl.notificationpreference.task.tasks.HowLoudTask;
+import ucla.nesl.notificationpreference.task.tasks.ImageTask;
 import ucla.nesl.notificationpreference.task.tasks.LocationTask;
 import ucla.nesl.notificationpreference.task.tasks.MoodTask;
 import ucla.nesl.notificationpreference.task.tasks.NumberPeopleTask;
@@ -24,14 +25,15 @@ import ucla.nesl.notificationpreference.task.tasks.NumberPeopleTask;
 public class TaskTypeSampler {
 
     private static final int[] availableQuestionTypes = new int[] {
-            AvailabilityTask.TASK_ID,
+            /*AvailabilityTask.TASK_ID,
             MoodTask.TASK_ID,
             HowLoudTask.TASK_ID,
             NumberPeopleTask.TASK_ID,
             LocationTask.TASK_ID,
             DrinkingWaterTask.TASK_ID,
             ArithmeticTask.TASK_ID,
-            DietTask.TASK_ID,
+            DietTask.TASK_ID,*/
+            ImageTask.TASK_ID,
     };
 
     private NotificationResponseRecordDatabase database;
@@ -97,6 +99,8 @@ public class TaskTypeSampler {
                 return ArithmeticTask.getCoolDownTime();
             case DietTask.TASK_ID:
                 return DietTask.getCoolDownTime();
+            case ImageTask.TASK_ID:
+                return ImageTask.getCoolDownTime();
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }
@@ -120,6 +124,8 @@ public class TaskTypeSampler {
             case DietTask.TASK_ID:
                 return DietTask.sampleQuestionSeedIfCreatedNow(
                         database.getLastRecordByType(DietTask.TASK_ID));
+            case ImageTask.TASK_ID:
+                return ImageTask.sampleQuestionSeedIfCreatedNow();
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }

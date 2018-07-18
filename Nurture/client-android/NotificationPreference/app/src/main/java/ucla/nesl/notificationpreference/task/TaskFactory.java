@@ -1,11 +1,14 @@
 package ucla.nesl.notificationpreference.task;
 
+import android.content.Context;
+
 import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecord;
 import ucla.nesl.notificationpreference.task.tasks.ArithmeticTask;
 import ucla.nesl.notificationpreference.task.tasks.AvailabilityTask;
 import ucla.nesl.notificationpreference.task.tasks.DietTask;
 import ucla.nesl.notificationpreference.task.tasks.DrinkingWaterTask;
 import ucla.nesl.notificationpreference.task.tasks.HowLoudTask;
+import ucla.nesl.notificationpreference.task.tasks.ImageTask;
 import ucla.nesl.notificationpreference.task.tasks.LocationTask;
 import ucla.nesl.notificationpreference.task.tasks.MoodTask;
 import ucla.nesl.notificationpreference.task.tasks.NumberPeopleTask;
@@ -19,12 +22,14 @@ import ucla.nesl.notificationpreference.task.tasks.template.ShortQuestionTask;
 
 public class TaskFactory {
 
-    public static ShortQuestionTask retrieveExistingTask(NotificationResponseRecord record) {
-        return TaskFactory.getTask(record.questionType, record.subQuestionType, record.getID());
+    public static ShortQuestionTask retrieveExistingTask(
+            NotificationResponseRecord record, Context context) {
+        return TaskFactory.getTask(
+                record.questionType, record.subQuestionType, record.getID(), context);
     }
 
     public static ShortQuestionTask getTask(
-            int questionType, int subQuestionType, int notificationID) {
+            int questionType, int subQuestionType, int notificationID, Context context) {
         switch (questionType) {
             case AvailabilityTask.TASK_ID:
                 return new AvailabilityTask(notificationID);
@@ -42,6 +47,8 @@ public class TaskFactory {
                 return new ArithmeticTask(notificationID, subQuestionType);
             case DietTask.TASK_ID:
                 return new DietTask(notificationID, subQuestionType);
+            case ImageTask.TASK_ID:
+                return new ImageTask(notificationID, subQuestionType, context);
         }
         throw new IllegalArgumentException("Unrecognized question type");
     }
