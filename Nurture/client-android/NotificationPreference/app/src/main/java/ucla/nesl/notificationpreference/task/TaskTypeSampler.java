@@ -25,14 +25,14 @@ import ucla.nesl.notificationpreference.task.tasks.NumberPeopleTask;
 public class TaskTypeSampler {
 
     private static final int[] availableQuestionTypes = new int[] {
-            /*AvailabilityTask.TASK_ID,
+            AvailabilityTask.TASK_ID,
             MoodTask.TASK_ID,
             HowLoudTask.TASK_ID,
             NumberPeopleTask.TASK_ID,
             LocationTask.TASK_ID,
             DrinkingWaterTask.TASK_ID,
             ArithmeticTask.TASK_ID,
-            DietTask.TASK_ID,*/
+            DietTask.TASK_ID,
             ImageTask.TASK_ID,
     };
 
