@@ -27,7 +27,7 @@ import ucla.nesl.notificationpreference.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String APP_VERSION = "v0.9.1";
+    private static final String APP_VERSION = "v0.9.3";
 
     private static final int REQUEST_CODE_LAUNCH_OPENING_ACTIVITY = 1;
 
