@@ -13,8 +13,16 @@ kGamma = 0.9
 kInitEps = 0.3
 kMinEps = 0.05
 
+kMaxBufferSize = 1000
+kMinBufferSizeForUpdate = 10
+kNumSamplesFromBufferToUpdate = 3
 
-class QLearningAgent(BaseAgent):
+
+class QLearningPrioritizedReplayAgent(BaseAgent):
+    """
+    This agent implements the Q-learning algorithm with some variation: It considers
+    prioritized experience replay.
+    """
             
     TIME_SLEEPING = 0
     TIME_MORNING = 1
@@ -33,7 +41,7 @@ class QLearningAgent(BaseAgent):
 
     @classmethod
     def get_policy_name(cls):
-        return 'q-learning'
+        return 'q-learning-prioritized-replay'
 
     @classmethod
     def is_user_dependent(cls):
@@ -43,9 +51,17 @@ class QLearningAgent(BaseAgent):
         q_learning_state = self._get_qlearning_state(state)
         self.current_state = q_learning_state
 
-        self._update_q_table(
-                self.last_state, self.last_action, self.last_reward, self.current_state)
+        # put sample back to experience buffer
+        if self.last_state is not None:
+            self.experience_buffer.append(
+                (self.last_state, self.last_action, self.last_reward, self.current_state))
+            if len(self.experience_buffer) > kMaxBufferSize:
+                self.experience_buffer = self.experience_buffer[-kMaxBufferSize:]
+        
+        # update Q-table
+        self._update_q_table()
 
+        # choose action
         eps = max(kMinEps, kInitEps * (0.85 ** (self.num_steps // 100)))
         if np.random.random() < eps:
             self.chosen_action = np.random.choice([a for a in self.qTable[q_learning_state]])
@@ -79,6 +95,9 @@ class QLearningAgent(BaseAgent):
             self.qTable[state] = {True: 1e-5, False: 0.}
 
         self.num_steps = 0
+
+        # `experience_buffer` is a list of (cur_state, cur_action, cur_reward, nxt_state)
+        self.experience_buffer = []
     
     def load_model(self, filepath):
         pass
@@ -100,71 +119,86 @@ class QLearningAgent(BaseAgent):
     def _get_time_category(self, time_of_day):
         hour = int(time_of_day * 24.)
         if hour < 8:
-            return QLearningAgent.TIME_SLEEPING
+            return QLearningPrioritizedReplayAgent.TIME_SLEEPING
         elif hour < 12:
-            return QLearningAgent.TIME_MORNING
+            return QLearningPrioritizedReplayAgent.TIME_MORNING
         elif hour < 18:
-            return QLearningAgent.TIME_AFTERNOON
+            return QLearningPrioritizedReplayAgent.TIME_AFTERNOON
         else:
-            return QLearningAgent.TIME_EVENING
+            return QLearningPrioritizedReplayAgent.TIME_EVENING
 
     def _get_day_category(self, day_of_week):
         day = int(day_of_week * 7.)
         if day == 0 or day == 6:
-            return QLearningAgent.DAY_WEEKEND
+            return QLearningPrioritizedReplayAgent.DAY_WEEKEND
         else:
-            return QLearningAgent.DAY_WEEKDAY
+            return QLearningPrioritizedReplayAgent.DAY_WEEKDAY
 
     def _get_last_notification_category(self, notification_time_elapsed):
         if notification_time_elapsed <= 3.:
-            return QLearningAgent.LAST_NOTIFICATION_WITHIN_3MIN
+            return QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_3MIN
         elif notification_time_elapsed <= 10.:
-            return QLearningAgent.LAST_NOTIFICATION_WITHIN_10MIN
+            return QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_10MIN
         elif notification_time_elapsed <= 30.:
-            return QLearningAgent.LAST_NOTIFICATION_WITHIN_30MIN
+            return QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_30MIN
         elif notification_time_elapsed <= 60.:
-            return QLearningAgent.LAST_NOTIFICATION_WITHIN_1HR
+            return QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_1HR
         else:
-            return QLearningAgent.LAST_NOTIFICATION_LONG
+            return QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_LONG
 
     def _get_all_time_categories(self):
         return [
-            QLearningAgent.TIME_SLEEPING,
-            QLearningAgent.TIME_MORNING,
-            QLearningAgent.TIME_AFTERNOON,
-            QLearningAgent.TIME_EVENING,
+            QLearningPrioritizedReplayAgent.TIME_SLEEPING,
+            QLearningPrioritizedReplayAgent.TIME_MORNING,
+            QLearningPrioritizedReplayAgent.TIME_AFTERNOON,
+            QLearningPrioritizedReplayAgent.TIME_EVENING,
         ]
 
     def _get_all_day_categories(self):
         return [
-            QLearningAgent.DAY_WEEKEND,
-            QLearningAgent.DAY_WEEKDAY,
+            QLearningPrioritizedReplayAgent.DAY_WEEKEND,
+            QLearningPrioritizedReplayAgent.DAY_WEEKDAY,
         ]
 
     def _get_all_last_notification_categories(self):
         return [
-            QLearningAgent.LAST_NOTIFICATION_WITHIN_3MIN,
-            QLearningAgent.LAST_NOTIFICATION_WITHIN_10MIN,
-            QLearningAgent.LAST_NOTIFICATION_WITHIN_30MIN,
-            QLearningAgent.LAST_NOTIFICATION_WITHIN_1HR,
-            QLearningAgent.LAST_NOTIFICATION_LONG,
+            QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_3MIN,
+            QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_10MIN,
+            QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_30MIN,
+            QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_WITHIN_1HR,
+            QLearningPrioritizedReplayAgent.LAST_NOTIFICATION_LONG,
         ]
 
-    def _update_q_table(self, curStt, curAct, reward, nxtStt):
+    def _get_q_value_difference(self, curStt, curAct, reward, nxtStt):
         """
+        Get the difference betwen the new Q-value of `q(curStt, curAct)` from the old one.
+
         curStt = current state
         curAct = current action
         reward = reward
         nxtStt = next state
         """
-        if curStt is None:
+        eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.num_steps // 100)))
+        maxNextQVal = utils.max_dict_val(self.qTable[nxtStt])
+        return (-self.qTable[curStt][curAct]
+                + (reward + kGamma * maxNextQVal - self.qTable[curStt][curAct]))
+    
+    def _update_q_table(self):
+        if len(self.experience_buffer) < kMinBufferSizeForUpdate:
             return
 
         eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.num_steps // 100)))
-        maxNextQVal = utils.max_dict_val(self.qTable[nxtStt])
-        self.qTable[curStt][curAct] = ((1. - eta) * self.qTable[curStt][curAct]
-                + eta * (reward + kGamma * maxNextQVal - self.qTable[curStt][curAct]))
-    
+        
+        # Q-value udpate difference
+        differences = [self._get_q_value_difference(*e) for e in self.experience_buffer]
+
+        # select the samples with the maximum differences
+        sample_diff_pair = zip(self.experience_buffer, differences)
+        sample_diff_pair = sorted(sample_diff_pair, key=lambda p: abs(p[1]), reverse=True)
+        for sample, diff in sample_diff_pair[:self.kNumSamplesFromBufferToUpdate]:
+            cur_state, cur_action, _, _ = sample
+            self.qTable[cur_state][cur_action] += eta * diff
+
     def print_q_table(self):
         for state in self.qTable:
             print(state, self.qTable[state])
