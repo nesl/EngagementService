@@ -112,7 +112,7 @@ public class HttpsPostRequest extends AsyncTask<String, Void, String> {
             conn.setConnectTimeout((int) timeout);
 
             int responseCode = conn.getResponseCode();
-            Log.i(TAG, "response code = " + responseCode);
+            Log.i(TAG, "response code = " + responseCode + "(" + destinationPage + ")");
 
             return ReadAll.from(conn.getInputStream());
 

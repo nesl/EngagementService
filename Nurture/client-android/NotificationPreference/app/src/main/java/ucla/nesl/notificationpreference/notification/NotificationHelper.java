@@ -181,8 +181,8 @@ public class NotificationHelper {
 
         // configure non-UI part of the notification
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        builder.setSmallIcon(R.mipmap.ic_launcher)
-                //.setLargeIcon(R.mipmap.)
+        builder.setSmallIcon(R.mipmap.ic_leaf_hallowed_foreground)
+                .setColor(0x00802b)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(makeTaskActivityPendingIndent(notificationID))
                 .setDeleteIntent(makeDismissNotificationPendingIndent(notificationID))
@@ -226,7 +226,8 @@ public class NotificationHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             final int notificationID = NOTIFICATION_ID_FOREGROUND_TASK_SCHEDULING_SERVICE;
             Notification notification = new NotificationCompat.Builder(service, CHANNEL_ID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_leaf_filled_foreground)
+                    .setColor(0x00802b)
                     .setContentTitle("Nurture study")
                     .setContentText("App operations are " + studyStatus)
                     .setContentIntent(makeMainActivityPendingIndent(notificationID))
