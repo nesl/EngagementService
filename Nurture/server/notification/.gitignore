@@ -9,5 +9,8 @@ notification/config.py
 *.pyc
 __pycache__
 
-#Production static files
+# Production static files
 /static/
+
+# analysis code
+analysis.ipynb
