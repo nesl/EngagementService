@@ -39,7 +39,7 @@ public class DietTask extends MultipleChoiceTask {
                     "salmon, mackerel, herring, sardines, trout, and fresh tuna.",
             "Do you include some unsalted nuts and seeds in your diet?",
             // Starchy foods
-            "Do you base your main meals around starchy foods?" +
+            "Do you base your main meals around starchy foods? " +
                     "For example, potatoes, pasta, rice or bread.",
             "Do you regularly choose wholemeal bread or rolls rather than white?",
             "Do you regularly eat wholegrain cereals, with no added sugar?",
