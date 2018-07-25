@@ -20,6 +20,9 @@ DARK_GREEN = (0, 128, 128)
 LIGHT_RED = (255, 178, 178)
 DARK_RED = (170, 0, 0)
 
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
 
 @register.simple_tag
 def show_response_raw_content(responses):
@@ -168,3 +171,12 @@ def rgbhtml(color, arg=None):
     if type(color) is not tuple or len(color) != 3:
         raise Exception("invalid color variable")
     return format_html("rgb(%d, %d, %d)" % color)
+
+
+@register.filter
+def background_to_font_color(color, arg=None):
+    if type(color) is not tuple or len(color) != 3:
+        raise Exception("invalid color variable")
+
+    background_intensity = color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114
+    return WHITE if background_intensity < 156. else BLACK

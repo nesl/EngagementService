@@ -13,7 +13,7 @@
 
 .cell-bar-value {
   display: table-cell;
-  width: 30px;
+  width: 40px;
   height: 23px;
   text-align: center;
   border-style: dotted;
@@ -23,7 +23,7 @@
 
 .cell-bar-label {
   display: table-cell;
-  width: 180px;
+  width: 240px;
   height: 23px;
   text-align: left;
   border-style: dotted;
