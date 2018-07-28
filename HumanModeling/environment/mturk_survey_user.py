@@ -4,7 +4,7 @@ import numpy as np
 from collections import Counter
 
 from constant import *
-from utils import utils
+from utilities import utils
 from .base_environment import BaseEnvironment
 
 

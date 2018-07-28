@@ -2,6 +2,7 @@
 [Tt]humbs.db
 *.DS_Store
 *~
+__MACOSX
 
 #Original files
 *.org

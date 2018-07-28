@@ -13,8 +13,8 @@ from gym.envs.registration import EnvSpec
 from constant import *
 from environment import *
 from behavior import *
-from utils import utils
-from utils.chronometer import Chronometer
+from utilties import utils
+from utilities.chronometer import Chronometer
 
 
 class EngagementGymCoach(gym.Env):
