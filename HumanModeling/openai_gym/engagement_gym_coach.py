@@ -21,7 +21,7 @@ class EngagementGymCoach(gym.Env):
     """Example of a custom env in which you have to walk down a corridor.
     You can configure the length of the corridor via the env config."""
 
-    def __init__(self, config):
+    def __init__(self, config={}):
         
         ### simulation configuration
         self.rewardCriteria = {
@@ -214,3 +214,12 @@ class EngagementGymCoach(gym.Env):
         endDay = startDay + 7
         return [r for r in results
                 if startDay <= r['context']['numDaysPassed'] < endDay]
+
+if __name__ == "__main__":
+    env = EngagementGymCoach()
+    initial_state = env.reset()
+    done = False
+    while not done:
+        action = env.action_space.sample()
+        obs, reward, done, _ = env.step(action)
+        print("Action {0}, Reward {1}".format(action, reward))
