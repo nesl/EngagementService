@@ -10,6 +10,7 @@ from constant import *
 from environment import *
 from behavior import *
 from openai_gym.engagement_gym import EngagementGym
+from openai_gym.engagement_gym_coach import EngagementGymCoach
 
 
 if __name__ == "__main__":
@@ -43,7 +44,7 @@ if __name__ == "__main__":
 
     ### here we go (create environment and run)
     env_creator_name = "user-engagement"
-    register_env(env_creator_name, lambda config: EngagementGym(config))
+    register_env(env_creator_name, lambda config: EngagementGymCoach(config))
     ray.init()
     run_experiments({
         "demo": {
