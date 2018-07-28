@@ -7,7 +7,7 @@ from __future__ import print_function
 import numpy as np
 import os
 import gym
-from gym.spaces import Discrete, Tuple
+from gym.spaces import Discrete, Tuple, Box
 from gym.envs.registration import EnvSpec
 
 from constant import *
@@ -54,18 +54,11 @@ class EngagementGymCoach(gym.Env):
         self.behavior = ExtraSensoryBehavior('behavior/data/6.txt')
 
         self.action_space = Discrete(2)
-        self.observation_space = Tuple([
-                Discrete(4),  # time
-                Discrete(2),  # day
-                Discrete(3),  # location
-                Discrete(5),  # activity
-                Discrete(2),  # last notification
-        ])
-        self._spec = EnvSpec("EngagementGym-v0")
+        # states: time, day, location, activity, last notification
+        self.observation_space = Box(low = np.array([0,0,0,0,0]), high = np.array([3,1,2,4,1]))
 
         os.chdir(working_dir)
-
-
+    
     def reset(self):
         # set chronometer which automatically skips 10pm to 8am because it's usually when people
         # sleep
@@ -117,6 +110,9 @@ class EngagementGymCoach(gym.Env):
             self._printResults(results)
             self.lastPrintedWeek = currentWeek
 
+        if currentWeek >= 1:
+            done = True
+
         return gymState, reward, done, {}
 
     def _generate_state(self):
@@ -137,7 +133,8 @@ class EngagementGymCoach(gym.Env):
         self.stateTime = utils.getTimeState(currentHour, currentMinute)
         self.stateDay = utils.getDayState(currentDay)
 
-        return (self.stateTime, self.stateDay, self.stateLocation, self.stateActivity, self.stateLastNotification)
+        initial_state = [self.stateTime, self.stateDay, self.stateLocation, self.stateActivity, self.stateLastNotification]
+        return np.array(initial_state)
 
     def _generate_reward(self, action):
         
