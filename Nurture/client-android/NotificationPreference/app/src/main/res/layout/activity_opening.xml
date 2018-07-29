@@ -91,7 +91,7 @@
                     android:layout_marginEnd="16dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    android:text="I'm going to list what permissions that are requested, and explain they need to grant the permissions otherwise our app cannot continue. Once you understand, please click the follwoing button"
+                    android:text="A lot of text"
                     android:textSize="18sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
