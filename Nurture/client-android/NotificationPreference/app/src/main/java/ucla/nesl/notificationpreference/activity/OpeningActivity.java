@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
@@ -81,6 +82,8 @@ public class OpeningActivity extends AppCompatActivity {
         // for all set view
         Button allSetButton = findViewById(R.id.buttonFinishSetup);
         allSetButton.setOnClickListener(allSetOnClickListener);
+
+        enterWelcomeView();
     }
 
     @Override
@@ -96,17 +99,25 @@ public class OpeningActivity extends AppCompatActivity {
 
     //region Section: Welcome view - UI events
     // =============================================================================================
+    private void enterWelcomeView() {
+        ImageView appLogo = findViewById(R.id.imageAppLogo);
+        appLogo.setImageBitmap(Utils.getImageFromAsset(this, "nurture/nurture_logo.png"));
+
+        ImageView labLogo = findViewById(R.id.imageLabLogo);
+        labLogo.setImageBitmap(Utils.getImageFromAsset(this, "nurture/nesl_logo.png"));
+    }
+
     private final View.OnClickListener startSetupOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            enterWelcomeView();
+            enterPermissionRequestView();
         }
     };
     //endregion
 
     //region Section: Permission request view - UI events and permission stuff
     // =============================================================================================
-    private void enterWelcomeView() {
+    private void enterPermissionRequestView() {
         layoutContainer.showNext();
 
         // fast-forward if permission has already been set
