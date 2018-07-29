@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -169,9 +168,9 @@ public class LocationDataCollector {
             int geoTransition = intent.getIntExtra(INTENT_EXTRA_NAME_GEO_TRANSITION, -1);
             String geoCompoundPlaces = intent.getStringExtra(INTENT_EXTRA_NAME_GEO_PLACES);
 
-            Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(500);
-            debugToast.showLong("Get Location: " + geoTransition + "," + geoCompoundPlaces);
+            //Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            //v.vibrate(500);
+            //debugToast.showLong("Get Location: " + geoTransition + "," + geoCompoundPlaces);
 
             Log.i(TAG, "Get Location: " + geoTransition + "," + geoCompoundPlaces);
 
