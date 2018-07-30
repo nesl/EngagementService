@@ -162,7 +162,7 @@ class QLearningAgent(BaseAgent):
 
         eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.num_steps // 100)))
         maxNextQVal = utils.max_dict_val(self.qTable[nxtStt])
-        self.qTable[curStt][curAct] = ((1. - eta) * self.qTable[curStt][curAct]
+        self.qTable[curStt][curAct] = (self.qTable[curStt][curAct]
                 + eta * (reward + kGamma * maxNextQVal - self.qTable[curStt][curAct]))
     
     def print_q_table(self):

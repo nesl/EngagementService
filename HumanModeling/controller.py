@@ -5,9 +5,6 @@ from constant import *
 from utils import utils
 from utils.chronometer import Chronometer
 
-from agent import *
-from environment import *
-
 
 class Controller:
 

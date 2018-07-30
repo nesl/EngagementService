@@ -79,7 +79,7 @@ class ActionLog(models.Model):
 
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     query_time = models.DateTimeField()
-    reward_state_message = models.CharField(max_length=256)
+    reward_state_message = models.TextField()
     action_message = models.CharField(max_length=256)
 
     # meta
