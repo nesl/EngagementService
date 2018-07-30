@@ -41,6 +41,7 @@ public class TaskSchedulingService extends Service implements INotificationEvent
 
     private ConnectivityManager connectivityManager;
     private NotificationHelper notificationHelper;
+    private NotificationResponseRecordDatabase database;
 
     private SensorMaster sensorMaster;
     private RewardMaster rewardMaster;
@@ -57,6 +58,7 @@ public class TaskSchedulingService extends Service implements INotificationEvent
 
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         notificationHelper = new NotificationHelper(this, true, this);
+        database = NotificationResponseRecordDatabase.getAppDatabase(this);
 
         sensorMaster = new SensorMaster(this);
         rewardMaster = new RewardMaster();
@@ -119,7 +121,8 @@ public class TaskSchedulingService extends Service implements INotificationEvent
         TaskSchedulerBase taskScheduler = new RLTaskScheduler(keyValueStore, sensorMaster, rewardMaster);
 
         alarmEventManager = new AlarmEventManager(this);
-        alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
+        alarmEventManager.registerWorker(
+                new TaskDispatchWorker(taskScheduler, notificationHelper, database));
         alarmEventManager.registerWorker(new TaskPlanningWorker(taskScheduler));
         alarmEventManager.registerWorker(new FileUploadWorker(
                 connectivityManager,
@@ -179,6 +182,17 @@ public class TaskSchedulingService extends Service implements INotificationEvent
 
     @Override
     public void onNotificationEvent(int notificationID, NotificationEventType event) {
-        rewardMaster.feed(event);
+        switch (event) {
+            case DISMISSED:
+                rewardMaster.feedPunishment();
+                break;
+            case RESPONDED: {
+                long createdTime = database.getRecordByID(notificationID).createdTime;
+                long responseTime = System.currentTimeMillis() - createdTime;
+                rewardMaster.feedReward(responseTime / 1000.0);
+                break;
+            }
+        }
+
     }
 }

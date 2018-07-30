@@ -73,6 +73,10 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
         return new ArrayList<>(getDao().getLastFiveRecords());
     }
 
+    public ArrayList<NotificationResponseRecord> getLastNRecords(int num) {
+        return new ArrayList<>(getDao().getLastNRecords(num));
+    }
+
     public NotificationResponseRecord getLastRecordByType(int questionType) {
         return getDao().getLastRecordByType(questionType);
     }
@@ -83,6 +87,16 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
 
     public void recordDismissedNotification(int notificationID) {
         getDao().setDismiss(notificationID);
+    }
+
+    public void expireOneNotification(int notificationID) {
+        getDao().tryExpireNotification(notificationID, System.currentTimeMillis());
+    }
+
+    public void expireOutDatedNotifications(long validTimeSpan) {
+        long now = System.currentTimeMillis();
+        long createTimeThreshold = now - validTimeSpan;
+        getDao().expireOutDatedNotifications(createTimeThreshold, now);
     }
 
     public boolean dump(File file) {

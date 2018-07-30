@@ -1,7 +1,9 @@
 package ucla.nesl.notificationpreference.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -102,9 +104,14 @@ public class TaskActivity extends AppCompatActivity implements INotificationEven
     //region Section: Log and terminate
     // =============================================================================================
     private void logAndTerminate(int notificationID, @NonNull String responseValue, int optionID) {
-        responseDatabase.fillAnswer(notificationID, responseValue, optionID);
-        interactionLogger.logRespondInApp(notificationID, responseValue, optionID);
-        notificationHelper.cancelNotification(notificationID);
+
+        Intent intent = new Intent(
+                NotificationHelper.INTENT_FORWARD_NOTIFICATION_RESPONSE_ACTION);
+        NotificationHelper.overloadIDAndResponseOnIntent(
+                intent, notificationID, responseValue, optionID);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.sendBroadcast(intent);
+
         finish();
     }
     //endregion

@@ -19,6 +19,8 @@ import ucla.nesl.notificationpreference.storage.database.NotificationResponseRec
 public class ResponseHistoryActivity extends AppCompatActivity
         implements INotificationEventListener {
 
+    private static final int MAX_NUM_NOTIFICATIONS_IN_VIEW = 100;
+
     // database
     private NotificationResponseRecordDatabase database;
 
@@ -60,7 +62,8 @@ public class ResponseHistoryActivity extends AppCompatActivity
     }
 
     private void updateList() {
-        mAdapter = new ResponseAdapter(database.getAllRecordsReverseOrder(), this);
+        mAdapter = new ResponseAdapter(
+                database.getLastNRecords(MAX_NUM_NOTIFICATIONS_IN_VIEW), this);
         if (firstTimeSetAdapter) {
             mRecyclerView.setAdapter(mAdapter);
         } else {
