@@ -114,12 +114,16 @@ public class TaskSchedulingService extends Service implements INotificationEvent
             return;
         }
 
+        NotificationResponseRecordDatabase database =
+                NotificationResponseRecordDatabase.getAppDatabase(this);
+
         //TaskSchedulerBase taskScheduler = new PeriodicTaskScheduler(
         //        (int) TimeUnit.MINUTES.toSeconds(30));
         TaskSchedulerBase taskScheduler = new RLTaskScheduler(keyValueStore, sensorMaster, rewardMaster);
 
         alarmEventManager = new AlarmEventManager(this);
-        alarmEventManager.registerWorker(new TaskDispatchWorker(taskScheduler, notificationHelper));
+        alarmEventManager.registerWorker(
+                new TaskDispatchWorker(taskScheduler, notificationHelper, database));
         alarmEventManager.registerWorker(new TaskPlanningWorker(taskScheduler));
         alarmEventManager.registerWorker(new FileUploadWorker(
                 connectivityManager,

@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import ucla.nesl.notificationpreference.alarm.AlarmWorker;
 import ucla.nesl.notificationpreference.alarm.NextTrigger;
 import ucla.nesl.notificationpreference.notification.NotificationHelper;
+import ucla.nesl.notificationpreference.storage.database.NotificationResponseRecordDatabase;
 import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
 /**
@@ -18,15 +19,24 @@ import ucla.nesl.notificationpreference.task.scheduler.TaskSchedulerBase;
 
 public class TaskDispatchWorker extends AlarmWorker {
 
+    private static final long NOTIFICATION_EXPIRATION_TIME_SPAN = TimeUnit.HOURS.toMillis(1);
+
+    private static final int NOTIFICATION_NOT_SET = -1;
+
     private TaskSchedulerBase taskScheduler;
     private NotificationHelper notificationHelper;
-    private int previousNotificationID;
+    NotificationResponseRecordDatabase database;
+
+    private int previousNotificationID = NOTIFICATION_NOT_SET;
+    private long previousNotificationCreatedTime;
 
 
     public TaskDispatchWorker(TaskSchedulerBase _taskScheduler,
-                              NotificationHelper _notificationHelper) {
+                              NotificationHelper _notificationHelper,
+                              NotificationResponseRecordDatabase _database) {
         taskScheduler = _taskScheduler;
         notificationHelper = _notificationHelper;
+        database = _database;
 
         taskScheduler.feedImmediateTaskHandler(immediateTaskHandler);
     }
@@ -35,6 +45,14 @@ public class TaskDispatchWorker extends AlarmWorker {
     @Override
     protected NextTrigger onPlan() {
         long now = System.currentTimeMillis();
+
+        // expire old notifications
+        if (previousNotificationID != NOTIFICATION_NOT_SET &&
+                now - previousNotificationCreatedTime > NOTIFICATION_EXPIRATION_TIME_SPAN) {
+            clearPreviousNotification();
+        }
+
+        // fire new task
         while (taskScheduler.hasTasks() && now > taskScheduler.getFirstTask()) {
             taskScheduler.removeFirstTask();
             clearPreviousAndSendNewNotification();
@@ -54,8 +72,19 @@ public class TaskDispatchWorker extends AlarmWorker {
     }
 
     private void clearPreviousAndSendNewNotification() {
-        notificationHelper.cancelNotification(previousNotificationID);
+        // clear
+        clearPreviousNotification();
+        database.expireOutDatedNotifications(0L);
+
+        // create
         previousNotificationID = notificationHelper.createAndSendTaskNotification();
+        previousNotificationCreatedTime = System.currentTimeMillis();
+    }
+
+    private void clearPreviousNotification() {
+        notificationHelper.cancelNotification(previousNotificationID);
+        database.expireOneNotification(previousNotificationID);
+        previousNotificationID = NOTIFICATION_NOT_SET;
     }
 
     private TaskSchedulerBase.ImmediateTaskHandler immediateTaskHandler
