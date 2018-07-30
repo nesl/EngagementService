@@ -83,6 +83,22 @@ def upload_log_file(request):
     return HttpResponse("Ok", status=200)
 
 
+def _process_reward_sub_term(sub_term):
+    elements = sub_term.split(':')
+    original_reward = float(elements[0])
+
+    if len(elements) == 1:
+        return original_reward
+
+    # don't change punishment
+    if original_reward <= 0.:
+        return original_reward
+
+    # reward changes based on response time: 0.9 ^ minutes
+    elapsed_time_min = float(elements[1]) / 60.
+    print("elasped_time_min", elapsed_time_min, 0.9 ** elapsed_time_min)
+    return 0.9 ** elapsed_time_min
+
 @csrf_exempt
 def get_action(request):
     
@@ -121,7 +137,10 @@ def get_action(request):
         for term in terms:
             assert term[0] == '[' and term[-1] == ']'
         terms = [t[1:-1] for t in terms]
-        reward = sum(list(map(float, terms[0].split(',')))) if terms[0] != '' else 0.
+        if terms[0] == '':
+            reward = 0.
+        else:
+            reward = sum(list(map(_process_reward_sub_term, terms[0].split(','))))
     except:
         utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_INVALID_REWARD
