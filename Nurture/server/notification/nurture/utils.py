@@ -96,6 +96,7 @@ def get_learning_agent_class_for_user(app_user):
             AppUser.LEARNING_AGENT_Q_LEARNING: QLearningAgent,
             AppUser.LEARNING_AGENT_Q_LEARNING_REPLAY: QLearningPrioritizedReplayAgent,
             AppUser.LEARNING_AGENT_DEBUG: DebugAgent,
+            AppUser.LEARNING_AGENT_SILENT: SilentAgent,
     }
     return agents[app_user.learning_agent]
 
