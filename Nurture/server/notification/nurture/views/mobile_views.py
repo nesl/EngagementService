@@ -99,6 +99,11 @@ def _process_reward_sub_term(sub_term):
     print("elasped_time_min", elapsed_time_min, 0.9 ** elapsed_time_min)
     return 0.9 ** elapsed_time_min
 
+def _is_night(state):
+    morning_threshold = 10. / 24.  # 10am
+    evening_threshold = 22. / 24.  # 10pm
+    return state.timeOfDay < morning_threshold or state.timeOfDay > evening_threshold
+
 @csrf_exempt
 def get_action(request):
     
@@ -161,24 +166,32 @@ def get_action(request):
 
     # execute policy
     try:
-        model_path = utils.prepare_learning_agent(user)
-        agent = dill.load(open(model_path, 'rb'))
+        LearningAgent = utils.get_learning_agent_class_for_user(user)
 
-        agent.feed_reward(reward)
-        send_notification = agent.get_action(state1)
-        if state2 is not None:
-            agent.restart_episode()
-            send_notification = agent.get_action(state2)
+        if LearningAgent.non_disturb_mode_during_night() and _is_night(state1):
+            # non disturb mode
+            action = 0
+        else:
+            # regular mode
+            model_path = utils.prepare_learning_agent(user)
+            agent = dill.load(open(model_path, 'rb'))
 
-        dill.dump(agent, open(model_path, 'wb'))
+            agent.feed_reward(reward)
+            send_notification = agent.get_action(state1)
+            if state2 is not None:
+                agent.restart_episode()
+                send_notification = agent.get_action(state2)
 
-        action = 1 if send_notification else 0
-        action_message = "action-%d" % action
+            dill.dump(agent, open(model_path, 'wb'))
+
+            action = 1 if send_notification else 0
     except:
         utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_POLICY_EXECUTION_FAILURE
         log.save()
         return HttpResponse("Bad", status=404)
+
+    action_message = "action-%d" % action
 
     log.reward = reward
     log.action_message = action_message

@@ -114,3 +114,6 @@ class BaseAgent:
         The function save_model() saves the current policy.
         """
 
+    @classmethod
+    def non_disturb_mode_during_night(cls):
+        return True
