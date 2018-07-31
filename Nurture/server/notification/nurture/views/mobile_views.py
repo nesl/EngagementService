@@ -14,6 +14,8 @@ from nurture import utils
 
 @csrf_exempt
 def get_user_code(request):
+    print("get request 'get_user_code'")
+
     code = None
     trials = 10
     while trials > 0:
@@ -21,6 +23,7 @@ def get_user_code(request):
         if not AppUser.objects.filter(code=picked_code).exists():
             code = picked_code
             break
+        trials -= 1
 
     if code is None:
         return HttpResponse("Bad", status=404)
@@ -120,6 +123,8 @@ def get_action(request):
     if 'observation' not in request.POST:
         return HttpResponse("Bad", status=404)
     raw_reward_state_message = request.POST['observation']
+
+    print("get request 'get_action' and identifies user", request.POST['code'])
 
     # query time
     now = timezone.now()

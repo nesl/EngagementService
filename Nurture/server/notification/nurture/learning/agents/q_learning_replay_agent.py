@@ -4,7 +4,7 @@ import itertools
 
 from nurture.learning.agents.base_agent import BaseAgent
 from nurture.learning.state import State
-from nurture import utils
+from nurture.learning import learning_utils
 
 
 kInitialLearningRate = 0.4
@@ -68,7 +68,7 @@ class QLearningPrioritizedReplayAgent(BaseAgent):
             self.chosen_action = np.random.choice([a for a in self.qTable[q_learning_state]])
         else:
             print(self.qTable[q_learning_state])
-            self.chosen_action = utils.argmax_dict(self.qTable[q_learning_state])
+            self.chosen_action = learning_utils.argmax_dict(self.qTable[q_learning_state])
         return self.chosen_action
     
     def _process_reward(self, reward):
@@ -185,7 +185,7 @@ class QLearningPrioritizedReplayAgent(BaseAgent):
         reward = reward
         nxtStt = next state
         """
-        maxNextQVal = utils.max_dict_val(self.qTable[nxtStt])
+        maxNextQVal = learning_utils.max_dict_val(self.qTable[nxtStt])
         #print('state value', self.qTable[curStt][curAct], 'reward', reward, 'final', -self.qTable[curStt][curAct] + (reward + kGamma * maxNextQVal))
         return -self.qTable[curStt][curAct] + (reward + kGamma * maxNextQVal)
     
