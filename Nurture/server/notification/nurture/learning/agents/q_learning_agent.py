@@ -4,7 +4,7 @@ import itertools
 
 from nurture.learning.agents.base_agent import BaseAgent
 from nurture.learning.state import State
-from nurture import utils
+from nurture.learning import learning_utils
 
 
 kInitialLearningRate = 1.0
@@ -50,7 +50,7 @@ class QLearningAgent(BaseAgent):
         if np.random.random() < eps:
             self.chosen_action = np.random.choice([a for a in self.qTable[q_learning_state]])
         else:
-            self.chosen_action = utils.argmax_dict(self.qTable[q_learning_state])
+            self.chosen_action = learning_utils.argmax_dict(self.qTable[q_learning_state])
         return self.chosen_action
     
     def _process_reward(self, reward):
@@ -161,7 +161,7 @@ class QLearningAgent(BaseAgent):
             return
 
         eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.num_steps // 100)))
-        maxNextQVal = utils.max_dict_val(self.qTable[nxtStt])
+        maxNextQVal = learning_utils.max_dict_val(self.qTable[nxtStt])
         self.qTable[curStt][curAct] = (self.qTable[curStt][curAct]
                 + eta * (reward + kGamma * maxNextQVal - self.qTable[curStt][curAct]))
     

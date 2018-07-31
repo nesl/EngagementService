@@ -14,3 +14,8 @@ __pycache__
 
 # analysis code
 analysis.ipynb
+
+# prod settings
+notification_uwsgi.ini
+prod_manual.txt
+

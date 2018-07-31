@@ -4,10 +4,11 @@ import itertools
 
 from nurture.learning.agents.base_agent import BaseAgent
 from nurture.learning.state import State
-from nurture import utils
+from nurture.learning import learning_utils
 
 
-kInitialLearningRate = 1.0
+kInitialLearningRate = 0.4
+kLearningRateExpBase = 0.9
 kMinLearningRate = 0.1
 kGamma = 0.9
 kInitEps = 0.3
@@ -66,10 +67,16 @@ class QLearningPrioritizedReplayAgent(BaseAgent):
         if np.random.random() < eps:
             self.chosen_action = np.random.choice([a for a in self.qTable[q_learning_state]])
         else:
-            self.chosen_action = utils.argmax_dict(self.qTable[q_learning_state])
+            print(self.qTable[q_learning_state])
+            self.chosen_action = learning_utils.argmax_dict(self.qTable[q_learning_state])
         return self.chosen_action
     
     def _process_reward(self, reward):
+        # adjust reward for ignore case:
+        if self.last_action == True and reward == 0.:
+            print("modify reward from 0 to -0.1")
+            reward = -0.1
+
         self.last_state = self.current_state
         self.last_action = self.chosen_action
         self.last_reward = reward
@@ -178,26 +185,43 @@ class QLearningPrioritizedReplayAgent(BaseAgent):
         reward = reward
         nxtStt = next state
         """
-        eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.num_steps // 100)))
-        maxNextQVal = utils.max_dict_val(self.qTable[nxtStt])
-        return (-self.qTable[curStt][curAct]
-                + (reward + kGamma * maxNextQVal - self.qTable[curStt][curAct]))
+        maxNextQVal = learning_utils.max_dict_val(self.qTable[nxtStt])
+        #print('state value', self.qTable[curStt][curAct], 'reward', reward, 'final', -self.qTable[curStt][curAct] + (reward + kGamma * maxNextQVal))
+        return -self.qTable[curStt][curAct] + (reward + kGamma * maxNextQVal)
     
     def _update_q_table(self):
         if len(self.experience_buffer) < kMinBufferSizeForUpdate:
             return
 
-        eta = max(kMinLearningRate, kInitialLearningRate * (0.85 ** (self.num_steps // 100)))
+        eta = max(kMinLearningRate, kInitialLearningRate * (kLearningRateExpBase ** (self.num_steps // 100)))
         
-        # Q-value udpate difference
-        differences = [self._get_q_value_difference(*e) for e in self.experience_buffer]
+        used_idx = set([])
+        
+        for _ in range(kNumSamplesFromBufferToUpdate):
+            # the weight of each experience sample is based on TD error, except the most recent
+            # one, which is set to be the maximum weight across the entire experience buffer
 
-        # select the samples with the maximum differences
-        sample_diff_pair = zip(self.experience_buffer, differences)
-        sample_diff_pair = sorted(sample_diff_pair, key=lambda p: abs(p[1]), reverse=True)
-        for sample, diff in sample_diff_pair[:self.kNumSamplesFromBufferToUpdate]:
-            cur_state, cur_action, _, _ = sample
-            self.qTable[cur_state][cur_action] += eta * diff
+            # Q-value udpate difference
+            differences = [self._get_q_value_difference(*e) for e in self.experience_buffer]
+            weights = [abs(d) for d in differences]
+            weights[-1] = max(weights[:-1])
+
+            # select the experience for updating the policy
+            idx_weight_pair = [p for p in enumerate(weights) if p[0] not in used_idx]
+            #max_weight_idx = max(idx_weight_pair, key=lambda p: p[1])[0]
+
+            idxs, weights = zip(*idx_weight_pair)
+            weights = np.array(weights) / np.sum(weights)
+            picked_idx = np.random.choice(a=idxs, p=weights)
+
+            print('choose experience', picked_idx, self.experience_buffer[picked_idx], 'TD error:', differences[picked_idx])
+            cur_state, cur_action, _, _ = self.experience_buffer[picked_idx]
+            print('qTable[cur_state][cur_action]=', self.qTable[cur_state][cur_action])
+
+            # update the policy
+            cur_state, cur_action, _, _ = self.experience_buffer[picked_idx]
+            self.qTable[cur_state][cur_action] += eta * differences[picked_idx]
+            used_idx.add(picked_idx)
 
     def print_q_table(self):
         for state in self.qTable:

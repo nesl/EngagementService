@@ -1,7 +1,11 @@
 import random
+import datetime
 
 from nurture.learning.agents.base_agent import BaseAgent
 from nurture.learning.state import State
+
+
+kMinNotificationGapSeconds = 5 * 60  # 5 minutes
 
 
 class Attelia2Agent(BaseAgent):
@@ -40,13 +44,25 @@ class Attelia2Agent(BaseAgent):
 
     @classmethod
     def is_user_dependent(cls):
-        return False
+        return True
 
     def _process_state_and_get_action(self, state):
+        # decision making (core algorithm)
         cur_attelia_state = self._get_attelia_state(state)
         transition = (self.prev_attelia_state, cur_attelia_state)
         send_notification = (transition in self.BREAKPOINT_TRANSITIONS)
         self.prev_attelia_state = cur_attelia_state
+
+        # override the decision if the previous notification is too close
+        now = datetime.datetime.now()
+        time_delta = now - self.last_notification_time
+        if time_delta.total_seconds() < kMinNotificationGapSeconds:
+            send_notification = False
+
+        # remember when we send notification
+        if send_notification:
+            self.last_notification_time = now
+
         return send_notification
 
     def _process_reward(self, reward):
@@ -57,15 +73,13 @@ class Attelia2Agent(BaseAgent):
 
     def generate_initial_model(self):
         self.prev_attelia_state = Attelia2Agent.ATTELIA_STATE_UNKNOWN
+        self.last_notification_time = datetime.datetime(2000, 1, 1, 0, 0, 0)
 
     def load_model(self, filepath):
         pass
 
     def save_model(self, filepath):
         pass
-
-    def change_cycle_length(self, cycle_length):
-        self.cycle_length = cycle_length
 
     def _get_attelia_state(self, state):
         if state.location == State.LOCATION_WORK and state.motion == State.MOTION_STATIONARY:
