@@ -17,7 +17,7 @@ def get_environment():
     rewardCriteria = {
             ANSWER_NOTIFICATION_ACCEPT: 1,
             ANSWER_NOTIFICATION_IGNORE: 0,
-            ANSWER_NOTIFICATION_DISMISS: -2,
+            ANSWER_NOTIFICATION_DISMISS: -5,
     }
     verbose = False
 
@@ -52,8 +52,7 @@ def get_environment():
     return EngagementGym(env_config)
 
 
-def get_agent():
-    ### DQNAgent
+def get_dqn_agent():
     return DQNAgent(
             states=dict(type='float', shape=(5,)),
             actions=dict(type='int', num_actions=2),
@@ -64,6 +63,43 @@ def get_agent():
             batched_observe=False,
     )
 
+def get_ppo_agent():
+    return PPOAgent(
+        states=dict(type='float', shape=(5,)),
+        actions=dict(type='int', num_actions=2),
+        network=[
+            dict(type='dense', size=20, activation='tanh'),
+            dict(type='dense', size=20, activation='tanh'),
+        ],
+        #batch_size=256,
+        # BatchAgent
+        #keep_last_timestep=True,
+        # PPOAgent
+        step_optimizer=dict(
+            type='adam',
+            learning_rate=1e-3
+        ),
+        optimization_steps=10,
+        # Model
+        scope='ppo',
+        discount=0.99,
+        # DistributionModel
+        #distributions_spec=None,
+        entropy_regularization=0.01,
+        # PGModel
+        baseline_mode=None,
+        baseline=None,
+        baseline_optimizer=None,
+        gae_lambda=None,
+        # PGLRModel
+        likelihood_ratio_clipping=0.2,
+        #summary_spec=None,
+        #distributed_spec=None,
+    )
+
+def get_agent():
+    #return get_dqn_agent()
+    return get_ppo_agent()
 
 if __name__ == "__main__":
     env = get_environment()
