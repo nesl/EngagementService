@@ -112,6 +112,12 @@ class QLearningPrioritizedReplayAgent(BaseAgent):
     def save_model(self, filepath):
         pass
 
+    def on_pickle_save(self):
+        pass
+
+    def on_pickle_load(self):
+        pass
+
     def _get_qlearning_state(self, state):
         return (
                 self._get_time_category(state.timeOfDay),
@@ -226,4 +232,3 @@ class QLearningPrioritizedReplayAgent(BaseAgent):
     def print_q_table(self):
         for state in self.qTable:
             print(state, self.qTable[state])
-

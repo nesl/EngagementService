@@ -117,3 +117,16 @@ class BaseAgent:
     @classmethod
     def non_disturb_mode_during_night(cls):
         return True
+
+    @abc.abstractmethod
+    def on_pickle_save(self):
+        """
+        The callback before the controller calls `dill.dump()`
+        """
+
+    @abc.abstractmethod
+    def on_pickle_load(self):
+        """
+        The callback before the controller calls `dill.load()`
+        """
+

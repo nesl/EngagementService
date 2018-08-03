@@ -180,6 +180,7 @@ def get_action(request):
             # regular mode
             model_path = utils.prepare_learning_agent(user)
             agent = dill.load(open(model_path, 'rb'))
+            agent.on_pickle_load()
 
             agent.feed_reward(reward)
             send_notification = agent.get_action(state1)
@@ -187,6 +188,7 @@ def get_action(request):
                 agent.restart_episode()
                 send_notification = agent.get_action(state2)
 
+            agent.on_pickle_save()
             dill.dump(agent, open(model_path, 'wb'))
 
             action = 1 if send_notification else 0

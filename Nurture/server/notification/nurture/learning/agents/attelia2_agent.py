@@ -95,3 +95,8 @@ class Attelia2Agent(BaseAgent):
 
         return Attelia2Agent.ATTELIA_STATE_UNKNOWN
 
+    def on_pickle_save(self):
+        pass
+
+    def on_pickle_load(self):
+        pass
