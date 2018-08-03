@@ -1,6 +1,7 @@
 {% extends 'nurture/base_sidebar.html' %}
 {% load staticfiles %}
 {% load filelog_tags %}
+{% load util_tags %}
 
 {% block profile-usertitle-name %}
   File inspection
@@ -31,14 +32,7 @@
       <p>No <span style="font-style:italic">{{file_type}}</span> files have been uploaded yet.</p>
       <a class="btn btn-primary" href="{% url 'dashboard-homepage' %}" style="width:100px">Back</a>
     {% else %}
-      <p>
-        <span style="font-weight:bold">Owner: </span>
-        {% if user.name == "" %}
-          {{user.code}}
-        {% else %}
-          {{user.name}} ({{user.code}})
-        {% endif %}
-      </p>
+      <p><span style="font-weight:bold">Owner: </span>{% format_user_name_code user %}</p>
       <p><span style="font-weight:bold">File type: </span>{{file_type}}</p>
       <p><span style="font-weight:bold">Last uploaded time: </span>{{file_log.filename}}</p>
 

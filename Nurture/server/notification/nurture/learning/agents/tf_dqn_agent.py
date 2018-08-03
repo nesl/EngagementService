@@ -33,14 +33,15 @@ class TensorForceDQNAgent(BaseAgent):
         gym_state = self._to_gym_state(state)
         action = self.agent.act(gym_state)  # 0->silent, 1->send
         send_notification = (action == 1)
-        print("the agent says send_notification=", send_notification)
+        print("[tf-dqn] the agent says send_notification=", send_notification)
         
         # override the decision if the previous notification is too close
         now = datetime.datetime.now()
         time_delta = now - self.last_notification_time
         if time_delta.total_seconds() < kMinNotificationGapSeconds:
             send_notification = False
-            print("override send_notification to False, time delta in seconds =", time_delta.total_seconds())
+            print("[tf-dqn] override send_notification to False, time delta in seconds =",
+                    time_delta.total_seconds())
 
         # remember when we send notification
         if send_notification:
