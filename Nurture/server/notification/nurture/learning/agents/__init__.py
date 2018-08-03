@@ -4,3 +4,4 @@ from .q_learning_agent import QLearningAgent
 from .q_learning_replay_agent import QLearningPrioritizedReplayAgent
 from .debug_agent import DebugAgent
 from .silent_agent import SilentAgent
+from .tf_dqn_agent import TensorForceDQNAgent

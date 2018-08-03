@@ -23,12 +23,14 @@ class AppUser(models.Model):
     LEARNING_AGENT_Q_LEARNING_REPLAY = 4
     LEARNING_AGENT_DEBUG = 3
     LEARNING_AGENT_SILENT = 5
+    LEARNING_AGENT_TF_DQN = 6
 
     LEARNING_AGENT_TYPES = (
             (LEARNING_AGENT_RANDOM, 'Random'),
             (LEARNING_AGENT_ATTELIA2, 'Attelia2'),
             (LEARNING_AGENT_Q_LEARNING, 'Q-learning'),
             (LEARNING_AGENT_Q_LEARNING_REPLAY, 'Q-learning-replay'),
+            (LEARNING_AGENT_TF_DQN, 'DQN (TF)'),
             (LEARNING_AGENT_DEBUG, 'Debug'),
             (LEARNING_AGENT_SILENT, 'Silent'),
     )
