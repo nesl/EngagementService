@@ -1,3 +1,5 @@
+import os
+
 from tensorforce.agents import DQNAgent
 from tensorforce.agents import PPOAgent
 from tensorforce.agents import TRPOAgent
@@ -57,8 +59,8 @@ def get_dqn_agent():
             states=dict(type='float', shape=(5,)),
             actions=dict(type='int', num_actions=2),
             network=[
-                dict(type='dense', size=8),
-                dict(type='dense', size=8)
+                dict(type='dense', size=20),
+                dict(type='dense', size=20)
             ],
             batched_observe=False,
     )
@@ -98,17 +100,34 @@ def get_ppo_agent():
     )
 
 def get_agent():
-    #return get_dqn_agent()
-    return get_ppo_agent()
+    return get_dqn_agent()
+    #return get_ppo_agent()
 
 if __name__ == "__main__":
     env = get_environment()
     agent = get_agent()
 
     # here we go
+    #state = env.reset()
+    #total_reward = 0
+    #for i in range(100000):
+    #    #print(state)
+    #    action = agent.act(state)
+    #    #print(action)
+    #    state, reward, done, _ = env.step(action)
+    #    #print(reward)
+    #    agent.observe(reward=reward, terminal=done)
+    #    if done:
+    #        env.reset()
+   
+    # here we go
     state = env.reset()
     total_reward = 0
+    model_dir = '/tmp/human_modeling/'
+    os.makedirs(model_dir, exist_ok=True)
     for i in range(100000):
+        #print("iter %d" % i)
+
         #print(state)
         action = agent.act(state)
         #print(action)
@@ -117,3 +136,13 @@ if __name__ == "__main__":
         agent.observe(reward=reward, terminal=done)
         if done:
             env.reset()
+    
+        # simulate save and restore
+        if i % 200 == 199:
+            print('save1')
+            agent.save_model(model_dir)
+            print('save2')
+            agent = get_agent()
+            print('restore1')
+            agent.restore_model(model_dir)
+            print('restore2')
