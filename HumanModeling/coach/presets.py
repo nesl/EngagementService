@@ -1457,7 +1457,7 @@ class Engagement_ClippedPPO(Preset):
     def __init__(self):
         Preset.__init__(self, ClippedPPO, GymVectorObservation, CategoricalExploration)
         self.env.level = 'Engagement-v0'
-        self.learning_rate = 0.01
+        self.learning_rate = 0.0001
         self.num_heatup_steps = 0
         self.agent.num_consecutive_training_steps = 1
         self.agent.num_consecutive_playing_steps = 512

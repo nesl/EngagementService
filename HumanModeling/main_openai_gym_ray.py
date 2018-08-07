@@ -42,6 +42,9 @@ if __name__ == "__main__":
     #behavior = ExtraSensoryBehavior('behavior/data/5.txt')
     behavior = ExtraSensoryBehavior('behavior/data/6.txt')
 
+    episodeLengthDay = 7
+    stepSizeMinute = 10
+
     ### here we go (create environment and run)
     env_creator_name = "user-engagement"
     register_env(env_creator_name, lambda config: EngagementGymCoach(config))
@@ -56,6 +59,8 @@ if __name__ == "__main__":
                     "environment": environment,
                     "behavior": behavior,
                     "verbose": verbose,
+                    "episodeLengthDay": episodeLengthDay,
+                    "stepSizeMinute": stepSizeMinute,
                 },
             },
         },
