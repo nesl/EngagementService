@@ -7,18 +7,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.X509TrustManager;
 
 import ucla.nesl.notificationpreference.secret.Secret;
 import ucla.nesl.notificationpreference.utils.Base64;
@@ -81,7 +74,7 @@ public class HttpsPostRequest extends AsyncTask<String, Void, String> {
 
 
     protected String doInBackground(String... urls) {
-        setByPassSSLCertificate();
+        //setByPassSSLCertificate();
 
         checkStatusOrThrowException();
 
@@ -144,7 +137,7 @@ public class HttpsPostRequest extends AsyncTask<String, Void, String> {
         }
     }
 
-
+    /*
     private static void setByPassSSLCertificate() {
         if (httpsIsInitialized) {
             return;
@@ -179,4 +172,5 @@ public class HttpsPostRequest extends AsyncTask<String, Void, String> {
             Log.e(TAG, "Got exception", e);
         }
     }
+    */
 }

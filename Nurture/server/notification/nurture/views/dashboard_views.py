@@ -81,6 +81,8 @@ def organize_users(request):
         if _try_parse_organize_users_form(request.POST):
             return HttpResponseRedirect(reverse('dashboard-list-users'))
 
+    print("get request 'organize_users'")
+
     app_users = AppUser.objects.all().order_by('-status', '-created_time')
     user_list = ",".join([u.code for u in app_users])
 

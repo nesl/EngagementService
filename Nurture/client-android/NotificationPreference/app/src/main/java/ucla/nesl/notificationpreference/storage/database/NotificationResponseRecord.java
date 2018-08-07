@@ -16,7 +16,7 @@ import android.support.annotation.NonNull;
 public class NotificationResponseRecord {
 
     public static final int STATUS_APPEAR = 0;
-    public static final int STATUS_SEEN = 1;
+    //public static final int STATUS_SEEN = 1;
     public static final int STATUS_RESPONDED = 2;
     public static final int STATUS_EXPIRED = 3;
 

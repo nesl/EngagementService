@@ -1,18 +1,18 @@
 from nurture.learning.agents.base_agent import BaseAgent
 
 
-class DebugAgent(BaseAgent):
+class SilentAgent(BaseAgent):
 
     @classmethod
     def get_policy_name(cls):
-        return 'debug'
+        return 'silent'
 
     @classmethod
     def is_user_dependent(cls):
         return False
 
     def _process_state_and_get_action(self, state):
-        return True
+        return False
 
     def _process_reward(self, reward):
         pass

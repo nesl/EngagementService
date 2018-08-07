@@ -1,8 +1,10 @@
 package ucla.nesl.notificationpreference.service;
 
-import java.util.ArrayList;
+import android.util.Log;
 
-import ucla.nesl.notificationpreference.notification.enums.NotificationEventType;
+import java.util.ArrayList;
+import java.util.Locale;
+
 import ucla.nesl.notificationpreference.utils.Utils;
 
 /**
@@ -12,28 +14,33 @@ import ucla.nesl.notificationpreference.utils.Utils;
 public class RewardMaster {
 
     private boolean gotDismissed;
-    private ArrayList<Integer> responseHistory = new ArrayList<>();
+    private ArrayList<Double> responseHistory = new ArrayList<>();
 
     public RewardMaster() {
         reset();
     }
 
-    public void feed(NotificationEventType event) {
-        if (event == NotificationEventType.DISMISSED) {
-            gotDismissed = true;
-        } else if (event == NotificationEventType.RESPONDED) {
-            responseHistory.add(1);
-        }
+
+    public void feedPunishment() {
+        gotDismissed = true;
+    }
+
+    public void feedReward(double responseTime) {
+        responseHistory.add(responseTime);
+        Log.i("RewardMaster", "got reward");
     }
 
     public String getRewardListAndReset() {
-        ArrayList<Integer> rewards = new ArrayList<>();
+        ArrayList<String> rewards = new ArrayList<>();
         if (gotDismissed) {
-            rewards.add(-5);
+            rewards.add("-5");
         }
-        rewards.addAll(responseHistory);
+        for (double responseTime : responseHistory) {
+            rewards.add(String.format(Locale.getDefault(), "1:%f", responseTime));
+        }
+
         reset();
-        return Utils.stringJoinInts(",", rewards);
+        return Utils.stringJoin(",", rewards);
     }
 
     private void reset() {

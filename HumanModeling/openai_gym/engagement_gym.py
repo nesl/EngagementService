@@ -23,6 +23,7 @@ class EngagementGym(gym.Env):
         self.environment = config['environment']
         self.behavior = config['behavior']
         self.verbose = config['verbose']
+        self.episodeLengthDay = config['episodeLengthDay']
 
         self.action_space = Discrete(2)
         self.observation_space = Tuple((
@@ -34,11 +35,15 @@ class EngagementGym(gym.Env):
         ))
         self._spec = EnvSpec("EngagementGym-v0")
 
+        self.masterNumDayPassed = 0
 
     def reset(self):
         # set chronometer which automatically skips 10pm to 8am because it's usually when people
         # sleep
-        self.chronometer = Chronometer(skipFunc=(lambda hour, _m, _d: hour < 8 or hour >= 22))
+        self.chronometer = Chronometer(
+                refDay=self.masterNumDayPassed % 7,
+                skipFunc=(lambda hour, _m, _d: hour < 8 or hour >= 22),
+        )
 
         self.stepWidthMinutes = 10
         #self.simulationWeek = simulationWeek
@@ -51,7 +56,6 @@ class EngagementGym(gym.Env):
         self.simulationResults = []
         self.totalReward = 0.
         self.numSteps = 0
-        self.lastPrintedWeek = 0
         
         # fast forward a little bit to the next available time
         numDaysPassed, currentHour, currentMinute, currentDay = self.chronometer.forward(
@@ -72,19 +76,19 @@ class EngagementGym(gym.Env):
             print("Day %d %d:%02d" % (numDaysPassed, currentHour, currentMinute))
 
         gymState = self._generate_state()
-        done = False
 
         self.totalReward += reward
         self.numSteps += 1
 
-        # print some intermediate results
-        currentWeek = numDaysPassed // 7
-        if currentWeek > self.lastPrintedWeek:
+
+        done = (numDaysPassed > self.episodeLengthDay)
+        if done:
+            self.masterNumDayPassed += self.episodeLengthDay
+            
+            # print some intermediate results
             print()
-            print("===== Week %d ====" % (currentWeek - 1))
-            results = self._filterByWeek(self.simulationResults, currentWeek - 1)
-            self._printResults(results)
-            self.lastPrintedWeek = currentWeek
+            print("===== end of episode, %d days passed in total ====" % self.masterNumDayPassed)
+            self._printResults(self.simulationResults)
 
         return gymState, reward, done, {}
 
@@ -161,9 +165,10 @@ class EngagementGym(gym.Env):
         numAcceptedNotis = len([r for r in notificationEvents if r['reward'] > 0])
         numDismissedNotis = len([r for r in notificationEvents if r['reward'] < 0])
         
-        answerRate = numAcceptedNotis / numNotifications
-        dismissRate = numDismissedNotis / numNotifications
-        responseRate = numAcceptedNotis / (numAcceptedNotis + numDismissedNotis)
+        answerRate = numAcceptedNotis / numNotifications if numNotifications > 0 else 0.
+        dismissRate = numDismissedNotis / numNotifications if numNotifications > 0 else 0.
+        numActionedNotis = numAcceptedNotis + numDismissedNotis
+        responseRate = numAcceptedNotis / numActionedNotis if numActionedNotis > 0 else 0.
 
         totalReward = sum([r['reward'] for r in results])
 

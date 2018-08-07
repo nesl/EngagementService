@@ -96,6 +96,8 @@ def get_learning_agent_class_for_user(app_user):
             AppUser.LEARNING_AGENT_Q_LEARNING: QLearningAgent,
             AppUser.LEARNING_AGENT_Q_LEARNING_REPLAY: QLearningPrioritizedReplayAgent,
             AppUser.LEARNING_AGENT_DEBUG: DebugAgent,
+            AppUser.LEARNING_AGENT_SILENT: SilentAgent,
+            AppUser.LEARNING_AGENT_TF_DQN: TensorForceDQNAgent,
     }
     return agents[app_user.learning_agent]
 
@@ -124,6 +126,7 @@ def prepare_initial_model(LearningAgentClass):
             LearningAgentClass.get_policy_file_name())
     if not os.path.isfile(model_path):
         learning_agent = LearningAgentClass()
+        learning_agent.on_pickle_save()
         dill.dump(learning_agent, open(model_path, "wb"))
 
     return model_path

@@ -100,7 +100,7 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
     private String getStatusText(int status) {
         switch (status) {
             case NotificationResponseRecord.STATUS_APPEAR:
-            case NotificationResponseRecord.STATUS_SEEN:
+            //case NotificationResponseRecord.STATUS_SEEN:
                 return "Not answered yet";
             case NotificationResponseRecord.STATUS_RESPONDED:
                 return "Answered";
@@ -111,7 +111,8 @@ public class ResponseAdapter extends RecyclerView.Adapter<ResponseAdapter.ViewHo
     }
 
     private boolean shouldShowCompleteTaskButton(int status) {
-        return (status == NotificationResponseRecord.STATUS_APPEAR ||
-                status == NotificationResponseRecord.STATUS_SEEN);
+        //return (status == NotificationResponseRecord.STATUS_APPEAR ||
+        //        status == NotificationResponseRecord.STATUS_SEEN);
+        return (status == NotificationResponseRecord.STATUS_APPEAR);
     }
 }

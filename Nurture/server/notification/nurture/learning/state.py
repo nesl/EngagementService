@@ -69,3 +69,15 @@ class State:
             State.SCREEN_STATUS_ON,
             State.SCREEN_STATUS_OFF,
         ]
+    
+    @staticmethod
+    def getExampleState():
+        return State(
+            timeOfDay=0.,
+            dayOfWeek=0.,
+            motion=State.MOTION_STATIONARY,
+            location=State.LOCATION_HOME,
+            notificationTimeElapsed=1.,
+            ringerMode=State.RINGER_MODE_SILENT,
+            screenStatus=State.SCREEN_STATUS_ON,
+        )

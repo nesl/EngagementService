@@ -16,7 +16,7 @@ while True:
     print()
     print("===== Restart the program ======================")
     proc = subprocess.Popen(['python3', 'manage.py', 'runsslserver', sys.argv[1]])
-    time.sleep(30 * 60)  # 30 mins
+    time.sleep(10 * 60)  # 10 mins
     proc.terminate()
     os.system('pkill -f runsslserver')
     print("===== Force to start the program ===============")

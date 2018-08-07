@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
 
@@ -56,10 +57,33 @@ public class OpeningActivity extends AppCompatActivity {
         layoutContainer.setOutAnimation(out);
 
         // for welcome view
+        ImageView appLogo = findViewById(R.id.imageAppLogo);
+        appLogo.setImageBitmap(Utils.getImageFromAsset(this, "nurture/nurture_logo.png"));
+
+        ImageView labLogo = findViewById(R.id.imageLabLogo);
+        labLogo.setImageBitmap(Utils.getImageFromAsset(this, "nurture/nesl_logo.png"));
+
         Button startSetupButton = findViewById(R.id.buttonStartSetup);
         startSetupButton.setOnClickListener(startSetupOnClickListener);
 
         // for permission request view
+        TextView permissionExplanationText = findViewById(R.id.textPermissionExplanation);
+        permissionExplanationText.setText(
+                "Welcome! Before we proceed, you must go through and sign the user consent " +
+                "form in which we describe the study obligation and your right.\n" +
+                "\n" +
+                "Below we list the data we will collect from your phone:\n" +
+                "    - Location category (workplace, home)\n" +
+                "    - Motion activity\n" +
+                "    - Notification response pattern\n" +
+                "    - Battery level\n" +
+                "    - Ringtone mode\n" +
+                "    - Screen on/off status\n" +
+                "\n" +
+                "In order for our app to collect these data, please click the button below and " +
+                "grant the required permissions. Thanks!"
+        );
+
         Button getPermissionButton = findViewById(R.id.buttonGetPermission);
         getPermissionButton.setOnClickListener(getPermissionOnClickListener);
 
@@ -96,17 +120,18 @@ public class OpeningActivity extends AppCompatActivity {
 
     //region Section: Welcome view - UI events
     // =============================================================================================
+
     private final View.OnClickListener startSetupOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            enterWelcomeView();
+            enterPermissionRequestView();
         }
     };
     //endregion
 
     //region Section: Permission request view - UI events and permission stuff
     // =============================================================================================
-    private void enterWelcomeView() {
+    private void enterPermissionRequestView() {
         layoutContainer.showNext();
 
         // fast-forward if permission has already been set

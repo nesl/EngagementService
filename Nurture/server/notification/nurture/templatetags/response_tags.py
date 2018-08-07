@@ -109,7 +109,7 @@ def visualize_response_history_div(responses, interval_sec, format):
     connection_bk_colors = [_assign_connection_background_color(v, expected_num_connections)
             for v in num_connections]
 
-    rewards = [list(map(_retrieve_rewards, batch)) for batch in buckets]
+    rewards = [[res.reward for res in batch] for batch in buckets]
     rewards = [(round(sum(batch), 1) if len(batch) > 0 else None) for batch in rewards]
     valid_rewards = [r for r in rewards if r is not None]
     if len(valid_rewards) == 0:

@@ -31,6 +31,9 @@ public interface NotificationResponseRecordDao {
     @Query("SELECT * FROM notification_response_record ORDER BY ID DESC LIMIT 5")
     List<NotificationResponseRecord> getLastFiveRecords();
 
+    @Query("SELECT * FROM notification_response_record ORDER BY ID DESC LIMIT :num")
+    List<NotificationResponseRecord> getLastNRecords(int num);
+
     @Query("SELECT * FROM notification_response_record WHERE question_type = :questionType " +
            "ORDER BY ID DESC LIMIT 1")
     NotificationResponseRecord getLastRecordByType(int questionType);
@@ -56,4 +59,17 @@ public interface NotificationResponseRecordDao {
            "SET is_dismissed = 1 " +
            "WHERE ID = :notificationID")
     void setDismiss(int notificationID);
+
+    @Query("UPDATE notification_response_record " +
+            "SET expired_time = :expireTime, " +
+            "    status = " + NotificationResponseRecord.STATUS_EXPIRED + " " +
+            "WHERE ID = :notificationID AND status = " + NotificationResponseRecord.STATUS_APPEAR)
+    void tryExpireNotification(int notificationID, long expireTime);
+
+    @Query("UPDATE notification_response_record " +
+            "SET expired_time = :expireTime, " +
+            "    status = " + NotificationResponseRecord.STATUS_EXPIRED + " " +
+            "WHERE created_time < :createTimeThreshold " +
+            "  AND status = " + NotificationResponseRecord.STATUS_APPEAR)
+    void expireOutDatedNotifications(long createTimeThreshold, long expireTime);
 }
