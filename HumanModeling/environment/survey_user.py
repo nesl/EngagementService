@@ -1,7 +1,7 @@
 import numpy
 
 from constant import *
-from utilities import utils
+from human_modeling_utils import utils
 from .base_environment import BaseEnvironment
 
 

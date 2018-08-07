@@ -2,8 +2,8 @@ import random
 import numpy as np
 
 from constant import *
-from utilities import utils
-from utilities.chronometer import Chronometer
+from human_modeling_utils import utils
+from human_modeling_utils.chronometer import Chronometer
 
 
 class Controller:

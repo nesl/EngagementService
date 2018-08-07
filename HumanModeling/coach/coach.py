@@ -246,6 +246,12 @@ if __name__ == "__main__":
 
     args, run_dict = check_input_and_fill_run_dict(parser)
 
+    print("====================== to get args, run_dict =================")
+    print(args)
+    print("=======================================")
+    print(run_dict)
+    print("====================== to get args, run_dict (end) =================")
+
     # turn TF debug prints off
     if not args.verbose and args.framework.lower() == 'tensorflow':
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'

@@ -7,14 +7,14 @@ from __future__ import print_function
 import numpy as np
 import os
 import gym
-from gym.spaces import Discrete, Tuple
+from gym.spaces import Discrete, Tuple, Box
 from gym.envs.registration import EnvSpec
 
 from constant import *
 from environment import *
 from behavior import *
-from utilties import utils
-from utilities.chronometer import Chronometer
+from human_modeling_utils import utils
+from human_modeling_utils.chronometer import Chronometer
 
 
 class EngagementGymCoach(gym.Env):
@@ -55,13 +55,17 @@ class EngagementGymCoach(gym.Env):
         self.behavior = ExtraSensoryBehavior('../behavior/data/6.txt')
 
         self.action_space = Discrete(2)
-        self.observation_space = Tuple((
-                Discrete(4),  # time
-                Discrete(2),  # day
-                Discrete(3),  # location
-                Discrete(5),  # activity
-                Discrete(2),  # last notification
-        ))
+        #self.observation_space = Tuple((
+        #        Discrete(4),  # time
+        #        Discrete(2),  # day
+        #        Discrete(3),  # location
+        #        Discrete(5),  # activity
+        #        Discrete(2),  # last notification
+        #))
+        self.observation_space = Box(
+                low=np.array([0,0,0,0,0]),
+                high=np.array([3,1,2,4,1]),
+        )
         self._spec = EnvSpec("EngagementGym-v0")
 
         os.chdir(working_dir)
@@ -118,6 +122,9 @@ class EngagementGymCoach(gym.Env):
             self._printResults(results)
             self.lastPrintedWeek = currentWeek
 
+        if currentWeek >= 1:
+            done = True
+
         return gymState, reward, done, {}
 
     def _generate_state(self):
@@ -138,7 +145,13 @@ class EngagementGymCoach(gym.Env):
         self.stateTime = utils.getTimeState(currentHour, currentMinute)
         self.stateDay = utils.getDayState(currentDay)
 
-        return (self.stateTime, self.stateDay, self.stateLocation, self.stateActivity, self.stateLastNotification)
+        return np.array([
+            self.stateTime,
+            self.stateDay,
+            self.stateLocation,
+            self.stateActivity,
+            self.stateLastNotification,
+        ])
 
     def _generate_reward(self, action):
         

@@ -17,7 +17,10 @@
 from configurations import *
 import ast
 import sys
-import openai_gym
+
+from gym.envs.registration import register
+
+sys.path.append('../')
 
 def json_to_preset(json_path):
     with open(json_path, 'r') as json_file:
@@ -1426,6 +1429,15 @@ class MontezumaRevenge_BC(Preset):
         self.exploration.evaluation_policy = 'EGreedy'
         self.env.frame_skip = 1
 
+
+
+register(
+    id='Engagement-v0',
+    entry_point='openai_gym.engagement_gym_coach:EngagementGymCoach',
+    max_episode_steps = 10000,
+)
+
+
 class Engagement_A3C(Preset):
     def __init__(self):
         Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
@@ -1445,7 +1457,7 @@ class Engagement_ClippedPPO(Preset):
     def __init__(self):
         Preset.__init__(self, ClippedPPO, GymVectorObservation, CategoricalExploration)
         self.env.level = 'Engagement-v0'
-        self.learning_rate = 0.0001
+        self.learning_rate = 0.01
         self.num_heatup_steps = 0
         self.agent.num_consecutive_training_steps = 1
         self.agent.num_consecutive_playing_steps = 512
