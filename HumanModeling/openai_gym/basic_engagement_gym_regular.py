@@ -2,10 +2,10 @@ import numpy as np
 
 from gym.spaces import Discrete, Tuple
 
-from .engagement_gym_base import EngagementGymBase
+from .basic_engagement_gym_base import BasicEngagementGymBase
 
 
-class EngagementGym(EngagementGymBase):
+class BasicEngagementGym(BasicEngagementGymBase):
 
     def get_observation_space(self):
         return Tuple((

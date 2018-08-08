@@ -2,10 +2,10 @@ import numpy as np
 
 from gym.spaces import Box
 
-from .engagement_gym_base import EngagementGymBase
+from .basic_engagement_gym_base import BasicEngagementGymBase
 
 
-class EngagementGymCoach(EngagementGymBase):
+class BasicEngagementGymCoach(BasicEngagementGymBase):
     def get_observation_space(self):
         # time              -> 4 values
         # day               -> 2 values

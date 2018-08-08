@@ -60,3 +60,6 @@ def argmaxDict(d):
 
 def maxDictVal(d):
     return max([d[k] for k in d])
+
+def clip(val, min_cut, max_cut):
+    return min(max(val, min_cut), max_cut)

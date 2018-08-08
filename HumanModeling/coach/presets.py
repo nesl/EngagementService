@@ -1433,12 +1433,17 @@ class MontezumaRevenge_BC(Preset):
 
 register(
     id='Engagement-v0',
-    entry_point='openai_gym.engagement_gym_coach:EngagementGymCoach',
+    entry_point='openai_gym.basic_engagement_gym_coach:BasicEngagementGymCoach',
+    max_episode_steps = 10000,
+)
+register(
+    id='Engagement-v1',
+    entry_point='openai_gym.advanced_engagement_gym_coach:AdvancedEngagementGymCoach',
     max_episode_steps = 10000,
 )
 
 
-class Engagement_A3C(Preset):
+class BasicEngagement_A3C(Preset):
     def __init__(self):
         Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
         self.env.level = 'Engagement-v0'
@@ -1453,7 +1458,7 @@ class Engagement_A3C(Preset):
         self.clip_gradients = 40.0
         self.agent.middleware_type = MiddlewareTypes.FC
 
-class Engagement_ClippedPPO(Preset):
+class BasicEngagement_ClippedPPO(Preset):
     def __init__(self):
         Preset.__init__(self, ClippedPPO, GymVectorObservation, CategoricalExploration)
         self.env.level = 'Engagement-v0'
@@ -1468,3 +1473,18 @@ class Engagement_ClippedPPO(Preset):
         self.visualization.dump_csv = True
         self.agent.optimizer_type = 'Adam'
         self.env.normalize_observation = True
+
+class AdvancedEngagement_A3C(Preset):
+    def __init__(self):
+        Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
+        self.env.level = 'Engagement-v1'
+        self.agent.policy_gradient_rescaler = 'GAE'
+        self.learning_rate = 0.0001
+        self.num_heatup_steps = 200
+        self.env.reward_scaling = 1.
+        self.agent.apply_gradients_every_x_episodes = 1
+        self.agent.num_steps_between_gradient_updates = 20
+        self.agent.gae_lambda = 1
+        self.agent.beta_entropy = 0.05
+        self.clip_gradients = 40.0
+        self.agent.middleware_type = MiddlewareTypes.FC
