@@ -384,14 +384,20 @@ class Agent(object):
         :param phase: Either Train or Test to specify if greedy actions should be used and if transitions should be stored
         :return: A boolean value that signals an episode termination
         """
+        action = self.act_get_action(phase)
+        
+        result = self.env.step(action)
 
+        return self.act_process_reward(phase, result)
+
+    def act_get_action(self, phase):
         if phase != RunPhase.TEST:
             self.total_steps_counter += 1
         self.current_episode_steps_counter += 1
 
         # get new action
         action_info = {"action_probability": 1.0 / self.env.action_space_size, "action_value": 0, "max_action_value": 0}
-
+        
         if phase == RunPhase.HEATUP and not self.tp.heatup_using_network_decisions:
             action = self.env.get_random_action()
         else:
@@ -400,7 +406,17 @@ class Agent(object):
         # perform action
         if type(action) == np.ndarray:
             action = action.squeeze()
-        result = self.env.step(action)
+
+        # save internal state for `act_process_reward()`
+        self.action_info = action_info
+
+
+        return action
+
+    def act_process_reward(self, phase, result):
+
+        # resume internal state from `act_get_action()`
+        action_info = self.action_info
 
         shaped_reward = self.preprocess_reward(result['reward'])
         if 'action_intrinsic_reward' in action_info.keys():
@@ -445,8 +461,8 @@ class Agent(object):
 
         # deal with episode termination
         if result['done']:
-            if self.tp.visualization.dump_csv:
-                self.update_log(phase=phase)
+            #if self.tp.visualization.dump_csv:
+            #    self.update_log(phase=phase)
             self.log_to_screen(phase=phase)
 
             if phase == RunPhase.TRAIN or phase == RunPhase.HEATUP:
@@ -561,10 +577,12 @@ class Agent(object):
                     step = 0
                     while step < self.tp.agent.num_consecutive_playing_steps or self.memory.get_episode(-1).length() != 0:
                         self.act()
+                        yield
                         step += 1
                 else:
                     for step in range(self.tp.agent.num_consecutive_playing_steps):
                         self.act()
+                        yield
 
             # train
             if self.tp.train:

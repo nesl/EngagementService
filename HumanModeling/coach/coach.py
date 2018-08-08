@@ -156,6 +156,7 @@ def run_dict_to_json(_run_dict, task_id=''):
 
 
 if __name__ == "__main__":
+    print(Frameworks)
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--preset',
                         help="(string) Name of a preset to run (as configured in presets.py)",
