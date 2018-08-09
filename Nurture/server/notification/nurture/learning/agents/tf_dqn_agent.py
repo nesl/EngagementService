@@ -48,6 +48,7 @@ class TensorForceDQNAgent(BaseAgent):
             self.last_notification_time = now
 
         self.gym_stage = TensorForceDQNAgent.GYM_STAGE_WAIT_REWARD
+        self.last_send_notification = send_notification
 
         return send_notification
 
@@ -55,6 +56,10 @@ class TensorForceDQNAgent(BaseAgent):
         if self.gym_stage != TensorForceDQNAgent.GYM_STAGE_WAIT_REWARD:
             # strange status, just ignore it
             return
+
+        # calibrate reward
+        if self.last_send_notification and reward == 0.:
+            reward = -0.5
 
         self.num_steps += 1
         done = (self.num_steps % kEpisodeLengthSteps == 0)
@@ -69,7 +74,7 @@ class TensorForceDQNAgent(BaseAgent):
 
     def generate_initial_model(self):
         print("[tf-dqn] generate_initial_model()")
-        self.agent = self._get_naive_agent()
+        self.agent = self._get_agent(self._get_exploration_rate(num_steps=0))
         print("[tf-dqn] spawn the agent")
         
         self.gym_stage = TensorForceDQNAgent.GYM_STAGE_WAIT_STATE
@@ -85,7 +90,7 @@ class TensorForceDQNAgent(BaseAgent):
 
     @classmethod
     def non_disturb_mode_during_night(cls):
-        return False
+        return True
 
     def on_pickle_save(self):
         print("[tf-dqn] on_pickle_save()")
@@ -100,7 +105,7 @@ class TensorForceDQNAgent(BaseAgent):
         tmp_folder = learning_utils.make_tmp_folder()
         learning_utils.restore_files_to_disk(tmp_folder, self.pickle_data)
         self.pickle_data = None
-        self.agent = self._get_naive_agent()
+        self.agent = self._get_agent(self._get_exploration_rate(num_steps=self.num_steps))
         self.agent.restore_model(tmp_folder)
         print("[tf-dqn] on_pickle_load() done")
 
@@ -115,8 +120,14 @@ class TensorForceDQNAgent(BaseAgent):
                 state.screenStatus,
         )
 
-    def _get_naive_agent(self):
-        print("[tf-dqn] _get_native_agent()")
+    def _get_exploration_rate(self, num_steps):
+        # in the beginning = 0.1
+        # in the end, 0.01
+        print('[tf-dqn] num_steps', num_steps, 'p', (0.999 ** num_steps) * 0.1 + 0.01)
+        return (0.999 ** num_steps) * 0.1 + 0.01
+
+    def _get_agent(self, exploration_rate):
+        print("[tf-dqn] _get_agent()")
         # import from here to boost performance
         from tensorforce.agents import DQNAgent
         print("[tf-dqn] done importing")
@@ -133,8 +144,8 @@ class TensorForceDQNAgent(BaseAgent):
                 batched_observe=False,
                 actions_exploration={
                     'type': 'epsilon_decay',
-                    'initial_epsilon': 1.00,
-                    'final_epsilon': 0.01,
-                    'timesteps': 5000,  # cover around 1 week
+                    'initial_epsilon': exploration_rate + 0.001,
+                    'final_epsilon': exploration_rate,
+                    'timesteps': 500000,  # don't make it affect the exploration rate
                 },
         )
