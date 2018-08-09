@@ -118,6 +118,7 @@ class Agent(object):
                 self.running_observation_stats = RunningStat((self.tp.env.desired_observation_width,))
                 self.running_reward_stats = RunningStat(())
                 if self.tp.checkpoint_restore_dir:
+                    print("checkpoint_path:", checkpoint_path)
                     checkpoint_path = os.path.join(self.tp.checkpoint_restore_dir, "running_stats.p")
                     self.running_observation_stats = read_pickle(checkpoint_path)
                 else:
@@ -596,3 +597,10 @@ class Agent(object):
 
     def save_model(self, model_id):
         self.main_network.save_model(model_id)
+        print(self.main_network)
+
+    #def save_model_to_dir(self, save_dir):
+    #    self.main_network.save_model_to_dir(save_dir)
+    #
+    #def restore_model_from_dir(self, restore_dir):
+    #    self.main_network.restore_model_from_dir(restore_dir)

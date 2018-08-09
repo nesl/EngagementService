@@ -185,3 +185,17 @@ class NetworkWrapper(object):
             ]),
             prefix="Checkpoint"
         )
+
+    #def save_model_to_dir(self, save_dir):
+    #    saved_model_path = self.model_saver.save(self.tp.sess, os.path.join(save_dir, "5.ckpt"))
+    #
+    #def restore_model_from_dir(self, restore_dir):
+    #    variables_to_restore = tf.global_variables()
+    #    variables_to_restore = [v for v in variables_to_restore if '/online' in v.name]
+    #    self.model_saver = tf.train.Saver(variables_to_restore)
+    #    #, max_to_keep=None) # uncomment to unlimit number of stored checkpoints
+    #    if self.tp.sess:
+    #        checkpoint = tf.train.latest_checkpoint(restore_dir)
+    #        screen.log_title("Loading checkpoint: {}".format(checkpoint))
+    #        self.model_saver.restore(self.tp.sess, checkpoint)
+    #        self.update_target_network()
