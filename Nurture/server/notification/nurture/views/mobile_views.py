@@ -181,6 +181,7 @@ def get_action(request):
             model_path = utils.prepare_learning_agent(user)
             agent = dill.load(open(model_path, 'rb'))
             agent.on_pickle_load()
+            agent.set_user_code(user.code)
 
             agent.feed_reward(reward)
             send_notification = agent.get_action(state1)
