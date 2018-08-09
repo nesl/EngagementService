@@ -6,3 +6,6 @@ __pycache__
 #symbolic links
 data
 export_figures
+
+# debug portal
+main_debug_portal.ipynb

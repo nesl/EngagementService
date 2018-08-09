@@ -6,8 +6,8 @@ from controller import Controller
 def main():
     #agent = AlwaysSendNotificationAgent()
     #agent = QLearningAgent()
-    #agent = QLearningAgent2()
-    agent = ContextualBanditSVMAgent()
+    agent = QLearningAgent2()
+    #agent = ContextualBanditSVMAgent()
     #agent = ContextualBanditSVMProbAgent()
 
     #agent = SVMAgent()
@@ -30,7 +30,12 @@ def main():
     #behavior = ExtraSensoryBehavior('behavior/data/2.txt')
     #behavior = ExtraSensoryBehavior('behavior/data/4.txt')
     #behavior = ExtraSensoryBehavior('behavior/data/5.txt')
-    behavior = ExtraSensoryBehavior('behavior/data/6.txt')
+    behavior = ExtraSensoryBehavior([
+        'behavior/data/2.txt',
+        'behavior/data/4.txt',
+        'behavior/data/5.txt',
+        'behavior/data/6.txt',
+    ])
 
     simulationWeek = 20
 
