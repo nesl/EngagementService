@@ -216,7 +216,7 @@ if __name__ == "__main__":
             with open(action_path, 'w') as fo:
                 fo.write(datetime.datetime.now().strftime(DATETIME_FORMAT) + "\n")
                 fo.write(str(action) + "\n")
-            print('processed')
+            print('processed, action', action)
 
         with open(heartbeat_path, 'w') as fo:
             fo.write(datetime.datetime.now().strftime(DATETIME_FORMAT))

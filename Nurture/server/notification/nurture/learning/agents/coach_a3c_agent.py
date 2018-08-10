@@ -23,7 +23,7 @@ class CoachA3CAgent(BaseAgent):
 
     @classmethod
     def get_policy_name(cls):
-        return 'tf-dqn'
+        return 'coach-a3c'
 
     @classmethod
     def is_user_dependent(cls):
@@ -37,7 +37,7 @@ class CoachA3CAgent(BaseAgent):
 
         gym_state = self._to_gym_state(state)
         action = self._wait_for_action(self.last_reward, self.last_done, gym_state)
-        send_notification = (action == 1)  # None->bad connect, 0->silent, 1->send
+        send_notification = (action == '1')  # None->bad connect, 0->silent, 1->send
         
         # override the decision if the previous notification is too close
         now = datetime.datetime.now()
@@ -115,7 +115,7 @@ class CoachA3CAgent(BaseAgent):
         
     def _wait_for_action(self, reward, done, state):
         if not self._is_heartbeat_warm():
-            pass  #TODO: make a new worker
+            os.system("python3 ../coach_daemon/main.py %s &" % self.get_user_code())
 
         self._get_action_from_file()
 
@@ -123,7 +123,6 @@ class CoachA3CAgent(BaseAgent):
         deadline = datetime.datetime.now() + datetime.timedelta(seconds=10)
         while datetime.datetime.now() < deadline:
             action = self._get_action_from_file()
-            print("get action returned", action, type(action))
             if action is not None:
                 return action
             time.sleep(0.5)
@@ -156,14 +155,10 @@ class CoachA3CAgent(BaseAgent):
 
     def _get_action_from_file(self):
         lines = self._read_file_lines('action.txt', destroy=True)
-        if lines is not None:
-            print("[A3C]", lines)
         if lines is None or len(lines) < 2:
             return None
-        print("[A3C] confirm still there", lines)
         if not self._timestamp_within_x_seconds(lines[0].strip(), seconds=30):
             return None
-        print('_get_action_from_file() returns', lines[1].strip())
         return lines[1].strip()
 
     def _write_reward_state(self, reward, done, state):
@@ -179,7 +174,4 @@ class CoachA3CAgent(BaseAgent):
         except:
             return False
         
-        print('_timestamp x', timestamp)
-        print('_timestamp x', datetime.datetime.now() - timestamp)
-        print('_timestamp x', seconds, datetime.datetime.now() - timestamp < datetime.timedelta(seconds=seconds))
         return datetime.datetime.now() - timestamp < datetime.timedelta(seconds=seconds)
