@@ -33,23 +33,20 @@ class CoachA3CAgent(BaseAgent):
         if self.gym_stage == CoachA3CAgent.GYM_STAGE_WAIT_REWARD:
             # strange status, but let's feed a dummy reward and move on
             self.last_reward = 0.
-            self.last_done = False
 
-        gym_state = self._to_gym_state(state)
-        action = self._wait_for_action(self.last_reward, self.last_done, gym_state)
-        send_notification = (action == '1')  # None->bad connect, 0->silent, 1->send
-        
-        # override the decision if the previous notification is too close
-        now = datetime.datetime.now()
-        time_delta = now - self.last_notification_time
-        if time_delta.total_seconds() < kMinNotificationGapSeconds:
+        if self._too_close_to_previous_notification():
             send_notification = False
-            print("[coach-a3c] override send_notification to False, time delta in seconds =",
-                    time_delta.total_seconds())
+        else:
+            gym_state = self._to_gym_state(state)
+            self.num_steps += 1
+            done = (self.num_steps % kEpisodeLengthSteps == 0)
+            action = self._wait_for_action(self.last_reward, done, gym_state)
+            send_notification = (action == '1')  # None->bad connect, 0->silent, 1->send
+            self.last_reward = 0.
 
         # remember when we send notification
         if send_notification:
-            self.last_notification_time = now
+            self.last_notification_time = datetime.datetime.now()
 
         self.gym_stage = CoachA3CAgent.GYM_STAGE_WAIT_REWARD
         self.last_send_notification = send_notification
@@ -65,17 +62,14 @@ class CoachA3CAgent(BaseAgent):
         if self.last_send_notification and reward == 0.:
             reward = -0.05
 
-        self.num_steps += 1
-        done = (self.num_steps % kEpisodeLengthSteps == 0)
-        self.last_reward = 0.
-        self.last_done = False
-
+        # accumulate the rewards anyway
+        self.last_reward += reward
+        
         self.gym_stage = CoachA3CAgent.GYM_STAGE_WAIT_STATE
     
     def _restart_episode(self):
         if self.gym_stage == CoachA3CAgent.GYM_STAGE_WAIT_REWARD:
             self.last_reward = 0.
-            self.last_done = False
             self.gym_stage = CoachA3CAgent.GYM_STAGE_WAIT_STATE
 
     def generate_initial_model(self):
@@ -84,7 +78,6 @@ class CoachA3CAgent(BaseAgent):
         self.num_steps = 0
 
         self.last_reward = 0.
-        self.last_done = False
 
     def load_model(self, filepath):
         pass
@@ -102,6 +95,11 @@ class CoachA3CAgent(BaseAgent):
     def on_pickle_load(self):
         pass
 
+    def _too_close_to_previous_notification(self):
+        now = datetime.datetime.now()
+        time_delta = now - self.last_notification_time
+        return time_delta.total_seconds() < kMinNotificationGapSeconds
+
     def _to_gym_state(self, state):
         return learning_utils.smart_list_concatenation(
                 state.timeOfDay,
@@ -112,10 +110,12 @@ class CoachA3CAgent(BaseAgent):
                 learning_utils.one_hot_list(state.ringerMode, State.allRingerModeValues()),
                 state.screenStatus,
         )
-        
+
     def _wait_for_action(self, reward, done, state):
-        if not self._is_heartbeat_warm():
-            os.system("python3 ../coach_daemon/main.py %s &" % self.get_user_code())
+        #if not self._is_heartbeat_warm():
+        #    os.system("python3 ../coach_daemon/main.py %s &" % self.get_user_code())
+
+        print("reward", reward, "done", done, "state", state)
 
         self._get_action_from_file()
 

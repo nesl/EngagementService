@@ -31,7 +31,8 @@ def set_framework(framework_type):
     config.gpu_options.allow_growth = True
     config.gpu_options.per_process_gpu_memory_fraction = 0.2
     return tf.Session(config=config)
-    
+
+
 class NurturePreset(Preset):
     def __init__(self):
         Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
@@ -47,6 +48,23 @@ class NurturePreset(Preset):
         self.clip_gradients = 40.0
         self.agent.middleware_type = MiddlewareTypes.FC
 
+"""
+class NurturePreset(Preset):
+    def __init__(self):
+        Preset.__init__(self, ClippedPPO, GymVectorObservation, CategoricalExploration)
+        self.env.level = 'Engagement-v0'
+        self.learning_rate = 0.0001
+        self.num_heatup_steps = 0
+        self.agent.num_consecutive_training_steps = 1
+        self.agent.num_consecutive_playing_steps = 512
+        self.agent.discount = 0.99
+        self.batch_size = 64
+        self.agent.policy_gradient_rescaler = 'GAE'
+        self.agent.gae_lambda = 0.95
+        self.visualization.dump_csv = True
+        self.agent.optimizer_type = 'Adam'
+        self.env.normalize_observation = True
+"""
 
 def get_tuning_parameters(run_dict):
     tuning_parameters = NurturePreset()
@@ -152,10 +170,10 @@ if __name__ == "__main__":
 
     # prepare models
     user_folder = os.path.join('checkpoints', uid)
-    #if not os.path.isdir(user_folder):
-    #    initial_checkpoint_folder = os.path.join('checkpoints', 'initial')
-    #    shutil.copytree(initial_checkpoint_folder, user_folder)
-    #    checkpoint_restore_dir = user_folder
+    if not os.path.isdir(user_folder):
+        initial_checkpoint_folder = os.path.join('checkpoints', 'initial')
+        shutil.copytree(initial_checkpoint_folder, user_folder)
+        checkpoint_restore_dir = user_folder
 
     if not os.path.isdir(user_folder):
         os.makedirs(user_folder)
@@ -163,7 +181,10 @@ if __name__ == "__main__":
     checkpoint_save_dir = os.path.join(user_folder, 'checkpoints')
     checkpoint_restore_dir = checkpoint_save_dir if os.path.isdir(checkpoint_save_dir) else None
     
-    experiment_path = os.path.join('/tmp', 'nurture-coach', uid)
+
+    experiment_path = os.path.join('/tmp', 'nurture-coach', uid,
+            datetime.datetime.now().strftime('%m%d-%H%M%S'))
+    os.makedirs(experiment_path, exist_ok=True)
 
     reward_state_path = os.path.join(user_folder, 'reward_state.txt')
     action_path = os.path.join(user_folder, 'action.txt')
@@ -209,8 +230,9 @@ if __name__ == "__main__":
     while True:
         results = get_reward_state(reward_state_path)
         if results is not None:
-            print('processing')
             reward, done, state = results
+            print('[%s-%s] processing, get reward: %.1f' %
+                    (uid, datetime.datetime.now().strftime("%H:%M:%S"), reward))
             env_instance.env.env.supply(reward, done, state)
             action = next(gen)
             with open(action_path, 'w') as fo:
