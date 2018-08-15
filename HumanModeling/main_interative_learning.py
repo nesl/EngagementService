@@ -4,9 +4,9 @@ from behavior import *
 from controller import Controller
 
 def main():
-    #agent = AlwaysSendNotificationAgent()
+    agent = AlwaysSendNotificationAgent()
     #agent = QLearningAgent()
-    agent = QLearningAgent2()
+    #agent = QLearningAgent2()
     #agent = ContextualBanditSVMAgent()
     #agent = ContextualBanditSVMProbAgent()
 
