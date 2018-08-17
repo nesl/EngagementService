@@ -2,6 +2,7 @@ import pytz
 import random
 import base64
 import dill
+import datetime
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -10,6 +11,9 @@ from django.utils import timezone
 
 from nurture.models import *
 from nurture import utils
+
+
+NOTIFICATION_DAILY_VOLUME_CAP = 55
 
 
 @csrf_exempt
@@ -107,6 +111,29 @@ def _is_night(state):
     evening_threshold = 22. / 24.  # 10pm
     return state.timeOfDay < morning_threshold or state.timeOfDay > evening_threshold
 
+def _reach_notification_quota(user):
+    # to address the problem of different timezones, we first select the actions in the past
+    # 24 hours, and then figure out when is the start of the day
+    now = timezone.now()
+    ago_1d = now - datetime.timedelta(days=1)
+    action_logs = ActionLog.objects.filter(
+            user=user, action_message='action-1', query_time__gt=ago_1d).order_by('id')
+    
+    if len(action_logs) > NOTIFICATION_DAILY_VOLUME_CAP:
+        # let's figure out when is the start day only when we need, i.e., the number of selected
+        # records is more than the threshold. we choose the first day switch (i.e., the timestamp
+        # of predecessor is larger than the current record
+        time_of_day = [float(a.reward_state_message.split(';')[1][1:-1].split(',')[0])
+                for a in action_logs]
+        total = len(action_logs)
+        for i in range(len(time_of_day) - 1):
+            if time_of_day[i] > time_of_day[i+1]:
+                action_logs = action_logs[i+1:total]
+                break
+
+    return len(action_logs) >= NOTIFICATION_DAILY_VOLUME_CAP
+
+
 @csrf_exempt
 def get_action(request):
     
@@ -180,9 +207,12 @@ def get_action(request):
     try:
         LearningAgent = utils.get_learning_agent_class_for_user(user)
 
-        if LearningAgent.non_disturb_mode_during_night() and _is_night(state1):
+        if user.hit_cap and _reach_notification_quota(user):
+            # unfortunately, cannot send anymore notifications
+            action = 'c'
+        elif LearningAgent.non_disturb_mode_during_night() and _is_night(state1):
             # non disturb mode
-            action = 0
+            action = 'z'
         else:
             # regular mode
             model_path = utils.prepare_learning_agent(user)
@@ -199,14 +229,14 @@ def get_action(request):
             agent.on_pickle_save()
             dill.dump(agent, open(model_path, 'wb'))
 
-            action = 1 if send_notification else 0
+            action = '1' if send_notification else '0'
     except:
         utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_POLICY_EXECUTION_FAILURE
         log.save()
         return HttpResponse("Bad", status=404)
 
-    action_message = "action-%d" % action
+    action_message = "action-%s" % action
 
     log.reward = reward
     log.num_accepted = num_accepted

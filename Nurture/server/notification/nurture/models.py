@@ -42,6 +42,7 @@ class AppUser(models.Model):
     status = models.IntegerField(choices=STATUS_TYPES)
     created_time = models.DateTimeField()
     learning_agent = models.IntegerField(choices=LEARNING_AGENT_TYPES)
+    hit_cap = models.BooleanField()
 
     def __str__(self):
         return self.code
