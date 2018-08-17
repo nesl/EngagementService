@@ -25,6 +25,10 @@
               Action Request Time<br/>
               <span style="font-weight:normal; font-style:italic; font-size:13px; color:#666">10m / 1h / 1d</span>
             </th>
+            <th>
+              Action Response Stat<br/>
+              <span style="font-weight:normal; font-style:italic; font-size:13px; color:#666">All / A / D</span>
+            </th>
             <th>Actions</th>
           <thead>
         </tr>
@@ -54,9 +58,20 @@
               {% else %}
                 {{entry.last_action_request_time}}<br/>
                 <span class="highlight-okay">
-                  {{entry.action_request_stat.ago_10m|flag_anomaly_if_value:0}} /
-                  {{entry.action_request_stat.ago_1h|flag_anomaly_if_value:0}} /
-                  {{entry.action_request_stat.ago_1d|flag_anomaly_if_value:0}}
+                  {{entry.connection_stat.ago_10m|flag_anomaly_if_value:0}} /
+                  {{entry.connection_stat.ago_1h|flag_anomaly_if_value:0}} /
+                  {{entry.connection_stat.ago_1d|flag_anomaly_if_value:0}}
+                </span>
+              {% endif %}
+            </td>
+            <td>
+              {% if entry.last_action_request_time is None %}
+                No action request is made yet
+              {% else %}
+                <span class="highlight-okay">
+                  {{entry.response_stat.num_notifications|flag_anomaly_if_value:0}} /
+                  {{entry.response_stat.num_accepted|flag_anomaly_if_value:0}} /
+                  {{entry.response_stat.num_dismissed}}
                 </span>
               {% endif %}
             </td>

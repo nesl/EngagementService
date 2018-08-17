@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db import transaction
 from django.utils import timezone
+from django.db.models import Sum
 
 from notification import settings
 
@@ -34,15 +35,24 @@ def _make_app_user_bundle(user):
     ago_1h = now - datetime.timedelta(hours=1)
     ago_1d = now - datetime.timedelta(days=1)
 
+    action_logs_10m_ago = ActionLog.objects.filter(user=user, query_time__gt=ago_10m)
+    action_logs_1h_ago = ActionLog.objects.filter(user=user, query_time__gt=ago_1h)
+    action_logs_1d_ago = ActionLog.objects.filter(user=user, query_time__gt=ago_1d)
+
     return {
             'user': user,
             'last_uploading_time': last_uploading_time,
             'last_action_request_time': last_action_time,
-            'action_request_stat': {
-                'ago_10m': ActionLog.objects.filter(user=user, query_time__gt=ago_10m).count(),
-                'ago_1h': ActionLog.objects.filter(user=user, query_time__gt=ago_1h).count(),
-                'ago_1d': ActionLog.objects.filter(user=user, query_time__gt=ago_1d).count(),
+            'connection_stat': {
+                'ago_10m': action_logs_10m_ago.count(),
+                'ago_1h': action_logs_1h_ago.count(),
+                'ago_1d': action_logs_1d_ago.count(),
             },
+            'response_stat': {
+                'num_notifications': action_logs_1d_ago.filter(action_message='action-1').count(),
+                'num_accepted': action_logs_1d_ago.aggregate(Sum('num_accepted'))['num_accepted__sum'],
+                'num_dismissed': action_logs_1d_ago.aggregate(Sum('num_dismissed'))['num_dismissed__sum'],
+            }
     }
 
 @login_required(login_url='/login/')
