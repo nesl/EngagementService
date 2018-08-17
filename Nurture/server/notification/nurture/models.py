@@ -90,6 +90,8 @@ class ActionLog(models.Model):
 
     # meta
     reward = models.FloatField()
+    num_accepted = models.IntegerField()
+    num_dismissed = models.IntegerField()
     processing_status = models.IntegerField(choices=PROCESSING_STATUS_TYPES)
 
 

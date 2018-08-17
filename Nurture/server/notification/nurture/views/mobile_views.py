@@ -135,6 +135,8 @@ def get_action(request):
             reward_state_message=raw_reward_state_message,
             action_message='?',
             reward=0.,
+            num_accepted=0,
+            num_dismissed=0,
             processing_status=ActionLog.STATUS_REQUEST_RECEIVED,
     )
 
@@ -149,8 +151,13 @@ def get_action(request):
         terms = [t[1:-1] for t in terms]
         if terms[0] == '':
             reward = 0.
+            num_accepted = 0
+            num_dismissed = 0
         else:
-            reward = sum(list(map(_process_reward_sub_term, terms[0].split(','))))
+            reward_list = list(map(_process_reward_sub_term, terms[0].split(',')))
+            reward = sum(reward_list)
+            num_accepted = len([r for r in reward_list if r > 0.])
+            num_dismissed = len([r for r in reward_list if r < 0.])
     except:
         utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_INVALID_REWARD
@@ -202,6 +209,8 @@ def get_action(request):
     action_message = "action-%d" % action
 
     log.reward = reward
+    log.num_accepted = num_accepted
+    log.num_dismissed = num_dismissed
     log.action_message = action_message
     log.processing_status = ActionLog.STATUS_OKAY
     log.save()
