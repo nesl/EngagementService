@@ -28,7 +28,7 @@
     <p><span style="font-weight:bold">Learning policy: </span>{{user.get_learning_agent_display}}</p>
     <p>
       <span style="font-weight:bold">Join date: </span>
-      {{entry.user.created_time}} ({% time_since_flag_anomaly user.created_time 10000000 %})
+      {{user.created_time}} ({% time_since_flag_anomaly user.created_time 10000000 %})
     </p>
     <p><span style="font-weight:bold">Status: </span>{{user.get_status_display}}</p>
 
