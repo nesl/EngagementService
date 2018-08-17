@@ -15,6 +15,17 @@
     <h2 class="page-header">Network Requests And User Responses - {% format_user_name_code user %}</h2>
 
     <h4>5-minute view</h4>
+    {% visualize_connection_history_div responses 300 '%H:%M' %}
+
+    <h4>Hourly view</h4>
+    {% visualize_connection_history_div responses 3600 '%b. %e, %l%P' %}
+
+    <h4>Daily view</h4>
+    {% visualize_connection_history_div responses 86400 '%b. %e' %}
+
+    <hr/>
+
+    <h4>5-minute view</h4>
     {% visualize_response_history_div responses 300 '%H:%M' %}
 
     <h4>Hourly view</h4>

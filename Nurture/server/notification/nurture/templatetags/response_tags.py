@@ -27,7 +27,7 @@ DARK_RED = (170, 0, 0)
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-
+LIGHT_GREY = (240, 240, 240)
 
 @register.simple_tag
 def show_response_raw_content(responses):
@@ -111,7 +111,7 @@ def _get_history_labels(interval_sec, label_format):
     return [utils.convert_to_local_timezone(tp).strftime(label_format) for tp in times]
 
 @register.simple_tag
-def visualize_response_history_div(responses, interval_sec, label_format):
+def visualize_connection_history_div(responses, interval_sec, label_format):
     
     buckets = _fill_buckets(responses, interval_sec)
 
@@ -150,6 +150,78 @@ def visualize_response_history_div(responses, interval_sec, label_format):
                 'title': 'Rewards',
                 'values': rewards,
                 'bk_colors': reward_bk_colors,
+            },
+        ],
+        'labels': labels,
+    })
+
+    return template.render(context)
+
+
+def _assign_color_by_max(v, threshold, zero_color, low_color, high_color):
+    if v is None:
+        return None
+    if v == 0:
+        return zero_color
+    if v > threshold:
+        return high_color
+    return _pick_color(low_color, high_color, 0, threshold, v)
+
+def _assign_notification_background_color(v, threshold):
+    return _assign_color_by_max(v, threshold, LIGHT_GREY, LIGHT_GREEN, DARK_GREEN)
+
+def _assign_accept_background_color(v, threshold):
+    return _assign_color_by_max(v, threshold, LIGHT_GREY, LIGHT_GREEN, DARK_GREEN)
+    
+def _assign_dismiss_background_color(v, threshold):
+    return _assign_color_by_max(v, threshold, LIGHT_GREY, LIGHT_RED, DARK_RED)
+
+@register.simple_tag
+def visualize_response_history_div(responses, interval_sec, label_format):
+    
+    buckets = _fill_buckets(responses, interval_sec)
+
+    # process total notifications
+    num_notifications = [(len(list(filter(lambda b: b.action_message == 'action-1', batch)))
+            if len(batch) > 0 else None) for batch in buckets]
+    max_num_notifications = max(1, max([v if v is not None else 0 for v in num_notifications]))
+    notification_bk_colors = [_assign_notification_background_color(v, max_num_notifications)
+            for v in num_notifications]
+
+    # process accepted notifications
+    num_accepts = [(sum([b.num_accepted for b in batch]) if len(batch) > 0 else None)
+            for batch in buckets]
+    #max_num_accepts = max(1, max([v if v is not None else 0 for v in num_accepts]))
+    accept_bk_colors = [_assign_accept_background_color(v, max_num_notifications)
+            for v in num_accepts]
+
+    # process dismissed notifications
+    num_dismisses = [(sum([b.num_dismissed for b in batch]) if len(batch) > 0 else None)
+            for batch in buckets]
+    #max_num_dismisses = max(1, max([v if v is not None else 0 for v in num_dismisses]))
+    dismiss_bk_colors = [_assign_dismiss_background_color(v, max_num_notifications)
+            for v in num_dismisses]
+
+    labels = _get_history_labels(interval_sec, label_format)
+
+    template = get_template("response/history_div.html")
+
+    context = Context({
+        'rows': [
+            {
+                'title': '# notifications',
+                'values': num_notifications,
+                'bk_colors': notification_bk_colors,
+            },
+            {
+                'title': 'Answer amount',
+                'values': num_accepts,
+                'bk_colors': accept_bk_colors,
+            },
+            {
+                'title': 'Dismiss amount',
+                'values': num_dismisses,
+                'bk_colors': dismiss_bk_colors,
             },
         ],
         'labels': labels,
