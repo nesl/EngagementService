@@ -39,7 +39,12 @@
               {{entry.user.name}}
             </td>
             <td>{{entry.user.get_status_display}}</td>
-            <td>{{entry.user.get_learning_agent_display}}</td>
+            <td>
+              {{entry.user.get_learning_agent_display}}
+              {% if entry.user.hit_cap %}
+                <br/><span style="color:green; font-style:italic">(capped)</span>
+              {% endif %}
+            </td>
             <td>
               {{entry.user.created_time|date:'N d, g:i a'}}<br/>
               {% time_since_flag_anomaly entry.user.created_time 10000000 %}

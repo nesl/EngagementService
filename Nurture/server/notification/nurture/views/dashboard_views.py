@@ -84,6 +84,10 @@ def _try_parse_organize_users_form(post):
                 user.name = post['%s-name' % code]
                 user.status = post['%s-status' % code]
                 user.learning_agent = post['%s-agent' % code]
+                
+                key_cap = '%s-cap' % code
+                user.hit_cap = (key_cap in post and post[key_cap] == 'hit-cap')
+
                 user.save()
         return True
     except:
