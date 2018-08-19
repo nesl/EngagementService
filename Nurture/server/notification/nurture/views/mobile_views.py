@@ -87,6 +87,15 @@ def upload_log_file(request):
 
     record.save()
 
+    # delete previous file if the latest version covers everything of the previous version
+    # (it should always be the case unless a user reinstall the app)
+    files = FileLog.objects.filter(user=user, type=type).order_by('-id')
+    if len(files) >= 2:
+        prev_file_log = files[1]
+        if utils.is_file_extended(prev_file_log.get_path(), record.get_path()):
+            os.remove(prev_file_log.get_path())
+            prev_file_log.delete()
+
     return HttpResponse("Ok", status=200)
 
 

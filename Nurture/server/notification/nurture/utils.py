@@ -144,3 +144,11 @@ def argmax_dict(d):
 
 def max_dict_val(d):
     return max([d[k] for k in d])
+
+
+def is_file_extended(path_from, path_to):
+    with open(path_from, 'rb') as f:
+        content_small = f.read()
+    with open(path_to, 'rb') as f:
+        content_big = f.read()
+    return content_big.startswith(content_small)
