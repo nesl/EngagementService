@@ -27,7 +27,10 @@ def _make_app_user_bundle(user):
     last_file_log = FileLog.objects.filter(user=user).last()
     last_uploading_time = last_file_log.uploaded_time if last_file_log is not None else None
 
-    last_action = ActionLog.objects.filter(user=user).last()
+    last_request = ActionLog.objects.filter(user=user).last()
+    last_request_time = last_request.query_time if last_request is not None else None
+
+    last_action = ActionLog.objects.filter(user=user, action_message='action-1').last()
     last_action_time = last_action.query_time if last_action is not None else None
 
     now = timezone.now()
@@ -42,7 +45,8 @@ def _make_app_user_bundle(user):
     return {
             'user': user,
             'last_uploading_time': last_uploading_time,
-            'last_action_request_time': last_action_time,
+            'last_request_time': last_request_time,
+            'last_action_time': last_action_time,
             'connection_stat': {
                 'ago_10m': action_logs_10m_ago.count(),
                 'ago_1h': action_logs_1h_ago.count(),
