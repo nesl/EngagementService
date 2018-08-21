@@ -38,6 +38,7 @@ def get_user_code(request):
             status=AppUser.STATUS_ACTIVE,
             created_time=timezone.now(),
             learning_agent=AppUser.LEARNING_AGENT_RANDOM,
+            hit_cap=False,
     )
     return HttpResponse(code, status=200)
 
