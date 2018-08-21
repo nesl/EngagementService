@@ -16,6 +16,7 @@ sys.path.append('coach')
 from configurations import Frameworks
 from environments import create_environment
 from agents import *
+from exploration_policies.e_greedy import EGreedy
 
 DATETIME_FORMAT = "%Y/%b/%d %H:%M:%S.%f"
 
@@ -36,6 +37,7 @@ def set_framework(framework_type):
 class NurturePreset(Preset):
     def __init__(self):
         Preset.__init__(self, ActorCritic, GymVectorObservation, CategoricalExploration)
+        #Preset.__init__(self, ActorCritic, GymVectorObservation, EGreedyExploration)
         self.env.level = 'Engagement-v0'
         self.agent.policy_gradient_rescaler = 'GAE'
         self.learning_rate = 0.0001
@@ -65,6 +67,31 @@ class NurturePreset(Preset):
         self.agent.optimizer_type = 'Adam'
         self.env.normalize_observation = True
 """
+
+def load_step(step_file_path):
+    if not os.path.isfile(step_file_path):
+        raise Exception("Step file does not exist")
+    with open(step_file_path) as f:
+        res = int(f.readline().strip())
+    return res
+
+def get_epsilon_params(num_steps):
+    # e_greedy policy in Coach decays in a linear manner. we adjust the params since we start
+    # the learning process in the middle
+    original_initial_epsilon = 0.5
+    original_final_epsilon = 0.01
+    original_epsilon_decay = 7000
+
+    step_buffer = 100
+    
+    if num_steps > original_epsilon_decay - step_buffer:
+        return original_final_epsilon * 1.01, original_final_epsilon, step_buffer
+    else:
+        delta = original_final_epsilon - original_initial_epsilon
+        ratio = num_steps / original_epsilon_decay
+        adjusted_initial_epsilon = original_initial_epsilon + delta * ratio
+        adjusted_epsilon_decay = original_epsilon_decay - num_steps
+        return adjusted_initial_epsilon, original_final_epsilon, adjusted_epsilon_decay
 
 def get_tuning_parameters(run_dict):
     tuning_parameters = NurturePreset()
@@ -189,6 +216,11 @@ if __name__ == "__main__":
     reward_state_path = os.path.join(user_folder, 'reward_state.txt')
     action_path = os.path.join(user_folder, 'action.txt')
     heartbeat_path = os.path.join(user_folder, 'heartbeat.txt')
+    step_path = os.path.join(user_folder, 'step.txt')
+
+    num_steps = load_step(step_path) if checkpoint_restore_dir is not None else 0
+
+    initial_epsilon, final_epsilon, epsilon_decay = get_epsilon_params(num_steps)
 
     # prepare the gym environment
     register(
@@ -216,6 +248,9 @@ if __name__ == "__main__":
         'visualization.dump_gifs': False,
         'visualization.render': False,
         'visualization.tensorboard': False,
+        'exploration.initial_epsilon': initial_epsilon,
+        'exploration.final_epsilon': final_epsilon,
+        'exploration.epsilon_decay_steps': epsilon_decay,
     }
 
     tuning_parameters = get_tuning_parameters(run_dict)
@@ -231,13 +266,16 @@ if __name__ == "__main__":
         results = get_reward_state(reward_state_path)
         if results is not None:
             reward, done, state = results
-            print('[%s-%s] processing, get reward: %.1f' %
-                    (uid, datetime.datetime.now().strftime("%H:%M:%S"), reward))
+            num_steps += 1
+            print('[%s-%s-%d] processing, get reward: %.1f' %
+                    (uid, datetime.datetime.now().strftime("%H:%M:%S"), num_steps, reward))
             env_instance.env.env.supply(reward, done, state)
             action = next(gen)
             with open(action_path, 'w') as fo:
                 fo.write(datetime.datetime.now().strftime(DATETIME_FORMAT) + "\n")
                 fo.write(str(action) + "\n")
+            with open(step_path, 'w') as fo:
+                fo.write(str(num_steps))
             print('processed, action', action)
 
         with open(heartbeat_path, 'w') as fo:

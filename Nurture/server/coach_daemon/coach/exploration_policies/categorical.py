@@ -27,6 +27,7 @@ class Categorical(ExplorationPolicy):
 
     def get_action(self, action_values):
         # choose actions according to the probabilities
+        print("Categorical", self.action_space_size, action_values)
         return np.random.choice(range(self.action_space_size), p=action_values)
 
     def get_control_param(self):

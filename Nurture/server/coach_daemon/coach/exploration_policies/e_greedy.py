@@ -59,6 +59,7 @@ class EGreedy(ExplorationPolicy):
         if self.discrete_controls:
             top_action = np.argmax(action_values)
             if np.random.rand() < epsilon:
+                print("E-greedy exercise random action: p=%.4f" % epsilon)
                 return np.random.randint(self.action_space_size)
             else:
                 return top_action
