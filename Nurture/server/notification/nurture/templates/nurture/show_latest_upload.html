@@ -38,6 +38,8 @@
 
       <hr/>
 
+      {% try_show_quick_analysis file_log %}
+
       {% show_content_with_datetime file_log %}
       
       <a class="btn btn-primary" href="{% url 'dashboard-upload-history' user.code file_type file_log.filename %}">

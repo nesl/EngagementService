@@ -146,6 +146,9 @@ def max_dict_val(d):
     return max([d[k] for k in d])
 
 
+def get_ratio(n, d):
+    return 0. if d == 0 else n / d
+
 def is_file_extended(path_from, path_to):
     with open(path_from, 'rb') as f:
         content_small = f.read()
