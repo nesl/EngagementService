@@ -6,8 +6,8 @@ class TaskResponse:
             # "ID","created_time","question_type","sub_question_type","status","answer_time","answer","option_ID","expired_time"
             line = line.strip()
             terms = line.split(',')
-            assert len(terms) >= 9
-            for i in range(9):
+            assert len(terms) >= 11
+            for i in range(11):
                 term = terms[i]
                 assert term[0] == '"'
                 assert term[-1] == '"'
@@ -22,7 +22,9 @@ class TaskResponse:
             response.answer_time = int(terms[5])
             response.answer = terms[6]
             response.option_id = int(terms[7])
-            response.expired_time = int(terms[8])
+            response.is_dismissed = False if int(terms[8]) == 0 else True
+            response.dismiss_time = int(terms[9])
+            response.expired_time = int(terms[10])
             return response
         except:
             return None
@@ -36,6 +38,12 @@ class TaskResponse:
 
     def is_answered(self):
         return self.answer_time != 0
+
+    def is_dismissed(self):
+        return self.dismiss_time != 0
+
+    def is_ignored(self):
+        return self.expired_time != 0
 
     def is_correct_answer(self):
         """
@@ -55,3 +63,8 @@ class TaskResponse:
         if not self.is_answered():
             return None
         return (response.answer_time - response.created_time) * 1e-3
+
+    def get_time_to_dismiss_sec(self):
+        if not self.is_dismissed():
+            return None
+        return (response.dismiss_time - response.created_time) * 1e-3
