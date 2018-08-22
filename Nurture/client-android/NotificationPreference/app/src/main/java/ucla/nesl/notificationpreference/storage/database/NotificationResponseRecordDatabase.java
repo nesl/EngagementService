@@ -113,6 +113,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                     "answer_time",
                     "answer",
                     "option_ID",
+                    "is_dismissed",
                     "expired_time"
             });
 
@@ -127,6 +128,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                         String.valueOf(record.answerTime),
                         String.valueOf(record.answer),
                         String.valueOf(record.optionID),
+                        String.valueOf(record.isDismissed),
                         String.valueOf(record.expiredTime)
                 });
             }

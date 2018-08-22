@@ -57,7 +57,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "is_dismissed",
+            "fieldPath": "isDismissed",
             "columnName": "is_dismissed",
             "affinity": "INTEGER",
             "notNull": true

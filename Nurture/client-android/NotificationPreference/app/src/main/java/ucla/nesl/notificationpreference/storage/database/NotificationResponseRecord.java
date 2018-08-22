@@ -48,7 +48,7 @@ public class NotificationResponseRecord {
     public int optionID;
 
     @ColumnInfo(name = "is_dismissed")
-    public int is_dismissed = 0;
+    public int isDismissed = 0;
 
     @ColumnInfo(name = "expired_time")
     public long expiredTime = NOT_SET;
