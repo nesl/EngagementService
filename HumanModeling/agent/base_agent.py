@@ -1,6 +1,6 @@
 from constant import *
 
-from utils import utils
+from human_modeling_utils import utils
 
 
 class BaseAgent:

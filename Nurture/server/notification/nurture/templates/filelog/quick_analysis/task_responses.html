@@ -1,0 +1,12 @@
+<p>
+Total notifications: {{num_total_notifications}}<br/>
+Answered notifications: {{num_answered_responses}} ({{answered_perc}}%)
+</p>
+<p>
+  distribution:
+  <ul>
+    {% for bundle in distribution %}
+      <li>{{bundle.name}}: {{bundle.answered}} are answered, {{bundle.correct}} are correct ({{bundle.correct_perc}}%)</li>
+    {% endfor %}
+  </ul>
+</p>

@@ -18,12 +18,16 @@
           <thead class="thead-default">
             <th>User</th>
             <th>Status</th>
-            <th>Learning Policy</th>
+            <th>Learning<br/>Policy</th>
             <th>Join Date</th>
-            <th>Last Uploading Time</th>
+            <th>Recent File<br/>Uploading Time</th>
             <th>
-              Action Request Time<br/>
+              Connection Time<br/>
               <span style="font-weight:normal; font-style:italic; font-size:13px; color:#666">10m / 1h / 1d</span>
+            </th>
+            <th>
+              Action Time<br/>
+              <span style="font-weight:normal; font-style:italic; font-size:13px; color:#666">All / A / D</span>
             </th>
             <th>Actions</th>
           <thead>
@@ -35,34 +39,51 @@
               {{entry.user.name}}
             </td>
             <td>{{entry.user.get_status_display}}</td>
-            <td>{{entry.user.get_learning_agent_display}}</td>
             <td>
-              {{entry.user.created_time}}<br/>
+              {{entry.user.get_learning_agent_display}}
+              {% if entry.user.hit_cap %}
+                <br/><span style="color:green; font-style:italic">(capped)</span>
+              {% endif %}
+            </td>
+            <td>
+              {{entry.user.created_time|date:'N d, g:i a'}}<br/>
               {% time_since_flag_anomaly entry.user.created_time 10000000 %}
             </td>
             <td>
               {% if entry.last_uploading_time is None %}
-                No file uploaded yet
+                <span style="color:#ccc; font-style:italic">No files have<br/>been uploaded yet</span>
               {% else %}
-                {{entry.last_uploading_time}}<br/>
+                {{entry.last_uploading_time|date:'N d, g:i a'}}<br/>
                 {% time_since_flag_anomaly entry.last_uploading_time 86400 %}
               {% endif %}
             </td>
             <td>
-              {% if entry.last_action_request_time is None %}
-                No action request is made yet
+              {% if entry.last_request_time is None %}
+                <span style="color:#ccc; font-style:italic">No connection<br/>has requested yet</span>
               {% else %}
-                {{entry.last_action_request_time}}<br/>
+                {{entry.last_request_time|date:'N d, g:i a'}}<br/>
                 <span class="highlight-okay">
-                  {{entry.action_request_stat.ago_10m|flag_anomaly_if_value:0}} /
-                  {{entry.action_request_stat.ago_1h|flag_anomaly_if_value:0}} /
-                  {{entry.action_request_stat.ago_1d|flag_anomaly_if_value:0}}
+                  {{entry.connection_stat.ago_10m|flag_anomaly_if_value:0}} /
+                  {{entry.connection_stat.ago_1h|flag_anomaly_if_value:0}} /
+                  {{entry.connection_stat.ago_1d|flag_anomaly_if_value:0}}
+                </span>
+              {% endif %}
+            </td>
+            <td>
+              {% if entry.last_action_time is None %}
+                <span style="color:#ccc; font-style:italic">No action<br/>is made yet</span>
+              {% else %}
+                {{entry.last_action_time|date:'N d, g:i a'}}<br/>
+                <span class="highlight-okay">
+                  {{entry.response_stat.num_notifications|flag_anomaly_if_value:0}} /
+                  {{entry.response_stat.num_accepted|flag_anomaly_if_value:0}} /
+                  {{entry.response_stat.num_dismissed}}
                 </span>
               {% endif %}
             </td>
             <td>
               <a href="{% url 'dashboard-responses' entry.user.code %}" class="btn btn-primary">Response</a>
-              <a href="{% url 'dashboard-latest-upload-simplified' entry.user.code %}" class="btn btn-primary">Upload files</a>
+              <a href="{% url 'dashboard-latest-upload-simplified' entry.user.code %}" class="btn btn-primary">Files</a>
             </td>
           </tr>
         {% endfor %}

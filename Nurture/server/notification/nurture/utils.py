@@ -97,6 +97,8 @@ def get_learning_agent_class_for_user(app_user):
             AppUser.LEARNING_AGENT_Q_LEARNING_REPLAY: QLearningPrioritizedReplayAgent,
             AppUser.LEARNING_AGENT_DEBUG: DebugAgent,
             AppUser.LEARNING_AGENT_SILENT: SilentAgent,
+            AppUser.LEARNING_AGENT_TF_DQN: TensorForceDQNAgent,
+            AppUser.LEARNING_AGENT_COACH_A3C: CoachA3CAgent,
     }
     return agents[app_user.learning_agent]
 
@@ -125,6 +127,7 @@ def prepare_initial_model(LearningAgentClass):
             LearningAgentClass.get_policy_file_name())
     if not os.path.isfile(model_path):
         learning_agent = LearningAgentClass()
+        learning_agent.on_pickle_save()
         dill.dump(learning_agent, open(model_path, "wb"))
 
     return model_path
@@ -141,3 +144,14 @@ def argmax_dict(d):
 
 def max_dict_val(d):
     return max([d[k] for k in d])
+
+
+def get_ratio(n, d):
+    return 0. if d == 0 else n / d
+
+def is_file_extended(path_from, path_to):
+    with open(path_from, 'rb') as f:
+        content_small = f.read()
+    with open(path_to, 'rb') as f:
+        content_big = f.read()
+    return content_big.startswith(content_small)

@@ -4,7 +4,7 @@ import numpy as np
 from collections import Counter
 
 from constant import *
-from utils import utils
+from human_modeling_utils import utils
 from .base_environment import BaseEnvironment
 
 

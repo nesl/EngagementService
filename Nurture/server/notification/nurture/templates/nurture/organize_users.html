@@ -20,6 +20,7 @@
               <th>User Name</th>
               <th>Status</th>
               <th>Learning Agent</th>
+              <th>Capped</th>
             <thead>
           </tr>
           {% for user in users %}
@@ -29,6 +30,7 @@
               <td><input type="text" name="{{user.code}}-name" value="{{user.name}}"></td>
               <td>{% select_html_tag_user_specific user 'status' status_options user.status %}</td>
               <td>{% select_html_tag_user_specific user 'agent' learning_agent_options user.learning_agent %}</td>
+              <td><input type="checkbox" name="{{user.code}}-cap" value="hit-cap" {% if user.hit_cap %}checked{% endif %}></td>
             </tr>
           {% endfor %}
         </table>

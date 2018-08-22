@@ -2,6 +2,7 @@ import pytz
 import random
 import base64
 import dill
+import datetime
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -10,6 +11,9 @@ from django.utils import timezone
 
 from nurture.models import *
 from nurture import utils
+
+
+NOTIFICATION_DAILY_VOLUME_CAP = 55
 
 
 @csrf_exempt
@@ -34,6 +38,7 @@ def get_user_code(request):
             status=AppUser.STATUS_ACTIVE,
             created_time=timezone.now(),
             learning_agent=AppUser.LEARNING_AGENT_RANDOM,
+            hit_cap=False,
     )
     return HttpResponse(code, status=200)
 
@@ -83,6 +88,15 @@ def upload_log_file(request):
 
     record.save()
 
+    # delete previous file if the latest version covers everything of the previous version
+    # (it should always be the case unless a user reinstall the app)
+    files = FileLog.objects.filter(user=user, type=type).order_by('-id')
+    if len(files) >= 2:
+        prev_file_log = files[1]
+        if utils.is_file_extended(prev_file_log.get_path(), record.get_path()):
+            os.remove(prev_file_log.get_path())
+            prev_file_log.delete()
+
     return HttpResponse("Ok", status=200)
 
 
@@ -106,6 +120,29 @@ def _is_night(state):
     morning_threshold = 10. / 24.  # 10am
     evening_threshold = 22. / 24.  # 10pm
     return state.timeOfDay < morning_threshold or state.timeOfDay > evening_threshold
+
+def _reach_notification_quota(user):
+    # to address the problem of different timezones, we first select the actions in the past
+    # 24 hours, and then figure out when is the start of the day
+    now = timezone.now()
+    ago_1d = now - datetime.timedelta(days=1)
+    action_logs = ActionLog.objects.filter(
+            user=user, action_message='action-1', query_time__gt=ago_1d).order_by('id')
+    
+    if len(action_logs) > NOTIFICATION_DAILY_VOLUME_CAP:
+        # let's figure out when is the start day only when we need, i.e., the number of selected
+        # records is more than the threshold. we choose the first day switch (i.e., the timestamp
+        # of predecessor is larger than the current record
+        time_of_day = [float(a.reward_state_message.split(';')[1][1:-1].split(',')[0])
+                for a in action_logs]
+        total = len(action_logs)
+        for i in range(len(time_of_day) - 1):
+            if time_of_day[i] > time_of_day[i+1]:
+                action_logs = action_logs[i+1:total]
+                break
+
+    return len(action_logs) >= NOTIFICATION_DAILY_VOLUME_CAP
+
 
 @csrf_exempt
 def get_action(request):
@@ -135,6 +172,8 @@ def get_action(request):
             reward_state_message=raw_reward_state_message,
             action_message='?',
             reward=0.,
+            num_accepted=0,
+            num_dismissed=0,
             processing_status=ActionLog.STATUS_REQUEST_RECEIVED,
     )
 
@@ -149,8 +188,13 @@ def get_action(request):
         terms = [t[1:-1] for t in terms]
         if terms[0] == '':
             reward = 0.
+            num_accepted = 0
+            num_dismissed = 0
         else:
-            reward = sum(list(map(_process_reward_sub_term, terms[0].split(','))))
+            reward_list = list(map(_process_reward_sub_term, terms[0].split(',')))
+            reward = sum(reward_list)
+            num_accepted = len([r for r in reward_list if r > 0.])
+            num_dismissed = len([r for r in reward_list if r < 0.])
     except:
         utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_INVALID_REWARD
@@ -173,13 +217,18 @@ def get_action(request):
     try:
         LearningAgent = utils.get_learning_agent_class_for_user(user)
 
-        if LearningAgent.non_disturb_mode_during_night() and _is_night(state1):
+        if user.hit_cap and _reach_notification_quota(user):
+            # unfortunately, cannot send anymore notifications
+            action = 'c'
+        elif LearningAgent.non_disturb_mode_during_night() and _is_night(state1):
             # non disturb mode
-            action = 0
+            action = 'z'
         else:
             # regular mode
             model_path = utils.prepare_learning_agent(user)
             agent = dill.load(open(model_path, 'rb'))
+            agent.on_pickle_load()
+            agent.set_user_code(user.code)
 
             agent.feed_reward(reward)
             send_notification = agent.get_action(state1)
@@ -187,18 +236,21 @@ def get_action(request):
                 agent.restart_episode()
                 send_notification = agent.get_action(state2)
 
+            agent.on_pickle_save()
             dill.dump(agent, open(model_path, 'wb'))
 
-            action = 1 if send_notification else 0
+            action = '1' if send_notification else '0'
     except:
         utils.log_last_exception(request, user)
         log.processing_status = ActionLog.STATUS_POLICY_EXECUTION_FAILURE
         log.save()
         return HttpResponse("Bad", status=404)
 
-    action_message = "action-%d" % action
+    action_message = "action-%s" % action
 
     log.reward = reward
+    log.num_accepted = num_accepted
+    log.num_dismissed = num_dismissed
     log.action_message = action_message
     log.processing_status = ActionLog.STATUS_OKAY
     log.save()
