@@ -86,7 +86,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
     }
 
     public void recordDismissedNotification(int notificationID) {
-        getDao().setDismiss(notificationID);
+        getDao().setDismiss(notificationID, System.currentTimeMillis());
     }
 
     public void expireOneNotification(int notificationID) {
@@ -114,6 +114,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                     "answer",
                     "option_ID",
                     "is_dismissed",
+                    "dismiss_time",
                     "expired_time"
             });
 
@@ -129,6 +130,7 @@ public abstract class NotificationResponseRecordDatabase extends RoomDatabase {
                         String.valueOf(record.answer),
                         String.valueOf(record.optionID),
                         String.valueOf(record.isDismissed),
+                        String.valueOf(record.dismissTime),
                         String.valueOf(record.expiredTime)
                 });
             }

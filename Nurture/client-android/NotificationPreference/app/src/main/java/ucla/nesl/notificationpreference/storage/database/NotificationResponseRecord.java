@@ -50,6 +50,9 @@ public class NotificationResponseRecord {
     @ColumnInfo(name = "is_dismissed")
     public int isDismissed = 0;
 
+    @ColumnInfo(name = "dismiss_time")
+    public long dismissTime = NOT_SET;
+
     @ColumnInfo(name = "expired_time")
     public long expiredTime = NOT_SET;
 

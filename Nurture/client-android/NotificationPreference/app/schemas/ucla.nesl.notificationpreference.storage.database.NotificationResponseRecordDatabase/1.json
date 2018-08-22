@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "45bcfc322ab5a443cda3829d9fd92298",
+    "identityHash": "5b87f55ff04c17a4bddac7665f7d0f86",
     "entities": [
       {
         "tableName": "notification_response_record",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_time` INTEGER NOT NULL, `question_type` INTEGER NOT NULL, `sub_question_type` INTEGER NOT NULL, `status` INTEGER NOT NULL, `answer_time` INTEGER NOT NULL, `answer` TEXT NOT NULL, `option_id` INTEGER NOT NULL, `is_dismissed` INTEGER NOT NULL, `expired_time` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_time` INTEGER NOT NULL, `question_type` INTEGER NOT NULL, `sub_question_type` INTEGER NOT NULL, `status` INTEGER NOT NULL, `answer_time` INTEGER NOT NULL, `answer` TEXT NOT NULL, `option_id` INTEGER NOT NULL, `is_dismissed` INTEGER NOT NULL, `dismiss_time` INTEGER NOT NULL, `expired_time` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "ID",
@@ -63,6 +63,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "dismissTime",
+            "columnName": "dismiss_time",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "expiredTime",
             "columnName": "expired_time",
             "affinity": "INTEGER",
@@ -81,7 +87,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"45bcfc322ab5a443cda3829d9fd92298\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"5b87f55ff04c17a4bddac7665f7d0f86\")"
     ]
   }
 }

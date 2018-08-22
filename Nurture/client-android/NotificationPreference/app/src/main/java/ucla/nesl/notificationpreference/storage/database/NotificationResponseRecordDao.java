@@ -56,9 +56,9 @@ public interface NotificationResponseRecordDao {
     void updateAnswer(int notificationID, long answerTime, String answer, int optionID);
 
     @Query("UPDATE notification_response_record " +
-           "SET is_dismissed = 1 " +
+           "SET is_dismissed = 1, dismiss_time = :dismissTime " +
            "WHERE ID = :notificationID")
-    void setDismiss(int notificationID);
+    void setDismiss(int notificationID, long dismissTime);
 
     @Query("UPDATE notification_response_record " +
             "SET expired_time = :expireTime, " +
