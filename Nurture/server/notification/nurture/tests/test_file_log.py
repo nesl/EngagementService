@@ -15,6 +15,7 @@ class FileLogTestCase(TestCase):
                 status=AppUser.STATUS_ACTIVE,
                 created_time=datetime.datetime(2018, 6, 13, 17, 55, 42),
                 learning_agent=AppUser.LEARNING_AGENT_DEBUG,
+                hit_cap=False,
         )
         file_log = FileLog.objects.create(
                 user=user,
