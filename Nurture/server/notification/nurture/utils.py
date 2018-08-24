@@ -4,6 +4,7 @@ import sys
 import traceback
 import dill
 import shutil
+import datetime
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -149,9 +150,82 @@ def max_dict_val(d):
 def get_ratio(n, d):
     return 0. if d == 0 else n / d
 
+
 def is_file_extended(path_from, path_to):
     with open(path_from, 'rb') as f:
         content_small = f.read()
     with open(path_to, 'rb') as f:
         content_big = f.read()
     return content_big.startswith(content_small)
+
+
+def time_of_day_2_hms(v):
+    v *= 24
+    h = int(v)
+    v -= h
+    v *= 60
+    m = int(v)
+    v -= m
+    v *= 60
+    s = int(v)
+    return h, m, s
+
+
+def weekday_difference(weekday_ref, weekday_target):
+    """
+    Return
+      1     if `weekday_target` is one day ahead of `weekday_ref`
+      0     if `weekday_target` and `weekday_ref` are the same
+      -1    if `weekday_target` is one day behind of `weekday_ref`
+      None  otherwise
+    """
+    if weekday_target == weekday_ref:
+        return 0
+    if (weekday_target + 7 - weekday_ref) % 7 == 1:
+        return 1
+    if (weekday_target + 7 - weekday_ref) % 7 == 6:
+        return -1
+    return None
+
+
+def calibrate_sensor_time(action_log_datetime, sensor_time_of_day, sensor_time_of_week, best_effort=False):
+    sensor_weekday = int(sensor_time_of_week * 7.)
+
+    # since Nurture app considers Sunday as 0 and Python considers Monday as 0, we'll align with
+    # Python's definition
+    sensor_weekday = 6 if sensor_weekday == 0 else sensor_weekday - 1
+
+    weekday_diff = weekday_difference(action_log_datetime.weekday(), sensor_weekday)
+
+    if weekday_diff is None:
+        if not best_effort:
+            raise Exception("Cannot calibrate sensor time (weekdays differ to much)")
+        else:
+            weekday_diff = 0
+
+    action_log_datetime += datetime.timedelta(days=weekday_diff)
+    h, m, s = time_of_day_2_hms(sensor_time_of_day)
+    return action_log_datetime.replace(hour=h, minute=m, second=s)
+
+
+def get_first_calibrated_sensor_time_in_action_log(action_log, best_effort=False):
+    terms = action_log.reward_state_message.split(';')[1][1:-1].split(',')
+    return calibrate_sensor_time(
+            action_log_datetime=action_log.query_time,
+            sensor_time_of_day=float(terms[0]),
+            sensor_time_of_week=float(terms[1]),
+            best_effort=best_effort,
+    )
+
+def get_recent_calibrated_sensor_time_in_action_log(action_log, best_effort=False):
+    categories = action_log.reward_state_message.split(';')
+    if len(categories) == 3:
+        return get_first_calibrated_sensor_time_in_action_log(action_log, best_effort)
+
+    terms = categories[3][1:-1].split(',')
+    return calibrate_sensor_time(
+            action_log_datetime=action_log.query_time,
+            sensor_time_of_day=float(terms[0]),
+            sensor_time_of_week=float(terms[1]),
+            best_effort=best_effort,
+    )
