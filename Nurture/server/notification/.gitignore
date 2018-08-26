@@ -13,7 +13,7 @@ __pycache__
 /static/
 
 # analysis code
-analysis.ipynb
+internal_*.ipynb
 
 # prod settings
 notification_uwsgi.ini
