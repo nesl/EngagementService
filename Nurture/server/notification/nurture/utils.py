@@ -229,3 +229,36 @@ def get_recent_calibrated_sensor_time_in_action_log(action_log, best_effort=Fals
             sensor_time_of_week=float(terms[1]),
             best_effort=best_effort,
     )
+
+
+def _process_reward_term(text):
+    terms = text.split(':')
+    value = float(terms[0])
+    delay = float(terms[1]) if len(terms) >= 2 else None
+    return (value, delay)
+
+def get_action_log_lazy_bundle(action_log):
+    """
+    A dictionary of
+      - 'raw_obj' the action_log
+      - 'raw_reward_msg'
+      - 'rewards' which is a list of (reward, time)
+      - 'raw_state_msgs'
+      - 'states' which is a list of states
+    """
+    ret = {}
+    ret['raw_obj'] = action_log
+    terms = [t[1:-1] for t in action_log.reward_state_message.split(';')]
+    reward_msg = terms[0]
+    ret['raw_reward_msg'] = reward_msg
+    if reward_msg == '':
+        ret['rewards'] = []
+    else:
+        ret['rewards'] = list(map(_process_reward_term, reward_msg.split(',')))
+    state_msgs = []
+    state_msgs.append(terms[1])
+    if len(terms) == 4:
+        state_msgs.append(terms[3])
+    ret['raw_state_msgs'] = state_msgs
+    ret['states'] = list(map(convert_request_text_to_state, state_msgs))
+    return ret

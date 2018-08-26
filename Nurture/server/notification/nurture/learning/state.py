@@ -81,3 +81,14 @@ class State:
             ringerMode=State.RINGER_MODE_SILENT,
             screenStatus=State.SCREEN_STATUS_ON,
         )
+
+    def __eq__(self, other):
+        return all([
+            self.timeOfDay == other.timeOfDay,
+            self.dayOfWeek == other.dayOfWeek,
+            self.motion == other.motion,
+            self.location == other.location,
+            self.notificationTimeElapsed == other.notificationTimeElapsed,
+            self.ringerMode == other.ringerMode,
+            self.screenStatus == other.screenStatus,
+        ])

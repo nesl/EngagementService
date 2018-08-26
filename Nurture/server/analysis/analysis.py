@@ -1,8 +1,10 @@
 import datetime
 
+from notification import settings
 from nurture.models import *
 from nurture import utils
-from notification import settings
+from nurture.learning import learning_utils
+from nurture.learning.state import State
 
 
 def _to_token(datetime_obj):
@@ -132,3 +134,15 @@ def get_user_response_analysis(code):
         'accept_times': accept_times,
         'dismiss_times': dismiss_times,
     }
+
+
+def make_feature_vector(state):
+    return learning_utils.smart_list_concatenation(
+            state.timeOfDay,
+            state.dayOfWeek,
+            learning_utils.one_hot_list(state.motion, State.allMotionValues()),
+            learning_utils.one_hot_list(state.location, State.allLocationValues()),
+            state.notificationTimeElapsed / 60.0,
+            learning_utils.one_hot_list(state.ringerMode, State.allRingerModeValues()),
+            state.screenStatus,
+    )
