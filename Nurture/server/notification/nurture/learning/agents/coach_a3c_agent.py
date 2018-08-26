@@ -37,7 +37,7 @@ class CoachA3CAgent(BaseAgent):
         if self._too_close_to_previous_notification():
             send_notification = False
         else:
-            gym_state = self._to_gym_state(state)
+            gym_state = learning_utils.get_feature_vector_one_hot_classic(state)
             self.num_steps += 1
             done = (self.num_steps % kEpisodeLengthSteps == 0)
             action = self._wait_for_action(self.last_reward, done, gym_state)

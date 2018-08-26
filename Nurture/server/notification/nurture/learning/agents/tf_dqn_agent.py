@@ -2,7 +2,6 @@ import math
 import itertools
 import datetime
 
-
 from nurture.learning import learning_utils
 from nurture.learning.state import State
 from nurture.learning.agents.base_agent import BaseAgent
@@ -110,15 +109,7 @@ class TensorForceDQNAgent(BaseAgent):
         print("[tf-dqn] on_pickle_load() done")
 
     def _to_gym_state(self, state):
-        return learning_utils.smart_list_concatenation(
-                state.timeOfDay,
-                state.dayOfWeek,
-                learning_utils.one_hot_list(state.motion, State.allMotionValues()),
-                learning_utils.one_hot_list(state.location, State.allLocationValues()),
-                math.log(learning_utils.clip(state.notificationTimeElapsed, 5.0, 60.0)),
-                learning_utils.one_hot_list(state.ringerMode, State.allRingerModeValues()),
-                state.screenStatus,
-        )
+        return learning_utils.get_feature_vector_one_hot_classic(state)
 
     def _get_exploration_rate(self, num_steps):
         # in the beginning = 0.1

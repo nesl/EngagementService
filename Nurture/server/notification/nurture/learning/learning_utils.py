@@ -2,6 +2,9 @@ import itertools
 import string
 import random
 import os
+import math
+
+from nurture.learning.state import State
 
 
 def argmax_dict(d):
@@ -49,3 +52,25 @@ def restore_files_to_disk(folder_path, data):
     for filename in data:
         with open(os.path.join(folder_path, filename), 'wb') as fo:
             fo.write(data[filename])
+    
+def get_feature_vector_one_hot_classic(state):
+	return smart_list_concatenation(
+			state.timeOfDay,
+			state.dayOfWeek,
+			one_hot_list(state.motion, State.allMotionValues()),
+			one_hot_list(state.location, State.allLocationValues()),
+			math.log(clip(state.notificationTimeElapsed, 5.0, 60.0)),
+			one_hot_list(state.ringerMode, State.allRingerModeValues()),
+			state.screenStatus,
+	)
+
+def get_feature_vector_one_hot_no_log(state):
+	return smart_list_concatenation(
+			state.timeOfDay,
+			state.dayOfWeek,
+			one_hot_list(state.motion, State.allMotionValues()),
+			one_hot_list(state.location, State.allLocationValues()),
+			clip(state.notificationTimeElapsed, 0., 120) / 60.0,
+			one_hot_list(state.ringerMode, State.allRingerModeValues()),
+			state.screenStatus,
+	)
