@@ -1,5 +1,9 @@
 import dill
 import datetime
+import os
+from collections import defaultdict
+
+import numpy as np
 
 from notification import settings
 from nurture.models import *
@@ -175,3 +179,107 @@ def prepare_supervised_learning_model(user_code):
             '%s.p' % agent.get_policy_name(),
     )
     dill.dump(agent, open(model_path, 'wb'))
+
+
+def _parse_mid_survey_result_line(line):
+    terms = line.strip().split("\t")
+    try:
+        code = terms[1].zfill(5)
+        week = int(terms[2][5:])  # e.g., "Week 1"
+        appropriate_time_score = int(terms[3][0:1])
+        overall_experience_score = int(terms[4][0:1])
+        return {
+                'code': code,
+                'week': week,
+                'appropriate_time_score': appropriate_time_score,
+                'overall_experience_score': overall_experience_score,
+        }
+    except:
+        return None
+
+
+def get_mid_survey_results():
+    """
+    Return a dictionary of
+        'appropriate_time' -> a dictionary of
+            user_code => a `list` of weekly rating
+        'overall_experience'
+            user_code => a `list` of weekly rating
+    """
+
+    # process mid survey file
+    file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'secret',
+            'external_data',
+            'mid_survey_result.txt',
+    )
+    
+    with open(file_path) as f:
+        lines = f.readlines()
+
+    processed = [_parse_mid_survey_result_line(l) for l in lines[1:]]
+    processed = [p for p in processed if p is not None]
+
+    # group by user
+    processed_by_user = defaultdict(list)
+    for p in processed:
+        processed_by_user[p['code']].append(p)
+
+    ret = {
+            'appropriate_time': {},
+            'overall_experience': {},
+    }
+    for code in processed_by_user:
+        processed_list = processed_by_user[code]
+        processed_list_by_week = {p['week']: p for p in processed_list}
+        appropriate_time_score_list = []
+        overall_experience_score_list = []
+        for week_id in range(1, 7):
+            if week_id not in processed_list_by_week:
+                break
+            p = processed_list_by_week[week_id]
+            appropriate_time_score_list.append(p['appropriate_time_score'])
+            overall_experience_score_list.append(p['overall_experience_score'])
+        ret['appropriate_time'][code] = appropriate_time_score_list
+        ret['overall_experience'][code] = overall_experience_score_list
+
+    return ret
+
+
+def process_mid_survey_results_filter_users(mid_survey_results, user_keep_list):
+    """
+    Params:
+      - mid_survey_results: return value from `get_mid_survey_results()` 
+      - user_keep_list: a `list` of user codes that we want to keep
+    """
+    ret = {}
+    for score_type in mid_survey_results:
+        ret[score_type] = {}
+        for code in mid_survey_results[score_type]:
+            if code in user_keep_list:
+                ret[score_type][code] = mid_survey_results[score_type][code]
+    return ret
+
+
+def compute_mid_survey_results_weekly_mean_std(mid_survey_results):
+    """
+    Params:
+      - mid_survey_results: return value from `get_mid_survey_results()`, or processed from
+                            `process_mid_survey_results_filter_users()`
+    """
+    ret = {}
+    for score_type in mid_survey_results:
+        rating_list_by_week = [[] for _ in range(6)]
+        input_data = mid_survey_results[score_type]
+        for code in input_data:
+            for week_idx, score in enumerate(input_data[code]):
+                rating_list_by_week[week_idx].append(score)
+        ret[score_type] = {
+                'mean': [(np.mean(ratings) if len(ratings) > 0 else 0.0)
+                        for ratings in rating_list_by_week],
+                'std': [(np.std(ratings) if len(ratings) > 0 else 0.0)
+                        for ratings in rating_list_by_week]
+        }
+
+    return ret
