@@ -28,7 +28,7 @@ class ClassificationAgent(BaseAgent):
         if self._too_close_to_previous_notification():
             send_notification = False
         else:
-            action = self.model.predict(state)
+            action = self.classifier.predict(state)
             send_notification = (action == 1)
 
         # remember when we send notification
@@ -47,7 +47,7 @@ class ClassificationAgent(BaseAgent):
         pass
 
     def generate_initial_model(self):
-        self.gym_stage = ClassificationAgent.STAGE_PREDICTION
+        self.gym_stage = ClassificationAgent.STAGE_WAIT_TRAINING
         self.last_notification_time = datetime.datetime(2000, 1, 1, 0, 0, 0)
 
     def load_model(self, filepath):
