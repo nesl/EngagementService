@@ -1,5 +1,3 @@
-import math
-import itertools
 import datetime
 
 from nurture.learning import learning_utils
