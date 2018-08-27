@@ -1,3 +1,4 @@
+import dill
 import datetime
 
 from notification import settings
@@ -5,6 +6,7 @@ from nurture.models import *
 from nurture import utils
 from nurture.learning import learning_utils
 from nurture.learning.state import State
+from nurture.learning.agents.classification_agent import ClassificationAgent
 
 
 def _to_token(datetime_obj):
@@ -136,13 +138,40 @@ def get_user_response_analysis(code):
     }
 
 
-def make_feature_vector(state):
-    return learning_utils.smart_list_concatenation(
-            state.timeOfDay,
-            state.dayOfWeek,
-            learning_utils.one_hot_list(state.motion, State.allMotionValues()),
-            learning_utils.one_hot_list(state.location, State.allLocationValues()),
-            state.notificationTimeElapsed / 60.0,
-            learning_utils.one_hot_list(state.ringerMode, State.allRingerModeValues()),
-            state.screenStatus,
+def make_training_dataset(user_code, start_datetime=None, end_datetime=None,
+        dismiss_weight=5):
+    responses = get_action_response(user_code)
+
+    if start_datetime is not None:
+        responses = filter(lambda r: r.query_time >= start_datetime, responses)
+    if end_datetime is not None:
+        responses = filter(lambda r: r.query_time <= end_datetime, responses)
+
+    action_log_bundle_list = list(map(utils.get_action_log_lazy_bundle, [r[0] for r in responses]))
+    states = []
+    labels = []
+    for bundle, response in zip(action_log_bundle_list, responses):
+        state = bundle['states'][-1]
+        label = 1 if response[1] == 'accepted' else 0
+        repeat = dismiss_weight if response[1] == 'dismissed' else 1
+        for _ in range(repeat):
+            states.append(state)
+            labels.append(label)
+    return states, labels
+
+
+def prepare_supervised_learning_model(user_code):
+    print("Make training data for %s" % user_code)
+    states, labels = make_training_dataset(user_code)
+    print("Total %d instances, %d with positive labels" % (len(labels), sum(labels)))
+    print("Picking a model, it will take a few minutes ...")
+    agent = ClassificationAgent()
+    agent.prepare_classifier(states, labels)
+    print("We got a model! The agent choose %s algorithm" % agent.output_classifier_name())
+
+    model_path = os.path.join(
+            settings.USER_MODEL_ROOT,
+            user_code,
+            '%s.p' % agent.get_policy_name(),
     )
+    dill.dump(agent, open(model_path, 'wb'))
