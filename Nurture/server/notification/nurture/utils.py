@@ -100,6 +100,7 @@ def get_learning_agent_class_for_user(app_user):
             AppUser.LEARNING_AGENT_SILENT: SilentAgent,
             AppUser.LEARNING_AGENT_TF_DQN: TensorForceDQNAgent,
             AppUser.LEARNING_AGENT_COACH_A3C: CoachA3CAgent,
+            AppUser.LEARNING_AGENT_CLASSIFICATION: ClassificationAgent,
     }
     return agents[app_user.learning_agent]
 

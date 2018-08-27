@@ -25,6 +25,7 @@ class AppUser(models.Model):
     LEARNING_AGENT_SILENT = 5
     LEARNING_AGENT_TF_DQN = 6
     LEARNING_AGENT_COACH_A3C = 7
+    LEARNING_AGENT_CLASSIFICATION = 8
 
     LEARNING_AGENT_TYPES = (
             (LEARNING_AGENT_RANDOM, 'Random'),
@@ -33,6 +34,7 @@ class AppUser(models.Model):
             (LEARNING_AGENT_Q_LEARNING_REPLAY, 'Q-learning-replay'),
             (LEARNING_AGENT_TF_DQN, 'DQN (TF)'),
             (LEARNING_AGENT_COACH_A3C, 'A3C (coach)'),
+            (LEARNING_AGENT_CLASSIFICATION, 'Classification'),
             (LEARNING_AGENT_DEBUG, 'Debug'),
             (LEARNING_AGENT_SILENT, 'Silent'),
     )

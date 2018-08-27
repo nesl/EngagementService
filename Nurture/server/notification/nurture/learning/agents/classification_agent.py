@@ -86,7 +86,7 @@ class ClassificationAgent(BaseAgent):
         models = {
                 'svm': SVMClassifier(),
                 'rf': RFClassifier(),
-                #'nn': NNClassifier(),
+                'nn': NNClassifier(),
         }
         mid = int(len(states) * 0.8)
         for name in models:
@@ -102,11 +102,6 @@ class ClassificationAgent(BaseAgent):
         self.classifier = models[self.classifier_name]
         
         self.stage = ClassificationAgent.STAGE_PREDICTION
-
-        print('== SVM ==')
-        print(models['svm'].clf.grid_scores_)
-        print('== RF ==')
-        print(models['rf'].clf.grid_scores_)
 
     def output_classifier_name(self):
         if self.stage == ClassificationAgent.STAGE_WAIT_TRAINING:

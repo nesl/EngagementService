@@ -13,9 +13,9 @@ from nurture.learning import learning_utils
 
 
 kTunedParameters = { 
-        'layer1_node': [4, 8, 14, 22, 32],
+        'layer1_node': [8, 18, 32],
         'layer1_activation': ['relu', 'tanh'],
-        'layer2_node': [4, 8, 14, 22, 32],
+        'layer2_node': [8, 18, 32],
         'layer2_activation': ['relu', 'tanh'],
 }
 kFold = 5
