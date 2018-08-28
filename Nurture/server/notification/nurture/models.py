@@ -72,6 +72,11 @@ class FileLog(models.Model):
 
 
 class ActionLog(models.Model):
+    class Meta:
+        index_together = [
+                ('user', 'query_time'),
+        ]
+
     STATUS_REQUEST_RECEIVED = 0
     STATUS_INVALID_REWARD = 1
     STATUS_INVALID_STATE = 2
