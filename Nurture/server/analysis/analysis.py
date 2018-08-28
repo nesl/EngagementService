@@ -12,6 +12,8 @@ from nurture.learning import learning_utils
 from nurture.learning.state import State
 from nurture.learning.agents.classification_agent import ClassificationAgent
 
+from secret import user_list
+
 
 def _to_token(datetime_obj):
     return datetime_obj.strftime("%m%d%H%M")
@@ -106,6 +108,24 @@ def get_action_response(user_code):
         results.append((acted_log, status, delay))
         
     return results
+
+
+def get_action_response_by_bucket(code, bucket_size_days):
+    """
+    Return a `list` of lists, each sub-list includes a list of *action response*, which is defined
+    in `get_action_response()`.
+    """
+    study_start_date = user_list.get_user_study_start_date()[code]
+    today = datetime.datetime.now(pytz.timezone(settings.TIME_ZONE))
+    num_buckets = (today - study_start_date).days // bucket_size_days
+    assert num_buckets >= 0
+    ret = [[] for _ in range(num_buckets)]
+    responses = get_action_response(code)
+    for r in responses:
+        bucket_id = (r[0].query_time - study_start_date).days // bucket_size_days
+        if 0 <= bucket_id < num_buckets:
+            ret[bucket_id].append(r)
+    return ret
 
 
 def get_user_response_analysis(code):
