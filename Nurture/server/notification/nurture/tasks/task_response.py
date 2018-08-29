@@ -12,7 +12,6 @@ class TaskResponse:
                 assert term[0] == '"'
                 assert term[-1] == '"'
                 terms[i] = terms[i][1:-1]
-            print(terms)
             response = TaskResponse()
             response.id = int(terms[0])
             response.created_time = int(terms[1])

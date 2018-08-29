@@ -11,6 +11,7 @@ from nurture import utils
 from nurture.learning import learning_utils
 from nurture.learning.state import State
 from nurture.learning.agents.classification_agent import ClassificationAgent
+from nurture.tasks.task_response import TaskResponse
 
 from secret import user_list
 
@@ -301,5 +302,27 @@ def compute_mid_survey_results_weekly_mean_std(mid_survey_results):
                 'std': [(np.std(ratings) if len(ratings) > 0 else 0.0)
                         for ratings in rating_list_by_week]
         }
+
+    return ret
+
+
+def get_task_responses_by_bucket(user_code, bucket_size_day):
+    study_start_date = user_list.get_user_study_start_date()[user_code]
+    today = datetime.datetime.now(pytz.timezone(settings.TIME_ZONE))
+    num_buckets = (today - study_start_date).days // bucket_size_day
+    assert num_buckets >= 0
+    ret = [[] for _ in range(num_buckets)]
+
+    user = AppUser.objects.get(code=user_code)
+    file_log = FileLog.objects.filter(user=user, type='task-response').last()
+    assert file_log is not None
+    responses = TaskResponse.parse_response_file(file_log.get_path())
+
+    for r in responses:
+        created_datetime = datetime.datetime.fromtimestamp(
+                r.created_time // 1000, tz=pytz.timezone(settings.TIME_ZONE))
+        bucket_id = (created_datetime - study_start_date).days // bucket_size_day
+        if 0 <= bucket_id < num_buckets:
+            ret[bucket_id].append(r)
 
     return ret
