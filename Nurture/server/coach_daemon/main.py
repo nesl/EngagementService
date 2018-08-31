@@ -218,10 +218,11 @@ if __name__ == "__main__":
     reward_state_path = os.path.join(user_folder, 'reward_state.txt')
     action_path = os.path.join(user_folder, 'action.txt')
     heartbeat_path = os.path.join(user_folder, 'heartbeat.txt')
-    step_path = os.path.join(user_folder, 'step.txt')
+    #step_path = os.path.join(user_folder, 'step.txt')
     action_likelihood_path = os.path.join(user_folder, 'action_likelihood.txt')
 
-    num_steps = load_step(step_path) if checkpoint_restore_dir is not None else 0
+    #num_steps = load_step(step_path) if checkpoint_restore_dir is not None else 0
+    num_steps = 0
 
     initial_epsilon, final_epsilon, epsilon_decay = get_epsilon_params(num_steps)
 
@@ -289,8 +290,8 @@ if __name__ == "__main__":
             with open(action_likelihood_path, 'a') as fo:
                 fo.write("%s\taction\t%s\n" % (
                     datetime.datetime.now().strftime(DATETIME_FORMAT), str(action)))
-            with open(step_path, 'w') as fo:
-                fo.write(str(num_steps))
+            #with open(step_path, 'w') as fo:
+            #    fo.write(str(num_steps))
             print('processed, action', action)
 
         with open(heartbeat_path, 'w') as fo:
