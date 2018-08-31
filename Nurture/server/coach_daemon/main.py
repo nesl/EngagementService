@@ -18,7 +18,9 @@ from environments import create_environment
 from agents import *
 from exploration_policies.e_greedy import EGreedy
 
+
 DATETIME_FORMAT = "%Y/%b/%d %H:%M:%S.%f"
+
 
 def set_framework(framework_type):
     # choosing neural network framework
@@ -217,6 +219,7 @@ if __name__ == "__main__":
     action_path = os.path.join(user_folder, 'action.txt')
     heartbeat_path = os.path.join(user_folder, 'heartbeat.txt')
     step_path = os.path.join(user_folder, 'step.txt')
+    action_likelihood_path = os.path.join(user_folder, 'action_likelihood.txt')
 
     num_steps = load_step(step_path) if checkpoint_restore_dir is not None else 0
 
@@ -251,6 +254,8 @@ if __name__ == "__main__":
         'exploration.initial_epsilon': initial_epsilon,
         'exploration.final_epsilon': final_epsilon,
         'exploration.epsilon_decay_steps': epsilon_decay,
+        # extra customized properties
+        'action_likelihood_path': action_likelihood_path,
     }
 
     tuning_parameters = get_tuning_parameters(run_dict)
@@ -266,6 +271,13 @@ if __name__ == "__main__":
         results = get_reward_state(reward_state_path)
         if results is not None:
             reward, done, state = results
+            with open(action_likelihood_path, 'a') as fo:
+                fo.write("%s\treward\t%.2f\n" % (
+                    datetime.datetime.now().strftime(DATETIME_FORMAT), reward))
+                fo.write("%s\tstate\t%s\n" % (
+                    datetime.datetime.now().strftime(DATETIME_FORMAT),
+                    ','.join(list(map(str, state))),
+                ))
             num_steps += 1
             print('[%s-%s-%d] processing, get reward: %.1f' %
                     (uid, datetime.datetime.now().strftime("%H:%M:%S"), num_steps, reward))
@@ -274,6 +286,9 @@ if __name__ == "__main__":
             with open(action_path, 'w') as fo:
                 fo.write(datetime.datetime.now().strftime(DATETIME_FORMAT) + "\n")
                 fo.write(str(action) + "\n")
+            with open(action_likelihood_path, 'a') as fo:
+                fo.write("%s\taction\t%s\n" % (
+                    datetime.datetime.now().strftime(DATETIME_FORMAT), str(action)))
             with open(step_path, 'w') as fo:
                 fo.write(str(num_steps))
             print('processed, action', action)

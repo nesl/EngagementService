@@ -14,7 +14,12 @@
 # limitations under the License.
 #
 
+import datetime
+
 from exploration_policies.exploration_policy import *
+
+
+DATETIME_FORMAT = "%Y/%b/%d %H:%M:%S.%f"
 
 
 class Categorical(ExplorationPolicy):
@@ -24,10 +29,21 @@ class Categorical(ExplorationPolicy):
         :type tuning_parameters: Preset
         """
         ExplorationPolicy.__init__(self, tuning_parameters)
+        try:
+            self.action_likelihood_path = tuning_parameters.action_likelihood_path
+        except:
+            self.action_likelihood_path = None
 
     def get_action(self, action_values):
         # choose actions according to the probabilities
         print("Categorical", self.action_space_size, action_values)
+        if self.action_likelihood_path is not None:
+            with open(self.action_likelihood_path, 'a') as fo:
+                fo.write("%s\tprob\t%.6f\t%.6f\n" % (
+                    datetime.datetime.now().strftime(DATETIME_FORMAT),
+                    action_values[0],
+                    action_values[1],
+                ))
         return np.random.choice(range(self.action_space_size), p=action_values)
 
     def get_control_param(self):
