@@ -464,6 +464,8 @@ class Agent(object):
         if result['done']:
             #if self.tp.visualization.dump_csv:
             #    self.update_log(phase=phase)
+            print("calling update_log()")
+            self.update_log(phase=phase)
             self.log_to_screen(phase=phase)
 
             if phase == RunPhase.TRAIN or phase == RunPhase.HEATUP:

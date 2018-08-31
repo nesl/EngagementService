@@ -250,6 +250,8 @@ if __name__ == "__main__":
     print("====================== to get args, run_dict =================")
     print(args)
     print("=======================================")
+    print(logger.__dict__)
+    print("=======================================")
     print(run_dict)
     print("====================== to get args, run_dict (end) =================")
 

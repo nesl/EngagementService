@@ -259,6 +259,16 @@ if __name__ == "__main__":
         'action_likelihood_path': action_likelihood_path,
     }
 
+    experiment_name = 'nurture'
+    experiment_name = logger.get_experiment_name(experiment_name)
+    experiment_path = logger.get_experiment_path(run_dict['experiment_path'])
+    print("====")
+    print(run_dict['experiment_path'])
+    print("====")
+    print(experiment_path)
+    print(logger.__dict__)
+    logger.set_dump_dir(run_dict['experiment_path'], add_timestamp=True)
+
     tuning_parameters = get_tuning_parameters(run_dict)
     tuning_parameters.sess = set_framework('tensorflow')
 
