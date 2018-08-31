@@ -61,7 +61,8 @@ def _make_app_user_bundle(user):
 
 @login_required(login_url='/login/')
 def list_users(request):
-    app_users = AppUser.objects.all().order_by('-status', '-created_time')
+    app_users = AppUser.objects.exclude(status=AppUser.STATUS_HIDDEN).order_by(
+            '-status', '-created_time')
     app_user_bundles = list(map(_make_app_user_bundle, app_users))
 
     template_context = {
