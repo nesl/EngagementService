@@ -23,7 +23,7 @@ def sleep_time(datetime_obj):
     return datetime_obj.hour < 10 or datetime_obj.hour >= 22
 
 
-def get_effective_data_length(user_code, span_min=10):
+def get_effective_data_length(user_code, span_min=10, best_effort=False):
     """
     To compute the length of the data by the user, based on `ActionLog`. Our system establishes
     a connection (from app to server) every minute. However, since recent Android OS version
@@ -36,7 +36,8 @@ def get_effective_data_length(user_code, span_min=10):
     """
     user = AppUser.objects.get(code=user_code)
     logs = ActionLog.objects.filter(user=user, processing_status=ActionLog.STATUS_OKAY)
-    sensor_times = [utils.get_recent_calibrated_sensor_time_in_action_log(l) for l in logs]
+    sensor_times = [utils.get_recent_calibrated_sensor_time_in_action_log(
+        l, best_effort=best_effort) for l in logs]
     begin_time = min(sensor_times)
     end_time = max(sensor_times)
     
@@ -129,7 +130,7 @@ def get_action_response_by_bucket(code, bucket_size_days):
     return ret
 
 
-def get_user_response_analysis(code):
+def get_user_response_analysis(code, best_effort=True):
     """
     user -> total notifications
             number and rate of accepted notifications
@@ -138,7 +139,7 @@ def get_user_response_analysis(code):
             notification response times
             notification dismiss times
     """
-    effective_length_min, _ = get_effective_data_length(code)
+    effective_length_min, _ = get_effective_data_length(code, best_effort=best_effort)
     effective_length_hour = effective_length_min / 60.
     
     response_raw = get_action_response(code)
