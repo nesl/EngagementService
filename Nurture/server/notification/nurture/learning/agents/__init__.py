@@ -6,4 +6,5 @@ from .debug_agent import DebugAgent
 from .silent_agent import SilentAgent
 from .tf_dqn_agent import TensorForceDQNAgent
 from .coach_a3c_agent import CoachA3CAgent
+from .coach_a3c_p_ignore_agent import CoachA3CPunishIgnoreAgent
 from .classification_agent import ClassificationAgent
