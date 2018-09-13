@@ -23,7 +23,8 @@ def sleep_time(datetime_obj):
     return datetime_obj.hour < 10 or datetime_obj.hour >= 22
 
 
-def get_effective_data_length(user_code, span_min=10, best_effort=False):
+def get_effective_data_length(user_code, span_min=10, best_effort=False, exclude_capped=False,
+        start_time=None, end_time=None):
     """
     To compute the length of the data by the user, based on `ActionLog`. Our system establishes
     a connection (from app to server) every minute. However, since recent Android OS version
@@ -36,8 +37,22 @@ def get_effective_data_length(user_code, span_min=10, best_effort=False):
     """
     user = AppUser.objects.get(code=user_code)
     logs = ActionLog.objects.filter(user=user, processing_status=ActionLog.STATUS_OKAY)
+
+    if exclude_capped:
+        logs = [l for l in logs if l.action_message != 'action-c']
+
     sensor_times = [utils.get_recent_calibrated_sensor_time_in_action_log(
         l, best_effort=best_effort) for l in logs]
+
+    if start_time is not None:
+        sensor_times = [t for t in sensor_times if t >= start_time]
+    if end_time is not None:
+        sensor_times = [t for t in sensor_times if t <= end_time]
+
+
+    if len(sensor_times) == 0:
+        return None, None
+
     begin_time = min(sensor_times)
     end_time = max(sensor_times)
     
