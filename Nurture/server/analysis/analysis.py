@@ -184,9 +184,9 @@ def make_training_dataset(user_code, start_datetime=None, end_datetime=None,
     responses = get_action_response(user_code)
 
     if start_datetime is not None:
-        responses = filter(lambda r: r.query_time >= start_datetime, responses)
+        responses = list(filter(lambda r: r[0].query_time >= start_datetime, responses))
     if end_datetime is not None:
-        responses = filter(lambda r: r.query_time <= end_datetime, responses)
+        responses = list(filter(lambda r: r[0].query_time <= end_datetime, responses))
 
     action_log_bundle_list = list(map(utils.get_action_log_lazy_bundle, [r[0] for r in responses]))
     states = []
