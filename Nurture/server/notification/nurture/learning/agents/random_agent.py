@@ -18,6 +18,7 @@ class RandomAgent(BaseAgent):
         now = datetime.datetime.now()
         time_delta = now - self.last_notification_time
         minutes_passed = min(1000, round(time_delta.total_seconds() / 60.))
+        print('Random', time_delta.total_seconds(), minutes_passed)
         self.last_notification_time = now
 
         for _ in range(minutes_passed):

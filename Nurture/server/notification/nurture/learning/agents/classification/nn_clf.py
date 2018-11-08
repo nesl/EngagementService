@@ -12,11 +12,17 @@ from nurture.learning.agents.classification.base_classifier import BaseClassifie
 from nurture.learning import learning_utils
 
 
+#kTunedParameters = { 
+#        'layer1_node': [8, 18, 32],
+#        'layer1_activation': ['relu', 'tanh'],
+#        'layer2_node': [8, 18, 32],
+#        'layer2_activation': ['relu', 'tanh'],
+#}
 kTunedParameters = { 
-        'layer1_node': [8, 18, 32],
-        'layer1_activation': ['relu', 'tanh'],
-        'layer2_node': [8, 18, 32],
-        'layer2_activation': ['relu', 'tanh'],
+        'layer1_node': [18],
+        'layer1_activation': ['relu'],
+        'layer2_node': [8],
+        'layer2_activation': ['relu'],
 }
 kFold = 5
 

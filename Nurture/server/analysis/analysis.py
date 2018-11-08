@@ -24,7 +24,7 @@ def sleep_time(datetime_obj):
 
 
 def get_effective_data_length(user_code, span_min=10, best_effort=False, exclude_capped=False,
-        start_time=None, end_time=None):
+        start_time=None, end_time=None, min_num_samples=100):
     """
     To compute the length of the data by the user, based on `ActionLog`. Our system establishes
     a connection (from app to server) every minute. However, since recent Android OS version
@@ -49,12 +49,13 @@ def get_effective_data_length(user_code, span_min=10, best_effort=False, exclude
     if end_time is not None:
         sensor_times = [t for t in sensor_times if t <= end_time]
 
-
-    if len(sensor_times) == 0:
+    if len(sensor_times) < min_num_samples:
         return None, None
 
-    begin_time = min(sensor_times)
-    end_time = max(sensor_times)
+    sensor_begin_time = min(sensor_times)
+    sensor_end_time = max(sensor_times)
+    if _to_token(sensor_being_time) == _to_token(sensor_end_time):
+        return None, None
     
     appeared_times = set()
     for st in sensor_times:
@@ -65,14 +66,17 @@ def get_effective_data_length(user_code, span_min=10, best_effort=False, exclude
                 appeared_times.add(_to_token(dt))
     
     expected_times = set()
-    while begin_time < end_time:
+    while sensor_begin_time < sensor_end_time:
         if not sleep_time(begin_time):
             expected_times.add(_to_token(begin_time))
         begin_time += datetime.timedelta(seconds=60)
         
     appeared_minutes = len(appeared_times)
     expected_minutes = len(expected_times)
-        
+    
+    if expected_minutes == 0:
+        return None, None
+
     return appeared_minutes, appeared_minutes / expected_minutes
 
 

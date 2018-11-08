@@ -71,10 +71,11 @@ class ClassificationAgent(BaseAgent):
         time_delta = now - self.last_notification_time
         return time_delta.total_seconds() < kMinNotificationGapSeconds
 
-    def _count_correct_instances(self, clf, states, labels):
-        for s, l in zip(states, labels):
-            print(clf.predict(s), l)
-        print("^^^^^^^^^^")
+    def _count_correct_instances(self, clf, states, labels, verbose=False):
+        if verbose:
+            for s, l in zip(states, labels):
+                print(clf.predict(s), l)
+            print("^^^^^^^^^^")
         return sum([clf.predict(s) == l for s, l in zip(states, labels)])
 
     def prepare_classifier(self, states, labels):
@@ -93,7 +94,7 @@ class ClassificationAgent(BaseAgent):
             clf = models[name]
             clf.train(states[:mid], labels[:mid])
 
-        performances = {name: self._count_correct_instances(clf, states, labels)
+        performances = {name: self._count_correct_instances(clf, states, labels, verbose=True)
                 for name, clf in models.items()}
         print("total instances", len(states))
         print("performances", performances)
@@ -102,6 +103,12 @@ class ClassificationAgent(BaseAgent):
         self.classifier = models[self.classifier_name]
         
         self.stage = ClassificationAgent.STAGE_PREDICTION
+
+        ### for analysis
+        self.performance_cv = {name: self._count_correct_instances(clf, states[mid:], labels[mid:]) / (len(states) - mid)
+                for name, clf in models.items()}
+        self.performance_all = {name: self._count_correct_instances(clf, states, labels) / len(states)
+                for name, clf in models.items()}
 
     def output_classifier_name(self):
         if self.stage == ClassificationAgent.STAGE_WAIT_TRAINING:
