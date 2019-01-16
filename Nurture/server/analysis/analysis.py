@@ -54,7 +54,7 @@ def get_effective_data_length(user_code, span_min=10, best_effort=False, exclude
 
     sensor_begin_time = min(sensor_times)
     sensor_end_time = max(sensor_times)
-    if _to_token(sensor_being_time) == _to_token(sensor_end_time):
+    if _to_token(sensor_begin_time) == _to_token(sensor_end_time):
         return None, None
     
     appeared_times = set()
